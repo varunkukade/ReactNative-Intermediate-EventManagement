@@ -7,8 +7,8 @@ export const colors = {
 }
 
 export const measureMents = {
-    leftPadding: 18,
-    rightPadding: 18,
+    leftPadding: 20,
+    rightPadding: 20,
     windowWidth : Dimensions.get("window").width,
     windowHeight : Dimensions.get("window").height
 }
