@@ -1,22 +1,35 @@
-import React, {ReactElement} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import ImageComponent from '../reusables/imageComponent';
-import TextComponent from '../reusables/textComponent';
+import React, {ReactElement, useState} from 'react';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {MemoizedEventListComponent} from '../components/EventListComponent';
+import {MemoizedWelcomeComponent} from '../components/welcomeComponent';
 import {colors, measureMents} from '../utils/appStyles';
+import EntypoIcons from 'react-native-vector-icons/Entypo';
+import { HomeStackParamList } from '../navigation/homeStackNavigator';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = (): ReactElement => {
+  //navigation state
+  const navigation: NativeStackNavigationProp<HomeStackParamList, "HomeScreen"> =
+    useNavigation();
+
+  const onAddEventClick = () => {
+    navigation.navigate("AddEventScreen")
+  }
   return (
-    <View style={styles.wrapperComponent}>
-      <View style={styles.welcomeComponent}>
-        <View style={styles.welcomeHelloText}>
-          <TextComponent weight="normal" style={{color: colors.primaryColor, fontSize: 20}}>Hello👋🏻</TextComponent>
-          <TextComponent weight="bold" style={{color: colors.primaryColor, fontSize: 20}}>Varun Kukade</TextComponent>
-        </View>
-        <View style={styles.profilePicContainer}>
-          <ImageComponent source={require('../../images/profilePic.jpg')} style={{ width: 60, height: 60, borderRadius: 30}}/>
-        </View>
+    <>
+      <View style={styles.wrapperComponent}>
+        <MemoizedWelcomeComponent />
+        <MemoizedEventListComponent />
       </View>
-    </View>
+      <TouchableOpacity onPress={onAddEventClick} activeOpacity={0.7} style={styles.addEventButton}>
+        <EntypoIcons
+          name="plus"
+          color={colors.whiteColor}
+          size={20}
+        />
+      </TouchableOpacity>
+    </>
   );
 };
 
@@ -28,22 +41,24 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingHorizontal: measureMents.leftPadding,
   },
-  welcomeComponent: {
-    flex: 0.1,
+  imageContainer: {
     width: '100%',
-    flexDirection: 'row',
+    height: '100%',
+  },
+  addEventButtonContainer: {
+    marginTop: 40,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  welcomeHelloText: {
-    width: '70%',
+  addEventButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: colors.primaryColor,
+    alignItems: "center",
+    justifyContent: "center",
+    position: 'absolute',
+    bottom: 15,
+    right: 15,
   },
-  profilePicContainer: {
-    width: '30%',
-    alignItems: "flex-end",
-    height: "100%"
-  },
-  imageContainer: {
-    width: "100%",
-    height: "100%",
-  }
 });

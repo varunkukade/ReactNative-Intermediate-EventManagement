@@ -32,6 +32,5 @@ export default TextComponent;
 
 const styles = StyleSheet.create({
   wrapperComponent: {
-    flex: 1,
   },
 });
