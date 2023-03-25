@@ -5,10 +5,14 @@ import {
   StyleSheet,
 } from 'react-native';
 import { RootNavigator } from './src/navigation';
+import { colors } from './src/utils/appStyles';
 
 const App = () => {
   return (
+    <>
     <RootNavigator/>
+    <StatusBar backgroundColor={colors.primaryColor} />
+    </>
   );
 };
 
