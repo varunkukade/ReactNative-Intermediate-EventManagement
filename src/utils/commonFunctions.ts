@@ -1,4 +1,5 @@
-export const checkIfEmpty = (value: string | object | number) => {
+export type checkIfEmptyProps = boolean | object | string | number;
+export const checkIfEmpty = <T extends checkIfEmptyProps> (value: T) => {
    if(!value) return true;
    else {
     //here value can be string/object/number
