@@ -7,8 +7,8 @@ type ButtonCommonProps = TouchableNativeFeedbackProps & TouchableOpacityProps
 
 interface ButtonComponentProps extends ButtonCommonProps {
   children: ReactNode;
-  containerStyle: StyleProp<ViewStyle> 
-  textStyle: StyleProp<TextStyle>
+  containerStyle?: StyleProp<ViewStyle> 
+  textStyle?: StyleProp<TextStyle>
 } ;
 
 const ButtonComponent = ({
@@ -29,7 +29,7 @@ export default ButtonComponent;
 
 const styles = StyleSheet.create({
   wrapperComponent: {
-    height: 38,
+    height: 45,
     backgroundColor: colors.primaryColor,
     alignItems:"center",
     justifyContent:"center",
