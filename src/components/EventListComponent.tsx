@@ -4,7 +4,9 @@ import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/textComponent';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import { EventType } from '../utils/commonTypes';
+import {EventType} from '../utils/commonTypes';
+import {getData} from '../utils/firebaseMethods';
+import {useFocusEffect} from '@react-navigation/native';
 
 const EventListComponent = (): ReactElement => {
   let dataProvider = new DataProvider((r1, r2) => {
@@ -20,14 +22,29 @@ const EventListComponent = (): ReactElement => {
   };
 
   const [eventsList, setEventsList] = useState<DataProvider | null>(null);
+  const [loadingEvents, setLoadingEvents] = useState<boolean>(true);
   const skelatons = generateArray(5);
 
-  useEffect(() => {
-    let timeOutId = setTimeout(() => {
-      setEventsList(dataProvider.cloneWithRows(generateArray(300)));
-    }, 2000);
-    return () => clearTimeout(timeOutId);
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      let data = getData('/events');
+      console.log("Data",data)
+      if (data?.success) {
+        if (data.responseData) {
+          setEventsList(data.responseData);
+        } else setEventsList([]);
+        setLoadingEvents(false);
+        console.log("data.responseData",data);
+      } else {
+        setLoadingEvents(false);
+      }
+
+      return () => {
+        // Do something when the screen is unfocused
+        // Useful for cleanup functions
+      };
+    }, []),
+  );
 
   let layoutProvider = new LayoutProvider(
     index => {
@@ -59,7 +76,7 @@ const EventListComponent = (): ReactElement => {
             weight="bold"
             style={{
               color: colors.primaryColor,
-              fontSize: 15
+              fontSize: 15,
             }}>
             25th March 2023
           </TextComponent>
@@ -82,7 +99,10 @@ const EventListComponent = (): ReactElement => {
       <TextComponent
         weight="bold"
         style={{color: colors.primaryColor, fontSize: 15, marginBottom: 10}}>
-        Total Events: {eventsList?.getSize()}
+        Total Events:{' '}
+        {eventsList?.getSize() && eventsList?.getSize() > 0
+          ? eventsList?.getSize()
+          : 0}
       </TextComponent>
       {eventsList && eventsList?.getSize() > 0 ? (
         <RecyclerListView
@@ -90,12 +110,16 @@ const EventListComponent = (): ReactElement => {
           dataProvider={eventsList}
           layoutProvider={layoutProvider}
           initialRenderIndex={0}
-          scrollViewProps ={{ showsVerticalScrollIndicator: false}}
+          scrollViewProps={{showsVerticalScrollIndicator: false}}
         />
-      ) : (
+      ) : loadingEvents ? (
         skelatons.map((eachItem, index) => (
           <View key={index} style={styles.eventLoadingSkelaton} />
         ))
+      ) : (
+        <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
+          <TextComponent weight="bold">No events found!</TextComponent>
+        </View>
       )}
     </View>
   );
@@ -117,7 +141,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: measureMents.leftPadding
+    paddingHorizontal: measureMents.leftPadding,
   },
   eventLoadingSkelaton: {
     backgroundColor: colors.lavenderColor,
@@ -127,11 +151,13 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   secondSection: {
     width: '80%',
     height: '100%',
-    justifyContent: 'space-evenly'
+    justifyContent: 'space-evenly',
   },
   thirdSection: {
     width: '20%',
