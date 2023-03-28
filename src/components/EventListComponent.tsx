@@ -1,51 +1,34 @@
-import React, {ReactElement, useEffect, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {ReactElement, useEffect} from 'react';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/textComponent';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {EventType} from '../utils/commonTypes';
-import {getData} from '../utils/firebaseMethods';
-import {useFocusEffect} from '@react-navigation/native';
+import { useAppDispatch, useAppSelector } from '../reduxConfig/store';
+import { generateArray } from '../utils/commonFunctions';
+import { EachEvent, getEventsAPICall } from '../reduxConfig/slices/eventsSlice';
+import moment from 'moment';
 
 const EventListComponent = (): ReactElement => {
+
+  const skelatons = generateArray(5);
   let dataProvider = new DataProvider((r1, r2) => {
     return r1 !== r2;
   });
 
-  const generateArray = (n: number): number[] => {
-    let arr = new Array(n);
-    for (let i = 0; i < n; i++) {
-      arr[i] = i;
-    }
-    return arr;
-  };
+  //dispatch and selectors
+  const dispatch = useAppDispatch();
+  const eventsState = useAppSelector(state => state.events)
+  const eventsData = dataProvider.cloneWithRows(eventsState.events);
+ 
+  useEffect(()=> {
+    //when this screen is mounted call getEvents API.
+    //if you want to call something when screen is focused, use useFocusEffect.
+    dispatch(getEventsAPICall())
+  }, [])
 
-  const [eventsList, setEventsList] = useState<DataProvider | null>(null);
-  const [loadingEvents, setLoadingEvents] = useState<boolean>(true);
-  const skelatons = generateArray(5);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      let data = getData('/events');
-      console.log("Data",data)
-      if (data?.success) {
-        if (data.responseData) {
-          setEventsList(data.responseData);
-        } else setEventsList([]);
-        setLoadingEvents(false);
-        console.log("data.responseData",data);
-      } else {
-        setLoadingEvents(false);
-      }
-
-      return () => {
-        // Do something when the screen is unfocused
-        // Useful for cleanup functions
-      };
-    }, []),
-  );
-
+  //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(
     index => {
       return 0;
@@ -55,10 +38,11 @@ const EventListComponent = (): ReactElement => {
       dim.height = 100;
     },
   );
+  
   //Given type and data return the View component
   const rowRenderer = (
     type: number,
-    data: EventType,
+    data: EachEvent,
     index: number,
   ): ReactElement => {
     return (
@@ -70,7 +54,7 @@ const EventListComponent = (): ReactElement => {
               color: colors.primaryColor,
               fontSize: 14,
             }}>
-            Event - {index + 1}
+            {data.eventTitle}
           </TextComponent>
           <TextComponent
             weight="bold"
@@ -78,7 +62,7 @@ const EventListComponent = (): ReactElement => {
               color: colors.primaryColor,
               fontSize: 15,
             }}>
-            25th March 2023
+            {moment(new Date(data.eventDate)).format('LL')}
           </TextComponent>
         </View>
         <View style={styles.thirdSection}>
@@ -100,25 +84,29 @@ const EventListComponent = (): ReactElement => {
         weight="bold"
         style={{color: colors.primaryColor, fontSize: 15, marginBottom: 10}}>
         Total Events:{' '}
-        {eventsList?.getSize() && eventsList?.getSize() > 0
-          ? eventsList?.getSize()
+        {eventsData?.getSize() && eventsData?.getSize() > 0
+          ? eventsData?.getSize()
           : 0}
       </TextComponent>
-      {eventsList && eventsList?.getSize() > 0 ? (
+      {eventsState.status === "succeedded" && eventsData?.getSize() > 0 ? (
         <RecyclerListView
           rowRenderer={rowRenderer}
-          dataProvider={eventsList}
+          dataProvider={eventsData}
           layoutProvider={layoutProvider}
           initialRenderIndex={0}
           scrollViewProps={{showsVerticalScrollIndicator: false}}
         />
-      ) : loadingEvents ? (
+      ) : eventsState.status === "loading" ? (
         skelatons.map((eachItem, index) => (
           <View key={index} style={styles.eventLoadingSkelaton} />
         ))
-      ) : (
+      ) : eventsState.status === "failed" ? (
         <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-          <TextComponent weight="bold">No events found!</TextComponent>
+          <TextComponent weight="bold">{eventsState.error}</TextComponent>
+        </View>
+      ): (
+        <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
+          <TextComponent weight="bold">No Events Found!</TextComponent>
         </View>
       )}
     </View>

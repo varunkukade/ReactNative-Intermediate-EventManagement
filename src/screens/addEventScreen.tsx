@@ -9,8 +9,9 @@ import moment from 'moment';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
-import {pushNewEntry} from '../utils/firebaseMethods';
 import uuid from 'react-native-uuid';
+import { useAppDispatch } from '../reduxConfig/store';
+import { addEventAPICall } from '../reduxConfig/slices/eventsSlice';
 
 const constants = {
   eventTitle: 'eventTitle',
@@ -34,6 +35,9 @@ const AddEventScreen = (): ReactElement => {
     'AddEventScreen'
   > = useNavigation();
 
+  //dispatch and selectors
+  const dispatch = useAppDispatch();
+
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddEventFormData = {
     eventTitle: {value: '', errorMessage: ''},
@@ -51,18 +55,20 @@ const AddEventScreen = (): ReactElement => {
   const onFormSubmit = (): void => {
     const {eventTitle, eventDate} = eventForm;
     if (eventTitle.value && eventDate.value) {
-      //make firebase API call to store the data on database
-      let response = pushNewEntry('/events', {
+      dispatch(addEventAPICall({
         eventId: uuid.v4(),
         eventTitle: eventTitle.value,
         eventDate: eventDate.value.toString(),
-      });
-      if (response.success) {
-        Alert.alert('Event saved successfully');
-        setEventForm(initialEventForm);
-        navigation.navigate('HomeScreen');
-      } else
-        Alert.alert('Error in saving the event. Please try after some time.');
+      }))
+      .then((resp)=> {
+        if(resp.meta.requestStatus === "fulfilled"){
+          Alert.alert('Event saved successfully');
+          setEventForm(initialEventForm);
+          navigation.navigate('HomeScreen');
+        }else {
+          Alert.alert('Error in saving the event. Please try after some time.');
+        }
+      })
     } else {
       //set the errors if exist
       setEventForm({
