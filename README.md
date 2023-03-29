@@ -1,9 +1,9 @@
 # ReactNative-Intermediate-EventManagement
 Event Management App
 
-This project is in progress.If you want to run, you can clone it directly.
+Motive of this app is to have one stop solution for all the event management for events like wedding, business seminars, birthdays, paid events/free events. Admin/host/organiser will be able to add/invite people to the events. This project is in progress.If you want to run, you can clone it directly. 
 
-Features/components included in the app: 
+Components included in the app: 
 
 1. Project is completely strictly type scoped by Typescript 
 2. React Native Firebase - For API calls and database
@@ -12,3 +12,10 @@ Features/components included in the app:
 5. React native Date Picker - For date and time input. 
 6. React Native Fast Image - This is improved wrapper for the Core Image Component. It includes better caching and performance.
 7. Recycler ListView - This is third party library by Flipcart for displaying the infinite list. It is better than core Flatlist component as it recycles the non visible views for displaying new views.This reduces expensive operation of creating new objects for new views and also avoid expensive garbage collection for old views.
+
+
+Current features in the app: 
+
+1. Add new event with event name, desc, date, time, location, fees(if any)
+2. View all the events at one place 
+3. View event details by clicking on each event.
