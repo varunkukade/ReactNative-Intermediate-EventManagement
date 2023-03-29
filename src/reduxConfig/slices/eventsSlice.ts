@@ -10,6 +10,8 @@ export type EachEvent = {
   eventDesc: string;
   eventLocation: string;
   eventFees: string
+  mealProvided: boolean
+  accomodationProvided: boolean
 };
 
 type EventsState = {
@@ -29,7 +31,7 @@ export const eventsSlice = createSlice({
   initialState,
   reducers: {
     addEvent: (state, action: PayloadAction<EachEvent>) => {
-      const {eventTitle, eventDate, eventDesc, eventId,eventLocation, eventTime, eventFees} = action.payload
+      const {eventTitle, eventDate, eventDesc, eventId,eventLocation, eventTime, eventFees, mealProvided, accomodationProvided} = action.payload
       state.events.push({
         eventId,
         eventTitle,
@@ -37,7 +39,9 @@ export const eventsSlice = createSlice({
         eventTime,
         eventDesc,
         eventLocation,
-        eventFees
+        eventFees,
+        mealProvided,
+        accomodationProvided
       });
     },
     removeEvent: (state, action: PayloadAction<string>) => {
@@ -53,7 +57,7 @@ export const eventsSlice = createSlice({
       })
       .addCase(addEventAPICall.fulfilled, (state, action) => {
         state.status = 'succeedded';
-        const {eventDate, eventId, eventTitle, eventTime, eventDesc, eventLocation, eventFees} = action.meta.arg;
+        const {eventDate, eventId, eventTitle, eventTime, eventDesc, eventLocation, eventFees, mealProvided, accomodationProvided} = action.meta.arg;
         state.events.push({
           eventId,
           eventTitle,
@@ -61,7 +65,9 @@ export const eventsSlice = createSlice({
           eventTime,
           eventDesc,
           eventLocation,
-          eventFees
+          eventFees,
+          mealProvided,
+          accomodationProvided
         });
       })
       .addCase(addEventAPICall.rejected, (state, action) => {

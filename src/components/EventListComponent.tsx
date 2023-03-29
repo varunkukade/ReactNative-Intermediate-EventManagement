@@ -73,7 +73,7 @@ const EventListComponent = (): ReactElement => {
           </TextComponent>
         </View>
         <View style={styles.thirdSection}>
-          <TouchableOpacity activeOpacity={0.7} onPress={()=> navigation.navigate("EventDetailsScreen", {eventTitle: data.eventTitle})} style={styles.navigateButton}>
+          <TouchableOpacity activeOpacity={0.7} onPress={()=> navigation.navigate("EventDetailsScreen", {eventId: data.eventId})} style={styles.navigateButton}>
             <EntypoIcons
               name="chevron-right"
               color={colors.whiteColor}

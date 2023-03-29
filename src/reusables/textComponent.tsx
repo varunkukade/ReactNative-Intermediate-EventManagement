@@ -4,8 +4,8 @@ import {fontStyles} from '../utils/appStyles';
 
 interface TextComponentProps extends TextProps {
   children: ReactNode;
-  weight: 'normal' | 'bold' | 'semibold';
-} ;
+  weight: 'normal' | 'bold' | 'semibold' | 'extraBold';
+}
 
 const TextComponent = ({
   children,
@@ -18,6 +18,8 @@ const TextComponent = ({
       ? fontStyles.regular
       : weight === 'bold'
       ? fontStyles.bold
+      : weight === 'extraBold'
+      ? fontStyles.extraBold
       : fontStyles.semibold;
   return (
     <View style={styles.wrapperComponent}>
@@ -31,6 +33,5 @@ const TextComponent = ({
 export default TextComponent;
 
 const styles = StyleSheet.create({
-  wrapperComponent: {
-  },
+  wrapperComponent: {},
 });

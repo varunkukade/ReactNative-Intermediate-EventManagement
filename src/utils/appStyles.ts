@@ -19,5 +19,6 @@ export const measureMents = {
 export const fontStyles = {
     regular: "Nunito-Regular",
     semibold: "Nunito-SemiBold",
-    bold: "Nunito-Bold"
+    bold: "Nunito-Bold",
+    extraBold: "Nunito-ExtraBold"
 }

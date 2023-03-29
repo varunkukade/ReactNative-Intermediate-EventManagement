@@ -2,12 +2,11 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AddEventScreen, EventDetailsScreen, HomeScreen} from '../screens/index';
 import {colors, fontStyles} from '../utils/appStyles';
-import { EachEvent } from '../reduxConfig/slices/eventsSlice';
 
 export type HomeStackParamList = {
   HomeScreen: undefined;
   AddEventScreen: undefined;
-  EventDetailsScreen: { eventTitle: string };
+  EventDetailsScreen: { eventId: string | number[]};
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -34,7 +33,7 @@ function HomeStackNavigator() {
       <HomeStack.Screen
         options={({route, navigation}) => (
           {
-            headerTitle: route.params.eventTitle,
+            headerTitle: "Event details",
             headerShadowVisible: false,
             headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
             headerTitleAlign:"center",

@@ -1,18 +1,16 @@
 import React, {ReactElement, useState} from 'react';
 import {Alert, ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
-import InputComponent from '../reusables/inputComponent';
-import ButtonComponent from '../reusables/buttonComponent';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-import DateTimePickerComponent from '../reusables/dateTimePickerComponent';
-import moment from 'moment';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import uuid from 'react-native-uuid';
 import { useAppDispatch } from '../reduxConfig/store';
-import { addEventAPICall } from '../reduxConfig/slices/eventsSlice';
+import { addEventAPICall, EachEvent } from '../reduxConfig/slices/eventsSlice';
+import { ButtonComponent, CheckboxComponent, DateTimePickerComponent, InputComponent } from '../reusables';
+import { getDate, getTime } from '../utils/commonFunctions';
 
 const constants = {
   eventTitle: 'eventTitle',
@@ -20,7 +18,9 @@ const constants = {
   eventTime:'eventTime',
   eventDesc: 'eventDesc',
   eventLocation: 'eventLocation',
-  eventFees:'eventFees'
+  eventFees:'eventFees',
+  mealProvided:'mealProvided',
+  accomodationProvided: 'accomodationProvided'
 };
 
 interface EachFormField<T> {
@@ -35,6 +35,8 @@ type AddEventFormData = {
   eventTime: EachFormField<Date>;
   eventLocation: EachFormField<string>;
   eventFees: EachFormField<string>;
+  mealProvided: EachFormField<boolean>;
+  accomodationProvided: EachFormField<boolean>;
 };
 
 const AddEventScreen = (): ReactElement => {
@@ -54,7 +56,9 @@ const AddEventScreen = (): ReactElement => {
     eventDate: {value: new Date(), errorMessage: ''},
     eventTime: {value: new Date(), errorMessage: ''},
     eventLocation: {value: '', errorMessage: ''},
-    eventFees: {value: '', errorMessage: ''}
+    eventFees: {value: '', errorMessage: ''},
+    mealProvided: {value: true, errorMessage: ''},
+    accomodationProvided: {value: false, errorMessage: ''},
   };
   const [eventForm, setEventForm] =
     useState<AddEventFormData>(initialEventForm);
@@ -62,21 +66,23 @@ const AddEventScreen = (): ReactElement => {
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
 
-  const onChangeForm = (value: string | Date, fieldName: string): void => {
+  const onChangeForm = (value: string | Date | boolean, fieldName: string): void => {
     setEventForm({...eventForm, [fieldName]: {value: value, errorMessage: ''}});
   };
 
   const onFormSubmit = (): void => {
-    const {eventTitle, eventDate, eventTime, eventDesc, eventLocation, eventFees} = eventForm;
+    const {eventTitle, eventDate, eventTime, eventDesc, eventLocation, eventFees, mealProvided, accomodationProvided} = eventForm;
     if (eventTitle.value && eventDate.value && eventTime.value && eventDesc.value && eventLocation.value) {
-      let requestObj = {
+      let requestObj: EachEvent = {
         eventId: uuid.v4(),
         eventTitle: eventTitle.value,
         eventDate: eventDate.value.toString(),
         eventTime: eventTime.value.toString(),
         eventDesc: eventDesc.value,
         eventLocation: eventLocation.value,
-        eventFees: eventFees.value
+        eventFees: eventFees.value,
+        mealProvided: mealProvided.value,
+        accomodationProvided: accomodationProvided.value
       }
       dispatch(addEventAPICall(requestObj))
       .then((resp)=> {
@@ -142,7 +148,7 @@ const AddEventScreen = (): ReactElement => {
             label="Event Date"
             editable={false}
             errorMessage={eventForm.eventDate.errorMessage}
-            placeholder={moment(eventForm.eventDate.value).format('LL')}
+            placeholder={getDate(eventForm.eventDate.value)}
             rightIconComponent={
               <AntDesignIcons
                 style={{position: 'absolute', right: 15}}
@@ -169,7 +175,7 @@ const AddEventScreen = (): ReactElement => {
             label="Event Time"
             editable={false}
             errorMessage={eventForm.eventTime.errorMessage}
-            placeholder={moment(eventForm.eventTime.value).format('LT')}
+            placeholder={getTime(eventForm.eventTime.value)}
             rightIconComponent={
               <MaterialIcons
                 style={{position: 'absolute', right: 15}}
@@ -204,6 +210,8 @@ const AddEventScreen = (): ReactElement => {
           keyboardType='numeric'
           placeholder="Enter fees in ruppes..."
         />
+        <CheckboxComponent label='Meal provided by organiser ?' value={eventForm.mealProvided.value} onValueChange={value => onChangeForm(value, constants.mealProvided)}/>
+        <CheckboxComponent label='Accomodation provided by organiser ?' value={eventForm.accomodationProvided.value} onValueChange={value => onChangeForm(value, constants.accomodationProvided)}/>
         <ButtonComponent
           onPress={onFormSubmit}
           containerStyle={{marginTop: 30}}>
