@@ -5,7 +5,7 @@ This project is in progress.If you want to run, you can clone it directly.
 
 Features/components included in the app: 
 
-1. Project is completely strickly type scoped by Typescript 
+1. Project is completely strictly type scoped by Typescript 
 2. React Native Firebase - For API calls and database
 3. React navigation native stack , React Navigation Material bottom and top tabs - For screens, tabs and navigation of screens
 4. Redux Toolkit - This is the recommanded approach by react core team instead of just redux. This helps to reduce most of the boilerplate code for redux for gobal data/state management. This includes thunk middleware by default.
