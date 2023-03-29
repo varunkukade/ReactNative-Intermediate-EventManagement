@@ -12,7 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../navigation/homeStackNavigator';
 import { useNavigation } from '@react-navigation/native';
 
-const EventListComponent = (): ReactElement => {
+const PeopleListComponent = (): ReactElement => {
 
   const skelatons = generateArray(5);
   let dataProvider = new DataProvider((r1, r2) => {
@@ -120,7 +120,7 @@ const EventListComponent = (): ReactElement => {
   );
 };
 
-export const MemoizedEventListComponent = React.memo(EventListComponent);
+export default PeopleListComponent;
 
 const styles = StyleSheet.create({
   eventListContainer: {

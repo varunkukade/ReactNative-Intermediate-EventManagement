@@ -1,6 +1,6 @@
 import React, {ReactElement, useState} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {MemoizedEventListComponent} from '../components/EventListComponent';
+import {MemoizedEventListComponent} from '../components/eventListComponent';
 import {MemoizedWelcomeComponent} from '../components/welcomeComponent';
 import {colors, measureMents} from '../utils/appStyles';
 import EntypoIcons from 'react-native-vector-icons/Entypo';

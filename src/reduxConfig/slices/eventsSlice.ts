@@ -1,5 +1,4 @@
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import uuid from 'react-native-uuid';
 import database from '@react-native-firebase/database';
 import apiUrls from '../apiUrls';
 
@@ -7,6 +6,10 @@ export type EachEvent = {
   eventId: string | number[];
   eventTitle: string;
   eventDate: string;
+  eventTime: string;
+  eventDesc: string;
+  eventLocation: string;
+  eventFees: string
 };
 
 type EventsState = {
@@ -26,10 +29,15 @@ export const eventsSlice = createSlice({
   initialState,
   reducers: {
     addEvent: (state, action: PayloadAction<EachEvent>) => {
+      const {eventTitle, eventDate, eventDesc, eventId,eventLocation, eventTime, eventFees} = action.payload
       state.events.push({
-        eventId: uuid.v4(),
-        eventTitle: action.payload.eventTitle,
-        eventDate: action.payload.eventDate,
+        eventId,
+        eventTitle,
+        eventDate,
+        eventTime,
+        eventDesc,
+        eventLocation,
+        eventFees
       });
     },
     removeEvent: (state, action: PayloadAction<string>) => {
@@ -45,11 +53,15 @@ export const eventsSlice = createSlice({
       })
       .addCase(addEventAPICall.fulfilled, (state, action) => {
         state.status = 'succeedded';
-        const {eventDate, eventId, eventTitle} = action.meta.arg;
+        const {eventDate, eventId, eventTitle, eventTime, eventDesc, eventLocation, eventFees} = action.meta.arg;
         state.events.push({
           eventId,
           eventTitle,
           eventDate,
+          eventTime,
+          eventDesc,
+          eventLocation,
+          eventFees
         });
       })
       .addCase(addEventAPICall.rejected, (state, action) => {

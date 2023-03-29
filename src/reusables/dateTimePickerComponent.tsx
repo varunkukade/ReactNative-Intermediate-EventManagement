@@ -19,7 +19,6 @@ const DateTimePickerComponent = ({
 }: DateTimePickerComponentProps): ReactElement | null => {
   return show ? (
       <DatePicker
-        mode='date' 
         style={{width: measureMents.windowWidth - (2 * measureMents.leftPadding), height: 150}}
         onConfirm={date => {
           if(setIsOpen) setIsOpen(false);
