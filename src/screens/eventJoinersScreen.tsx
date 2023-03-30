@@ -12,7 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../navigation/homeStackNavigator';
 import { useNavigation } from '@react-navigation/native';
 
-const PeopleListComponent = (): ReactElement => {
+const EventJoinersScreen = (): ReactElement => {
 
   const skelatons = generateArray(5);
   let dataProvider = new DataProvider((r1, r2) => {
@@ -120,7 +120,7 @@ const PeopleListComponent = (): ReactElement => {
   );
 };
 
-export default PeopleListComponent;
+export default EventJoinersScreen;
 
 const styles = StyleSheet.create({
   eventListContainer: {

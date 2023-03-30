@@ -6,7 +6,8 @@ export const colors = {
     greyColor: "#909090",
     blackColor: "#000000",
     lavenderColor: "#E6E6FA",
-    errorColor:"#ff3333"
+    errorColor:"#ff3333",
+    iconLightPinkCOlor:"#FC8EAC"
 }
 
 export const measureMents = {

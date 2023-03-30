@@ -1,12 +1,13 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {AddEventScreen, EventDetailsScreen, HomeScreen} from '../screens/index';
+import {AddEventScreen, EventDetailsScreen, EventJoinersScreen, HomeScreen} from '../screens/index';
 import {colors, fontStyles} from '../utils/appStyles';
 
 export type HomeStackParamList = {
   HomeScreen: undefined;
   AddEventScreen: undefined;
-  EventDetailsScreen: { eventId: string | number[]};
+  EventDetailsScreen: { eventId: string | number[] };
+  EventJoiners: { eventId: string | number[] };
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -43,6 +44,20 @@ function HomeStackNavigator() {
         }
         name="EventDetailsScreen"
         component={EventDetailsScreen}
+      />
+      <HomeStack.Screen
+        options={({route, navigation}) => (
+          {
+            headerTitle: "Event joiners",
+            headerShadowVisible: false,
+            headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+            headerTitleAlign:"center",
+            headerBackVisible:true,
+          }
+        )
+        }
+        name="EventJoiners"
+        component={EventJoinersScreen}
       />
     </HomeStack.Navigator>
   );
