@@ -53,7 +53,7 @@ const EventJoinersScreen = (): ReactElement => {
     index: number,
   ): ReactElement => {
     return (
-      <View key={index} style={styles.eachEventComponent}>
+      <TouchableOpacity activeOpacity={0.7} key={index} style={styles.eachEventComponent}>
         <View style={styles.secondSection}>
           <TextComponent
             weight="normal"
@@ -73,15 +73,13 @@ const EventJoinersScreen = (): ReactElement => {
           </TextComponent>
         </View>
         <View style={styles.thirdSection}>
-          <TouchableOpacity activeOpacity={0.7} onPress={()=> navigation.navigate("EventDetailsScreen", {eventTitle: data.eventTitle})} style={styles.navigateButton}>
             <EntypoIcons
               name="chevron-right"
-              color={colors.whiteColor}
-              size={20}
+              color={colors.primaryColor}
+              size={27}
             />
-          </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -90,7 +88,7 @@ const EventJoinersScreen = (): ReactElement => {
       <TextComponent
         weight="bold"
         style={{color: colors.primaryColor, fontSize: 15, marginBottom: 10}}>
-        Total Events:{' '}
+        Total People:{' '}
         {eventsData?.getSize() && eventsData?.getSize() > 0
           ? eventsData?.getSize()
           : 0}
@@ -125,7 +123,8 @@ export default EventJoinersScreen;
 const styles = StyleSheet.create({
   eventListContainer: {
     flex: 1,
-    marginTop: 25,
+    paddingTop: 30,
+    paddingHorizontal:measureMents.leftPadding
   },
   eachEventComponent: {
     backgroundColor: colors.whiteColor,
@@ -157,7 +156,7 @@ const styles = StyleSheet.create({
   thirdSection: {
     width: '20%',
     height: '100%',
-    alignItems: 'center',
+    alignItems: "flex-end",
     justifyContent: 'center',
   },
   navigateButton: {

@@ -144,7 +144,7 @@ const EventDetailsScreen = (): ReactElement | null => {
             marginVertical: 20,
           }}
         />
-        <ButtonComponent onPress={() => navigation.navigate("EventJoiners", { eventId: route.params.eventId}) } containerStyle={{marginBottom: 30}}> Add people</ButtonComponent>
+        <ButtonComponent onPress={() => navigation.navigate("EventJoinersTopTab", { eventId: route.params.eventId}) } containerStyle={{marginBottom: 30}}> Add people</ButtonComponent>
       </View>
     </ScrollView>
   );

@@ -1,16 +1,16 @@
-import React, {ReactElement, useState} from 'react';
+import React, {ReactElement} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {MemoizedEventListComponent} from '../components/eventListComponent';
 import {MemoizedWelcomeComponent} from '../components/welcomeComponent';
 import {colors, measureMents} from '../utils/appStyles';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import { HomeStackParamList } from '../navigation/homeStackNavigator';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { HomeStackParamList } from '../navigation/homeStackNavigator';
 
 const HomeScreen = (): ReactElement => {
   //navigation state
-  const navigation: NativeStackNavigationProp<HomeStackParamList, "HomeScreen"> =
+  const navigation: NativeStackNavigationProp<HomeStackParamList, "BottomTabNavigator" > =
     useNavigation();
 
   const onAddEventClick = () => {

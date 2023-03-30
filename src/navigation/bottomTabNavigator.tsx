@@ -1,27 +1,25 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {HomeStackNavigator, SettingsStackNavigator} from './index';
 import {colors, fontStyles} from '../utils/appStyles';
 import {StyleSheet, Text} from 'react-native';
+import { HomeScreen, SettingsScreen } from '../screens';
 
-type RootStackParamList = {
+export type BottomTabParamList = {
   Home: undefined;
   Settings: undefined;
 };
 
-const RootTab = createMaterialBottomTabNavigator<RootStackParamList>();
+const BottomTab = createMaterialBottomTabNavigator<BottomTabParamList>();
 
-const RootNavigator = () => {
+const BottomTabNavigator = () => {
   return (
-    <NavigationContainer>
-      <RootTab.Navigator
+      <BottomTab.Navigator
         activeColor={colors.primaryColor}
         inactiveColor={colors.greyColor}
         barStyle={{backgroundColor: colors.whiteColor}}
         initialRouteName="Home">
-        <RootTab.Screen
+        <BottomTab.Screen
           name="Home"
           options={{
             tabBarLabel: <Text style={styles.tabLabel}>Home</Text>,
@@ -33,9 +31,9 @@ const RootNavigator = () => {
               />
             ),
           }}
-          component={HomeStackNavigator}
+          component={HomeScreen}
         />
-        <RootTab.Screen
+        <BottomTab.Screen
           name="Settings"
           options={{
             tabBarLabel: <Text style={styles.tabLabel}>Settings</Text>,
@@ -47,14 +45,13 @@ const RootNavigator = () => {
               />
             ),
           }}
-          component={SettingsStackNavigator}
+          component={SettingsScreen}
         />
-      </RootTab.Navigator>
-    </NavigationContainer>
+      </BottomTab.Navigator>
   );
 };
 
-export default RootNavigator;
+export default BottomTabNavigator;
 
 const styles = StyleSheet.create({
   tabLabel: {

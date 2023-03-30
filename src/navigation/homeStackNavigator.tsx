@@ -1,24 +1,26 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {AddEventScreen, EventDetailsScreen, EventJoinersScreen, HomeScreen} from '../screens/index';
+import {AddEventScreen, EventDetailsScreen, HomeScreen} from '../screens/index';
 import {colors, fontStyles} from '../utils/appStyles';
+import EventJoinersTopTabs from './topTabsNavigator';
+import { BottomTabNavigator } from '.';
 
 export type HomeStackParamList = {
-  HomeScreen: undefined;
+  BottomTabNavigator: undefined;
   AddEventScreen: undefined;
   EventDetailsScreen: { eventId: string | number[] };
-  EventJoiners: { eventId: string | number[] };
+  EventJoinersTopTab: { eventId: string | number[] };
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 
 function HomeStackNavigator() {
   return (
-    <HomeStack.Navigator screenOptions={{ animation:"slide_from_right", headerTintColor: colors.primaryColor}} initialRouteName="HomeScreen">
+    <HomeStack.Navigator screenOptions={{ animation:"slide_from_right", headerTintColor: colors.primaryColor}} initialRouteName="BottomTabNavigator">
       <HomeStack.Screen
-        options={{headerShown: false}}
-        name="HomeScreen"
-        component={HomeScreen}
+        options={{headerShown: false }}
+        name="BottomTabNavigator"
+        component={BottomTabNavigator}
       />
       <HomeStack.Screen
         options={{
@@ -56,8 +58,8 @@ function HomeStackNavigator() {
           }
         )
         }
-        name="EventJoiners"
-        component={EventJoinersScreen}
+        name="EventJoinersTopTab"
+        component={EventJoinersTopTabs}
       />
     </HomeStack.Navigator>
   );
