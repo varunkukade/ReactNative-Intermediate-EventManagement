@@ -228,6 +228,7 @@ const styles = StyleSheet.create({
   wrapperComponent: {
     flex: 1,
     paddingTop: 30,
+    paddingBottom: 30,
     paddingHorizontal: measureMents.leftPadding,
   },
   dateTimePickerContainer: {

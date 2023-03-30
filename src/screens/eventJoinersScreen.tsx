@@ -12,7 +12,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../navigation/homeStackNavigator';
 import { useNavigation } from '@react-navigation/native';
 
-const EventJoinersScreen = (): ReactElement => {
+type EventJoinersScreenProps= {
+  type: "all" | "pending" | "completed"
+}
+
+const EventJoinersScreen = ({type}: EventJoinersScreenProps): ReactElement => {
 
   const skelatons = generateArray(5);
   let dataProvider = new DataProvider((r1, r2) => {
@@ -84,6 +88,7 @@ const EventJoinersScreen = (): ReactElement => {
   };
 
   return (
+    <>
     <View style={styles.eventListContainer}>
       <TextComponent
         weight="bold"
@@ -115,6 +120,14 @@ const EventJoinersScreen = (): ReactElement => {
         </View>
       )}
     </View>
+    <TouchableOpacity activeOpacity={0.7} style={styles.addEventButton}>
+        <EntypoIcons
+          name="plus"
+          color={colors.whiteColor}
+          size={20}
+        />
+      </TouchableOpacity>
+    </>
   );
 };
 
@@ -166,5 +179,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryColor,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  addEventButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: colors.primaryColor,
+    alignItems: "center",
+    justifyContent: "center",
+    position: 'absolute',
+    bottom: 60,
+    right: 30,
   },
 });

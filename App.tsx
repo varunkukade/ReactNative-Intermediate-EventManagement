@@ -12,7 +12,7 @@ const App = () => {
       <NavigationContainer>
         <HomeStackNavigator />
       </NavigationContainer>
-      <StatusBar backgroundColor={colors.primaryColor} />
+      <StatusBar backgroundColor={colors.whiteColor} barStyle="dark-content" />
     </Provider>
   );
 };

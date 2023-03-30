@@ -144,7 +144,7 @@ const EventDetailsScreen = (): ReactElement | null => {
             marginVertical: 20,
           }}
         />
-        <ButtonComponent onPress={() => navigation.navigate("EventJoinersTopTab", { eventId: route.params.eventId}) } containerStyle={{marginBottom: 30}}> Add people</ButtonComponent>
+        <ButtonComponent onPress={() => navigation.navigate("EventJoinersTopTab", { eventId: route.params.eventId}) } containerStyle={{marginBottom: 30}}> Go to People list  🚀</ButtonComponent>
       </View>
     </ScrollView>
   );
@@ -173,6 +173,8 @@ const styles = StyleSheet.create({
     flex: 1,
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20
   },
   eventDetailsSubContainer1: {
     paddingVertical: 10,
