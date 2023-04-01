@@ -4,40 +4,41 @@ import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/textComponent';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import { useAppDispatch, useAppSelector } from '../reduxConfig/store';
-import { generateArray } from '../utils/commonFunctions';
-import { EachEvent, getEventsAPICall } from '../reduxConfig/slices/eventsSlice';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
+import {generateArray} from '../utils/commonFunctions';
+import {EachEvent, getEventsAPICall} from '../reduxConfig/slices/eventsSlice';
 import moment from 'moment';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { HomeStackParamList } from '../navigation/homeStackNavigator';
-import { useNavigation } from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {HomeStackParamList} from '../navigation/homeStackNavigator';
+import {RouteProp, useNavigation} from '@react-navigation/native';
 
-type EventJoinersScreenProps= {
-  type: "all" | "pending" | "completed"
-}
+type EventJoinersScreenProps = {
+  type: 'all' | 'pending' | 'completed';
+  route: RouteProp<HomeStackParamList, 'EventJoinersTopTab'>
+};
 
-const EventJoinersScreen = ({type}: EventJoinersScreenProps): ReactElement => {
-
+const EventJoinersScreen = ({type, route, ...props}: EventJoinersScreenProps): ReactElement => {
   const skelatons = generateArray(5);
   let dataProvider = new DataProvider((r1, r2) => {
     return r1 !== r2;
   });
-  
+
   //navigation
-  const navigation: NativeStackNavigationProp<HomeStackParamList, "HomeScreen"> =
-    useNavigation();
+  const navigation: NativeStackNavigationProp<
+    HomeStackParamList,
+    'EventJoinersTopTab'
+  > = useNavigation();
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const eventsState = useAppSelector(state => state.events)
+  const eventsState = useAppSelector(state => state.events);
   const eventsData = dataProvider.cloneWithRows(eventsState.events);
- 
-  useEffect(()=> {
+
+  useEffect(() => {
     //when this screen is mounted call getEvents API.
     //if you want to call something when screen is focused, use useFocusEffect.
-    dispatch(getEventsAPICall())
-  }, [])
-
+    dispatch(getEventsAPICall());
+  }, []);
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(
@@ -49,7 +50,7 @@ const EventJoinersScreen = ({type}: EventJoinersScreenProps): ReactElement => {
       dim.height = 100;
     },
   );
-  
+
   //Given type and data return the View component
   const rowRenderer = (
     type: number,
@@ -57,7 +58,10 @@ const EventJoinersScreen = ({type}: EventJoinersScreenProps): ReactElement => {
     index: number,
   ): ReactElement => {
     return (
-      <TouchableOpacity activeOpacity={0.7} key={index} style={styles.eachEventComponent}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        key={index}
+        style={styles.eachEventComponent}>
         <View style={styles.secondSection}>
           <TextComponent
             weight="normal"
@@ -77,11 +81,11 @@ const EventJoinersScreen = ({type}: EventJoinersScreenProps): ReactElement => {
           </TextComponent>
         </View>
         <View style={styles.thirdSection}>
-            <EntypoIcons
-              name="chevron-right"
-              color={colors.primaryColor}
-              size={27}
-            />
+          <EntypoIcons
+            name="chevron-right"
+            color={colors.primaryColor}
+            size={27}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -89,44 +93,42 @@ const EventJoinersScreen = ({type}: EventJoinersScreenProps): ReactElement => {
 
   return (
     <>
-    <View style={styles.eventListContainer}>
-      <TextComponent
-        weight="bold"
-        style={{color: colors.primaryColor, fontSize: 15, marginBottom: 10}}>
-        Total People:{' '}
-        {eventsData?.getSize() && eventsData?.getSize() > 0
-          ? eventsData?.getSize()
-          : 0}
-      </TextComponent>
-      {eventsState.status === "succeedded" && eventsData?.getSize() > 0 ? (
-        <RecyclerListView
-          rowRenderer={rowRenderer}
-          dataProvider={eventsData}
-          layoutProvider={layoutProvider}
-          initialRenderIndex={0}
-          scrollViewProps={{showsVerticalScrollIndicator: false}}
-        />
-      ) : eventsState.status === "loading" ? (
-        skelatons.map((eachItem, index) => (
-          <View key={index} style={styles.eventLoadingSkelaton} />
-        ))
-      ) : eventsState.status === "failed" ? (
-        <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-          <TextComponent weight="bold">{eventsState.error}</TextComponent>
-        </View>
-      ): (
-        <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-          <TextComponent weight="bold">No Events Found!</TextComponent>
-        </View>
-      )}
-    </View>
-    <TouchableOpacity activeOpacity={0.7} style={styles.addEventButton}>
-        <EntypoIcons
-          name="plus"
-          color={colors.whiteColor}
-          size={20}
-        />
-      </TouchableOpacity>
+      <View style={styles.eventListContainer}>
+        <TextComponent
+          weight="bold"
+          style={{color: colors.primaryColor, fontSize: 15, marginBottom: 10}}>
+          Total People:{' '}
+          {eventsData?.getSize() && eventsData?.getSize() > 0
+            ? eventsData?.getSize()
+            : 0}
+        </TextComponent>
+        {eventsState.status === 'succeedded' && eventsData?.getSize() > 0 ? (
+          <RecyclerListView
+            rowRenderer={rowRenderer}
+            dataProvider={eventsData}
+            layoutProvider={layoutProvider}
+            initialRenderIndex={0}
+            scrollViewProps={{showsVerticalScrollIndicator: false}}
+          />
+        ) : eventsState.status === 'loading' ? (
+          skelatons.map((eachItem, index) => (
+            <View key={index} style={styles.eventLoadingSkelaton} />
+          ))
+        ) : eventsState.status === 'failed' ? (
+          <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
+            <TextComponent weight="bold">{eventsState.error}</TextComponent>
+          </View>
+        ) : (
+          <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
+            <TextComponent weight="bold">No Events Found!</TextComponent>
+          </View>
+        )}
+      </View>
+      {type === 'all' ? (
+        <TouchableOpacity activeOpacity={0.7} style={styles.addEventButton} onPress={() => navigation.navigate("AddPeopleScreen", { eventId: route.params.eventId})}>
+          <EntypoIcons name="plus" color={colors.whiteColor} size={20} />
+        </TouchableOpacity>
+      ) : null}
     </>
   );
 };
@@ -137,7 +139,7 @@ const styles = StyleSheet.create({
   eventListContainer: {
     flex: 1,
     paddingTop: 30,
-    paddingHorizontal:measureMents.leftPadding
+    paddingHorizontal: measureMents.leftPadding,
   },
   eachEventComponent: {
     backgroundColor: colors.whiteColor,
@@ -169,7 +171,7 @@ const styles = StyleSheet.create({
   thirdSection: {
     width: '20%',
     height: '100%',
-    alignItems: "flex-end",
+    alignItems: 'flex-end',
     justifyContent: 'center',
   },
   navigateButton: {
@@ -185,8 +187,8 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     backgroundColor: colors.primaryColor,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     position: 'absolute',
     bottom: 60,
     right: 30,

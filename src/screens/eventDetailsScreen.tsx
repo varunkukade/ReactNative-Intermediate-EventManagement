@@ -43,7 +43,7 @@ const EventDetailsScreen = (): ReactElement | null => {
         <View style={styles.eventCommon}>
           <AntDesignIcons
             name="calendar"
-            color={colors.iconLightPinkCOlor}
+            color={colors.iconLightPinkColor}
             size={18}
             style={{marginRight: 20}}
           />
@@ -60,7 +60,7 @@ const EventDetailsScreen = (): ReactElement | null => {
         <View style={styles.eventCommon}>
           <Ionicons
             name="location-outline"
-            color={colors.iconLightPinkCOlor}
+            color={colors.iconLightPinkColor}
             size={22}
             style={{marginRight: 20}}
           />

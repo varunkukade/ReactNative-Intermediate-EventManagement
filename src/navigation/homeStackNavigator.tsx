@@ -1,6 +1,6 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {AddEventScreen, EventDetailsScreen, HomeScreen} from '../screens/index';
+import {AddEventScreen, AddPeopleScreen, EventDetailsScreen} from '../screens/index';
 import {colors, fontStyles} from '../utils/appStyles';
 import EventJoinersTopTabs from './topTabsNavigator';
 import { BottomTabNavigator } from '.';
@@ -10,6 +10,7 @@ export type HomeStackParamList = {
   AddEventScreen: undefined;
   EventDetailsScreen: { eventId: string | number[] };
   EventJoinersTopTab: { eventId: string | number[] };
+  AddPeopleScreen: { eventId: string | number[] };
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -60,6 +61,20 @@ function HomeStackNavigator() {
         }
         name="EventJoinersTopTab"
         component={EventJoinersTopTabs}
+      />
+      <HomeStack.Screen
+        options={({route, navigation}) => (
+          {
+            headerTitle: "Add People to event",
+            headerShadowVisible: false,
+            headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+            headerTitleAlign:"center",
+            headerBackVisible:true,
+          }
+        )
+        }
+        name="AddPeopleScreen"
+        component={AddPeopleScreen}
       />
     </HomeStack.Navigator>
   );

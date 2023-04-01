@@ -29,21 +29,16 @@ interface EachFormField<T> {
 }
 
 type AddEventFormData = {
-  eventTitle: EachFormField<string>;
-  eventDate: EachFormField<Date>;
-  eventDesc: EachFormField<string>;
-  eventTime: EachFormField<Date>;
-  eventLocation: EachFormField<string>;
-  eventFees: EachFormField<string>;
-  mealProvided: EachFormField<boolean>;
-  accomodationProvided: EachFormField<boolean>;
+    userName: EachFormField<string>;
+    userMobileNumber: EachFormField<string>;
+    userEmail: EachFormField<string>;
 };
 
-const AddEventScreen = (): ReactElement => {
+const AddPeopleScreen = (): ReactElement => {
   //navigation state
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
-    'AddEventScreen'
+    'AddPeopleScreen'
   > = useNavigation();
 
   //dispatch and selectors
@@ -51,22 +46,15 @@ const AddEventScreen = (): ReactElement => {
 
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddEventFormData = {
-    eventTitle: {value: '', errorMessage: ''},
-    eventDesc: {value : '', errorMessage: ''},
-    eventDate: {value: new Date(), errorMessage: ''},
-    eventTime: {value: new Date(), errorMessage: ''},
-    eventLocation: {value: '', errorMessage: ''},
-    eventFees: {value: '', errorMessage: ''},
-    mealProvided: {value: true, errorMessage: ''},
-    accomodationProvided: {value: false, errorMessage: ''},
+    userName: {value: '', errorMessage: ''},
+    userMobileNumber: {value : '', errorMessage: ''},
+    userEmail: {value: '', errorMessage: ''},
   };
   const [eventForm, setEventForm] =
     useState<AddEventFormData>(initialEventForm);
 
-  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
-  const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
 
-  const onChangeForm = (value: string | Date | boolean, fieldName: string): void => {
+  const onChangeForm = (value: string, fieldName: string): void => {
     setEventForm({...eventForm, [fieldName]: {value: value, errorMessage: ''}});
   };
 
@@ -222,7 +210,7 @@ const AddEventScreen = (): ReactElement => {
   );
 };
 
-export default AddEventScreen;
+export default AddPeopleScreen;
 
 const styles = StyleSheet.create({
   wrapperComponent: {
