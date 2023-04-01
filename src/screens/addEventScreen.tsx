@@ -89,7 +89,7 @@ const AddEventScreen = (): ReactElement => {
         if(resp.meta.requestStatus === "fulfilled"){
           Alert.alert('Event saved successfully');
           setEventForm(initialEventForm);
-          navigation.navigate('HomeScreen');
+          navigation.navigate('BottomTabNavigator');
         }else {
           Alert.alert('Error in saving the event. Please try after some time.');
         }

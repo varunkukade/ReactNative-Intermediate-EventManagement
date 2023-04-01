@@ -2,7 +2,7 @@ import React, {ReactElement, ReactNode} from 'react';
 import {StyleSheet, Text, View, TextProps} from 'react-native';
 import {fontStyles} from '../utils/appStyles';
 
-interface TextComponentProps extends TextProps {
+interface TextComponentProps extends Omit<TextProps, 'fontFamily'> {
   children: ReactNode;
   weight: 'normal' | 'bold' | 'semibold' | 'extraBold';
 }

@@ -1,11 +1,11 @@
 import React, {ReactElement, ReactNode} from 'react';
-import {StyleSheet, Text, View, TextProps, ButtonProps, TouchableOpacity, StyleProp, ViewStyle, TouchableNativeFeedbackProps, TouchableOpacityProps, TextStyle} from 'react-native';
-import {colors, fontStyles} from '../utils/appStyles';
+import {StyleSheet, TouchableOpacity, StyleProp, ViewStyle, TouchableNativeFeedbackProps, TouchableOpacityProps, TextStyle} from 'react-native';
+import {colors} from '../utils/appStyles';
 import TextComponent from './textComponent';
 
 type ButtonCommonProps = TouchableNativeFeedbackProps & TouchableOpacityProps
 
-interface ButtonComponentProps extends ButtonCommonProps {
+interface ButtonComponentProps extends Omit<ButtonCommonProps,'activeOpacity'> {
   children: ReactNode;
   containerStyle?: StyleProp<ViewStyle> 
   textStyle?: StyleProp<TextStyle>

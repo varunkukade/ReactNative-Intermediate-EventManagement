@@ -1,8 +1,7 @@
 import React, {ReactElement} from 'react';
 import FastImage, {FastImageProps} from 'react-native-fast-image';
-import {StyleSheet} from 'react-native';
 
-const ImageComponent = (props: FastImageProps): ReactElement => {
+const ImageComponent = (props: Omit<FastImageProps,'resizeMode'>): ReactElement => {
   return (
     <FastImage
       {...props}

@@ -3,7 +3,7 @@ import {StyleSheet, View, TextInputProps, TextInput} from 'react-native';
 import {colors, fontStyles} from '../utils/appStyles';
 import TextComponent from './textComponent';
 
-interface InputComponentProps extends TextInputProps {
+interface InputComponentProps extends Omit<TextInputProps,'cursorColor'> {
   onChangeText: (value: string) => void;
   value: string;
   label?: string;

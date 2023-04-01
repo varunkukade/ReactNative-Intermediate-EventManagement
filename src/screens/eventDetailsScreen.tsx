@@ -9,7 +9,7 @@ import {useAppSelector} from '../reduxConfig/store';
 import {getDate, getTime} from '../utils/commonFunctions';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { ButtonComponent } from '../reusables';
+import {ButtonComponent} from '../reusables';
 
 const EventDetailsScreen = (): ReactElement | null => {
   //navigation and route
@@ -20,12 +20,16 @@ const EventDetailsScreen = (): ReactElement | null => {
   const route: RouteProp<HomeStackParamList, 'EventDetailsScreen'> = useRoute();
 
   //selectors
-  const selectedEventDetails = useAppSelector(state => state.common.currentSelectedEvent);
+  const selectedEventDetails = useAppSelector(
+    state => state.common.currentSelectedEvent,
+  );
 
   if (!selectedEventDetails) return null;
 
   return (
-    <ScrollView style={styles.wrapperComponent} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.wrapperComponent}
+      showsVerticalScrollIndicator={false}>
       <View style={styles.topSection}>
         <TextComponent
           weight="extraBold"
@@ -118,7 +122,8 @@ const EventDetailsScreen = (): ReactElement | null => {
             marginVertical: 20,
           }}
         />
-        {selectedEventDetails.eventFees !== "0" ? (
+        {selectedEventDetails.eventFees !== '0' &&
+        selectedEventDetails.eventFees !== '' ? (
           <>
             <TextComponent
               style={{fontSize: 17, color: colors.primaryColor}}
@@ -131,16 +136,21 @@ const EventDetailsScreen = (): ReactElement | null => {
               weight="normal">
               Rs. {selectedEventDetails.eventFees}
             </TextComponent>
+            <View
+              style={{
+                borderBottomColor: colors.greyColor,
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                marginVertical: 20,
+              }}
+            />
           </>
         ) : null}
-        <View
-          style={{
-            borderBottomColor: colors.greyColor,
-            borderBottomWidth: StyleSheet.hairlineWidth,
-            marginVertical: 20,
-          }}
-        />
-        <ButtonComponent onPress={() => navigation.navigate("EventJoinersTopTab") } containerStyle={{marginBottom: 30}}> Go to People list  🚀</ButtonComponent>
+        <ButtonComponent
+          onPress={() => navigation.navigate('EventJoinersTopTab')}
+          containerStyle={{marginBottom: 30}}>
+          {' '}
+          Go to People list 🚀
+        </ButtonComponent>
       </View>
     </ScrollView>
   );
@@ -170,7 +180,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20
+    borderBottomRightRadius: 20,
   },
   eventDetailsSubContainer1: {
     paddingVertical: 10,

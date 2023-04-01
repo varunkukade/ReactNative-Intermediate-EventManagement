@@ -16,7 +16,7 @@ const DateTimePickerComponent = ({
   setDateValue,
   show,
   ...props
-}: DateTimePickerComponentProps): ReactElement | null => {
+}: Omit<DateTimePickerComponentProps,'onConfirm' | 'onDateChange' | 'onCancel'>): ReactElement | null => {
   return show ? (
       <DatePicker
         style={{width: measureMents.windowWidth - (2 * measureMents.leftPadding), height: 150}}

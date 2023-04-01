@@ -11,11 +11,10 @@ interface CheckboxComponentProps extends CheckBoxProps {
 const CheckboxComponent = ({
   label,
   ...props
-}: CheckboxComponentProps): ReactElement => {
+}: Omit<CheckboxComponentProps,'boxType' | 'tintColors'>): ReactElement => {
   return (
     <View style={styles.wrapperComponent}>
       <CheckBox
-        disabled={false}
         style={styles.checkBox}
         {...props}
         boxType="circle"

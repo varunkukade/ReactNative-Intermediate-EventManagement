@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect} from 'react';
+import React, {ReactElement, useEffect, useState} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
@@ -6,7 +6,6 @@ import TextComponent from '../reusables/textComponent';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {generateArray} from '../utils/commonFunctions';
-import {getEventsAPICall} from '../reduxConfig/slices/eventsSlice';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
@@ -31,11 +30,30 @@ const EventJoinersScreen = ({
     'EventJoinersTopTab'
   > = useNavigation();
 
+  //useStates
+  const [isModalVisible, setIsModalVisible] = useState(false)
+
+  const currentSelectedEvent = useAppSelector(
+    state => state.common.currentSelectedEvent,
+  );
+
   const getPeopleArray = (peopleState: EachPerson[]) => {
-    if (type === 'all') return peopleState;
+    if (type === 'all')
+      return peopleState.filter(
+        eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
+      );
     else if (type === 'pending')
-      return peopleState.filter(eachPerson => eachPerson.isPaymentPending);
-    else return peopleState.filter(eachPerson => !eachPerson.isPaymentPending);
+      return peopleState.filter(
+        eachPerson =>
+          eachPerson.isPaymentPending &&
+          eachPerson.eventId === currentSelectedEvent?.eventId,
+      );
+    else
+      return peopleState.filter(
+        eachPerson =>
+          !eachPerson.isPaymentPending &&
+          eachPerson.eventId === currentSelectedEvent?.eventId,
+      );
   };
 
   //dispatch and selectors
@@ -62,6 +80,11 @@ const EventJoinersScreen = ({
     },
   );
 
+  const onLongPressUser = () => {
+    //when user click long press on any user show then buttons to mark user as complete or pending.
+    setIsModalVisible(!isModalVisible)
+  };
+
   //Given type and data return the View component
   const rowRenderer = (
     type: number,
@@ -72,6 +95,7 @@ const EventJoinersScreen = ({
       <TouchableOpacity
         activeOpacity={0.7}
         key={index}
+        onLongPress={onLongPressUser}
         style={styles.eachEventComponent}>
         <View style={styles.secondSection}>
           <TextComponent
