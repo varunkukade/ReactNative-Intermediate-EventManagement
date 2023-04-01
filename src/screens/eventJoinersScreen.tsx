@@ -6,18 +6,20 @@ import TextComponent from '../reusables/textComponent';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {generateArray} from '../utils/commonFunctions';
-import {EachEvent, getEventsAPICall} from '../reduxConfig/slices/eventsSlice';
-import moment from 'moment';
+import {getEventsAPICall} from '../reduxConfig/slices/eventsSlice';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {RouteProp, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
+import {EachPerson, getPeopleAPICall} from '../reduxConfig/slices/peopleSlice';
 
 type EventJoinersScreenProps = {
   type: 'all' | 'pending' | 'completed';
-  route: RouteProp<HomeStackParamList, 'EventJoinersTopTab'>
 };
 
-const EventJoinersScreen = ({type, route, ...props}: EventJoinersScreenProps): ReactElement => {
+const EventJoinersScreen = ({
+  type,
+  ...props
+}: EventJoinersScreenProps): ReactElement => {
   const skelatons = generateArray(5);
   let dataProvider = new DataProvider((r1, r2) => {
     return r1 !== r2;
@@ -29,15 +31,24 @@ const EventJoinersScreen = ({type, route, ...props}: EventJoinersScreenProps): R
     'EventJoinersTopTab'
   > = useNavigation();
 
+  const getPeopleArray = (peopleState: EachPerson[]) => {
+    if (type === 'all') return peopleState;
+    else if (type === 'pending')
+      return peopleState.filter(eachPerson => eachPerson.isPaymentPending);
+    else return peopleState.filter(eachPerson => !eachPerson.isPaymentPending);
+  };
+
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const eventsState = useAppSelector(state => state.events);
-  const eventsData = dataProvider.cloneWithRows(eventsState.events);
+  const peopleState = useAppSelector(state => state.people);
+  const peopleData = dataProvider.cloneWithRows(
+    getPeopleArray(peopleState.people),
+  );
 
   useEffect(() => {
-    //when this screen is mounted call getEvents API.
+    //when this screen is mounted call getPeople API.
     //if you want to call something when screen is focused, use useFocusEffect.
-    dispatch(getEventsAPICall());
+    dispatch(getPeopleAPICall());
   }, []);
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
@@ -54,7 +65,7 @@ const EventJoinersScreen = ({type, route, ...props}: EventJoinersScreenProps): R
   //Given type and data return the View component
   const rowRenderer = (
     type: number,
-    data: EachEvent,
+    data: EachPerson,
     index: number,
   ): ReactElement => {
     return (
@@ -64,12 +75,13 @@ const EventJoinersScreen = ({type, route, ...props}: EventJoinersScreenProps): R
         style={styles.eachEventComponent}>
         <View style={styles.secondSection}>
           <TextComponent
+            numberOfLines={2}
             weight="normal"
             style={{
               color: colors.primaryColor,
               fontSize: 14,
             }}>
-            {data.eventTitle}
+            {data.userName}
           </TextComponent>
           <TextComponent
             weight="bold"
@@ -77,7 +89,7 @@ const EventJoinersScreen = ({type, route, ...props}: EventJoinersScreenProps): R
               color: colors.primaryColor,
               fontSize: 15,
             }}>
-            {moment(new Date(data.eventDate)).format('LL')}
+            +91 {data.userMobileNumber}
           </TextComponent>
         </View>
         <View style={styles.thirdSection}>
@@ -98,34 +110,37 @@ const EventJoinersScreen = ({type, route, ...props}: EventJoinersScreenProps): R
           weight="bold"
           style={{color: colors.primaryColor, fontSize: 15, marginBottom: 10}}>
           Total People:{' '}
-          {eventsData?.getSize() && eventsData?.getSize() > 0
-            ? eventsData?.getSize()
+          {peopleData?.getSize() && peopleData?.getSize() > 0
+            ? peopleData?.getSize()
             : 0}
         </TextComponent>
-        {eventsState.status === 'succeedded' && eventsData?.getSize() > 0 ? (
+        {peopleState.status === 'succeedded' && peopleData?.getSize() > 0 ? (
           <RecyclerListView
             rowRenderer={rowRenderer}
-            dataProvider={eventsData}
+            dataProvider={peopleData}
             layoutProvider={layoutProvider}
             initialRenderIndex={0}
             scrollViewProps={{showsVerticalScrollIndicator: false}}
           />
-        ) : eventsState.status === 'loading' ? (
+        ) : peopleState.status === 'loading' ? (
           skelatons.map((eachItem, index) => (
             <View key={index} style={styles.eventLoadingSkelaton} />
           ))
-        ) : eventsState.status === 'failed' ? (
+        ) : peopleState.status === 'failed' ? (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-            <TextComponent weight="bold">{eventsState.error}</TextComponent>
+            <TextComponent weight="bold">{peopleState.error}</TextComponent>
           </View>
         ) : (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-            <TextComponent weight="bold">No Events Found!</TextComponent>
+            <TextComponent weight="bold">No Records Found!</TextComponent>
           </View>
         )}
       </View>
       {type === 'all' ? (
-        <TouchableOpacity activeOpacity={0.7} style={styles.addEventButton} onPress={() => navigation.navigate("AddPeopleScreen", { eventId: route.params.eventId})}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={styles.addEventButton}
+          onPress={() => navigation.navigate('AddPeopleScreen')}>
           <EntypoIcons name="plus" color={colors.whiteColor} size={20} />
         </TouchableOpacity>
       ) : null}

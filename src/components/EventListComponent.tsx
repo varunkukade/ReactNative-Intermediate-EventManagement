@@ -11,6 +11,7 @@ import moment from 'moment';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../navigation/homeStackNavigator';
 import { useNavigation } from '@react-navigation/native';
+import { setSelectedEvent } from '../reduxConfig/slices/commonSlice';
 
 const EventListComponent = (): ReactElement => {
 
@@ -73,7 +74,10 @@ const EventListComponent = (): ReactElement => {
           </TextComponent>
         </View>
         <View style={styles.thirdSection}>
-          <TouchableOpacity activeOpacity={0.7} onPress={()=> navigation.navigate("EventDetailsScreen", {eventId: data.eventId})} style={styles.navigateButton}>
+          <TouchableOpacity activeOpacity={0.7} onPress={()=> {
+            dispatch(setSelectedEvent(data))
+            navigation.navigate("EventDetailsScreen")
+          }} style={styles.navigateButton}>
             <EntypoIcons
               name="chevron-right"
               color={colors.whiteColor}

@@ -5,9 +5,10 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import uuid from 'react-native-uuid';
-import {useAppDispatch} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {ButtonComponent, InputComponent} from '../reusables';
 import {mobileNumbervalidation} from '../utils/commonFunctions';
+import { addPeopleAPICall } from '../reduxConfig/slices/peopleSlice';
 
 type ConstantsType = {
   userName: 'userName';
@@ -40,6 +41,7 @@ const AddPeopleScreen = (): ReactElement => {
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
+  const selectedEventDetails = useAppSelector(state => state.common.currentSelectedEvent);
 
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddPeopleFormData = {
@@ -84,23 +86,27 @@ const AddPeopleScreen = (): ReactElement => {
       mobileNumbervalidation(userMobileNumber.value).isValid &&
       userName.value
     ) {
-      setFormErrors('empty');
-      let requestObj = {
-        userId: uuid.v4(),
-        userEmail: userEmail.value,
-        userMobileNumber: userMobileNumber.value,
-        userName: userName.value,
-      };
-      console.log(requestObj);
-      // dispatch(addEventAPICall(requestObj)).then(resp => {
-      //   if (resp.meta.requestStatus === 'fulfilled') {
-      //     Alert.alert('Event saved successfully');
-      //     setEventForm(initialEventForm);
-      //     navigation.navigate('HomeScreen');
-      //   } else {
-      //     Alert.alert('Error in saving the event. Please try after some time.');
-      //   }
-      // });
+      if(selectedEventDetails){
+        setFormErrors('empty');
+        let requestObj = {
+          userId: uuid.v4(),
+          userEmail: userEmail.value,
+          userMobileNumber: userMobileNumber.value,
+          userName: userName.value,
+          isPaymentPending: true,
+          eventId: selectedEventDetails.eventId,
+        };
+        console.log(requestObj);
+        dispatch(addPeopleAPICall(requestObj)).then(resp => {
+          if (resp.meta.requestStatus === "fulfilled") {
+            Alert.alert('User added successfully!');
+            setEventForm(initialEventForm);
+            navigation.navigate('EventJoinersTopTab')
+          } else {
+            Alert.alert('Error in adding the user. Please try after some time.');
+          }
+        });
+      }
     } else {
       //set the errors if exist
       setFormErrors("", {

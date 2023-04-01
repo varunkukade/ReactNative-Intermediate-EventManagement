@@ -2,17 +2,10 @@ import React from 'react';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {EventJoinersScreen} from '../screens';
 import {fontStyles} from '../utils/appStyles';
-import { RouteProp } from '@react-navigation/native';
-import { HomeStackParamList } from './homeStackNavigator';
-
 
 const TopTab = createMaterialTopTabNavigator();
 
-type EventJoinersTopTabsProps = {
-  route: RouteProp<HomeStackParamList, 'EventJoinersTopTab'>
-}
-
-const EventJoinersTopTabs = ({route}: EventJoinersTopTabsProps) => {
+const EventJoinersTopTabs = () => {
   return (
     <TopTab.Navigator
       screenOptions={{
@@ -21,13 +14,13 @@ const EventJoinersTopTabs = ({route}: EventJoinersTopTabsProps) => {
         lazy: false,
       }}>
       <TopTab.Screen name="All">
-        {props => <EventJoinersScreen {...props} type={'all'} route={route} />}
+        {props => <EventJoinersScreen {...props} type={'all'} />}
       </TopTab.Screen>
       <TopTab.Screen name="Pending">
-        {props => <EventJoinersScreen {...props} type={'pending'} route={route} />}
+        {props => <EventJoinersScreen {...props} type={'pending'} />}
       </TopTab.Screen>
       <TopTab.Screen name="Completed">
-        {props => <EventJoinersScreen {...props} type={'completed'} route={route} />}
+        {props => <EventJoinersScreen {...props} type={'completed'} />}
       </TopTab.Screen>
     </TopTab.Navigator>
   );

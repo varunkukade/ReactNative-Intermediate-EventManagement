@@ -1,5 +1,6 @@
 const apiUrls = {
-  events : "/events"
+  events : "/events",
+  people : "/people"
 }
 
 export default apiUrls;

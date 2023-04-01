@@ -20,13 +20,9 @@ const EventDetailsScreen = (): ReactElement | null => {
   const route: RouteProp<HomeStackParamList, 'EventDetailsScreen'> = useRoute();
 
   //selectors
-  const eventDetails = useAppSelector(state =>
-    state.events.events.find(
-      eachEvent => eachEvent.eventId == route.params.eventId,
-    ),
-  );
+  const selectedEventDetails = useAppSelector(state => state.common.currentSelectedEvent);
 
-  if (!eventDetails) return null;
+  if (!selectedEventDetails) return null;
 
   return (
     <ScrollView style={styles.wrapperComponent} showsVerticalScrollIndicator={false}>
@@ -38,7 +34,7 @@ const EventDetailsScreen = (): ReactElement | null => {
             color: colors.primaryColor,
             marginBottom: 24,
           }}>
-          {eventDetails.eventTitle}
+          {selectedEventDetails.eventTitle}
         </TextComponent>
         <View style={styles.eventCommon}>
           <AntDesignIcons
@@ -53,8 +49,8 @@ const EventDetailsScreen = (): ReactElement | null => {
               color: colors.primaryColor,
               fontSize: 16,
             }}>
-            {getDate(new Date(eventDetails.eventDate))},{' '}
-            {getTime(new Date(eventDetails.eventTime))}
+            {getDate(new Date(selectedEventDetails.eventDate))},{' '}
+            {getTime(new Date(selectedEventDetails.eventTime))}
           </TextComponent>
         </View>
         <View style={styles.eventCommon}>
@@ -70,7 +66,7 @@ const EventDetailsScreen = (): ReactElement | null => {
               color: colors.primaryColor,
               fontSize: 16,
             }}>
-            {eventDetails.eventLocation}
+            {selectedEventDetails.eventLocation}
           </TextComponent>
         </View>
       </View>
@@ -78,12 +74,12 @@ const EventDetailsScreen = (): ReactElement | null => {
       <View style={styles.bottomSection}>
         <View style={styles.eventDetailsSubContainer1}>
           <TextComponent style={styles.commonText} weight="bold">
-            {eventDetails.mealProvided
+            {selectedEventDetails.mealProvided
               ? 'Meals provided by organiser'
               : 'Meals not provided by organiser'}
           </TextComponent>
         </View>
-        {eventDetails.eventFees === '0' ? (
+        {selectedEventDetails.eventFees === '0' ? (
           <View style={styles.eventDetailsSubContainer1}>
             <TextComponent style={styles.commonText} weight="bold">
               Free Event
@@ -92,7 +88,7 @@ const EventDetailsScreen = (): ReactElement | null => {
         ) : null}
         <View style={styles.eventDetailsSubContainer1}>
           <TextComponent style={styles.commonText} weight="bold">
-            {eventDetails.accomodationProvided
+            {selectedEventDetails.accomodationProvided
               ? 'Accomodation provided by organiser'
               : 'Accomodation not provided by organiser'}
           </TextComponent>
@@ -113,7 +109,7 @@ const EventDetailsScreen = (): ReactElement | null => {
           numberOfLines={5}
           style={{fontSize: 16, color: colors.primaryColor, marginTop: 10}}
           weight="normal">
-          {eventDetails.eventDesc}
+          {selectedEventDetails.eventDesc}
         </TextComponent>
         <View
           style={{
@@ -122,7 +118,7 @@ const EventDetailsScreen = (): ReactElement | null => {
             marginVertical: 20,
           }}
         />
-        {eventDetails.eventFees !== "0" ? (
+        {selectedEventDetails.eventFees !== "0" ? (
           <>
             <TextComponent
               style={{fontSize: 17, color: colors.primaryColor}}
@@ -133,7 +129,7 @@ const EventDetailsScreen = (): ReactElement | null => {
               numberOfLines={5}
               style={{fontSize: 16, color: colors.primaryColor, marginTop: 10}}
               weight="normal">
-              Rs. {eventDetails.eventFees}
+              Rs. {selectedEventDetails.eventFees}
             </TextComponent>
           </>
         ) : null}
@@ -144,7 +140,7 @@ const EventDetailsScreen = (): ReactElement | null => {
             marginVertical: 20,
           }}
         />
-        <ButtonComponent onPress={() => navigation.navigate("EventJoinersTopTab", { eventId: route.params.eventId}) } containerStyle={{marginBottom: 30}}> Go to People list  🚀</ButtonComponent>
+        <ButtonComponent onPress={() => navigation.navigate("EventJoinersTopTab") } containerStyle={{marginBottom: 30}}> Go to People list  🚀</ButtonComponent>
       </View>
     </ScrollView>
   );

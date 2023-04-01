@@ -8,9 +8,9 @@ import { BottomTabNavigator } from '.';
 export type HomeStackParamList = {
   BottomTabNavigator: undefined;
   AddEventScreen: undefined;
-  EventDetailsScreen: { eventId: string | number[] };
-  EventJoinersTopTab: { eventId: string | number[] };
-  AddPeopleScreen: { eventId: string | number[] };
+  EventDetailsScreen: undefined;
+  EventJoinersTopTab: undefined;
+  AddPeopleScreen: undefined;
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();

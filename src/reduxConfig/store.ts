@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-import eventsReducer from './slices/eventsSlice'
+import { EventsReducer, PeopleReducer, CommonReducer} from './slices'
 
 export const store = configureStore({
     reducer: {
-      events: eventsReducer
+      events: EventsReducer,
+      people: PeopleReducer,
+      common: CommonReducer
     },
   })
 
