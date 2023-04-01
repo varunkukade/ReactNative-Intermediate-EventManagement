@@ -1,26 +1,23 @@
 import React, {ReactElement, useState} from 'react';
-import {Alert, ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
-import AntDesignIcons from 'react-native-vector-icons/AntDesign';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import {Alert, ScrollView, StyleSheet, View} from 'react-native';
+import {measureMents} from '../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import uuid from 'react-native-uuid';
-import { useAppDispatch } from '../reduxConfig/store';
-import { addEventAPICall, EachEvent } from '../reduxConfig/slices/eventsSlice';
-import { ButtonComponent, CheckboxComponent, DateTimePickerComponent, InputComponent } from '../reusables';
-import { getDate, getTime } from '../utils/commonFunctions';
+import {useAppDispatch} from '../reduxConfig/store';
+import {ButtonComponent, InputComponent} from '../reusables';
+import {mobileNumbervalidation} from '../utils/commonFunctions';
 
-const constants = {
-  eventTitle: 'eventTitle',
-  eventDate: 'eventDate',
-  eventTime:'eventTime',
-  eventDesc: 'eventDesc',
-  eventLocation: 'eventLocation',
-  eventFees:'eventFees',
-  mealProvided:'mealProvided',
-  accomodationProvided: 'accomodationProvided'
+type ConstantsType = {
+  userName: 'userName';
+  userMobileNumber: 'userMobileNumber';
+  userEmail: 'userEmail';
+};
+const constants: ConstantsType = {
+  userName: 'userName',
+  userMobileNumber: 'userMobileNumber',
+  userEmail: 'userEmail',
 };
 
 interface EachFormField<T> {
@@ -28,10 +25,10 @@ interface EachFormField<T> {
   errorMessage: string;
 }
 
-type AddEventFormData = {
-    userName: EachFormField<string>;
-    userMobileNumber: EachFormField<string>;
-    userEmail: EachFormField<string>;
+type AddPeopleFormData = {
+  userName: EachFormField<string>;
+  userMobileNumber: EachFormField<string>;
+  userEmail: EachFormField<string>;
 };
 
 const AddPeopleScreen = (): ReactElement => {
@@ -45,66 +42,77 @@ const AddPeopleScreen = (): ReactElement => {
   const dispatch = useAppDispatch();
 
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
-  let initialEventForm: AddEventFormData = {
+  let initialEventForm: AddPeopleFormData = {
     userName: {value: '', errorMessage: ''},
-    userMobileNumber: {value : '', errorMessage: ''},
+    userMobileNumber: {value: '', errorMessage: ''},
     userEmail: {value: '', errorMessage: ''},
   };
   const [eventForm, setEventForm] =
-    useState<AddEventFormData>(initialEventForm);
+    useState<AddPeopleFormData>(initialEventForm);
 
+  const onChangeForm = (
+    value: string,
+    fieldName: 'userName' | 'userMobileNumber' | 'userEmail',
+  ): void => {
+    setEventForm({
+      ...eventForm,
+      [fieldName]: {...eventForm[fieldName], value: value},
+    });
+  };
 
-  const onChangeForm = (value: string, fieldName: string): void => {
-    setEventForm({...eventForm, [fieldName]: {value: value, errorMessage: ''}});
+  const setFormErrors = (type? : "" | "empty", eventFormObj?: AddPeopleFormData) => {
+    if (type === 'empty') {
+      setEventForm({
+        ...eventForm,
+        userName: {
+          ...eventForm.userName,
+          errorMessage: '',
+        },
+        userMobileNumber: {
+          ...eventForm.userMobileNumber,
+          errorMessage: '',
+        },
+      });
+    } else {
+      if(eventFormObj) setEventForm(eventFormObj);
+    }
   };
 
   const onFormSubmit = (): void => {
-    const {eventTitle, eventDate, eventTime, eventDesc, eventLocation, eventFees, mealProvided, accomodationProvided} = eventForm;
-    if (eventTitle.value && eventDate.value && eventTime.value && eventDesc.value && eventLocation.value) {
-      let requestObj: EachEvent = {
-        eventId: uuid.v4(),
-        eventTitle: eventTitle.value,
-        eventDate: eventDate.value.toString(),
-        eventTime: eventTime.value.toString(),
-        eventDesc: eventDesc.value,
-        eventLocation: eventLocation.value,
-        eventFees: eventFees.value,
-        mealProvided: mealProvided.value,
-        accomodationProvided: accomodationProvided.value
-      }
-      dispatch(addEventAPICall(requestObj))
-      .then((resp)=> {
-        if(resp.meta.requestStatus === "fulfilled"){
-          Alert.alert('Event saved successfully');
-          setEventForm(initialEventForm);
-          navigation.navigate('HomeScreen');
-        }else {
-          Alert.alert('Error in saving the event. Please try after some time.');
-        }
-      })
+    const {userEmail, userMobileNumber, userName} = eventForm;
+    if (
+      mobileNumbervalidation(userMobileNumber.value).isValid &&
+      userName.value
+    ) {
+      setFormErrors('empty');
+      let requestObj = {
+        userId: uuid.v4(),
+        userEmail: userEmail.value,
+        userMobileNumber: userMobileNumber.value,
+        userName: userName.value,
+      };
+      console.log(requestObj);
+      // dispatch(addEventAPICall(requestObj)).then(resp => {
+      //   if (resp.meta.requestStatus === 'fulfilled') {
+      //     Alert.alert('Event saved successfully');
+      //     setEventForm(initialEventForm);
+      //     navigation.navigate('HomeScreen');
+      //   } else {
+      //     Alert.alert('Error in saving the event. Please try after some time.');
+      //   }
+      // });
     } else {
       //set the errors if exist
-      setEventForm({
+      setFormErrors("", {
         ...eventForm,
-        eventTitle: {
-          ...eventTitle,
-          errorMessage: eventTitle.value ? '' : 'Event Name cannot be empty',
+        userName: {
+          ...userName,
+          errorMessage: userName.value ? '' : 'User Name cannot be empty.',
         },
-        eventDate: {
-          ...eventDate,
-          errorMessage: eventDate.value ? '' : 'Event Date cannot be empty',
-        },
-        eventTime: {
-          ...eventTime,
-          errorMessage: eventTime.value ? '' : 'Event Time cannot be empty',
-        },
-        eventDesc: {
-          ...eventDesc,
-          errorMessage: eventDesc.value ? '' : 'Event Description cannot be empty',
-        },
-        eventLocation: {
-          ...eventLocation,
-          errorMessage: eventLocation.value ? '' : 'Event Location cannot be empty',
+        userMobileNumber: {
+          ...userMobileNumber,
+          errorMessage: mobileNumbervalidation(userMobileNumber.value)
+            .errorMessage,
         },
       });
     }
@@ -114,92 +122,28 @@ const AddPeopleScreen = (): ReactElement => {
     <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.wrapperComponent}>
         <InputComponent
-          value={eventForm.eventTitle.value}
-          onChangeText={value => onChangeForm(value, constants.eventTitle)}
-          label="Event Title"
-          errorMessage={eventForm.eventTitle.errorMessage}
-          placeholder="Wedding"
+          value={eventForm.userName.value}
+          onChangeText={value => onChangeForm(value, constants.userName)}
+          label="Enter Name"
+          errorMessage={eventForm.userName.errorMessage}
+          placeholder="Varun Kukade"
         />
         <InputComponent
-          value={eventForm.eventDesc.value}
-          onChangeText={value => onChangeForm(value, constants.eventDesc)}
-          label="Event Description"
-          multiline
-          numberOfLines={5}
-          errorMessage={eventForm.eventDesc.errorMessage}
-          placeholder="Add a informative description..."
-        />
-        <TouchableOpacity activeOpacity={0.7} onPress={() => setShowDatePicker(!showDatePicker)}>
-          <InputComponent
-            value={''}
-            onChangeText={value => onChangeForm(value, constants.eventDate)}
-            label="Event Date"
-            editable={false}
-            errorMessage={eventForm.eventDate.errorMessage}
-            placeholder={getDate(eventForm.eventDate.value)}
-            rightIconComponent={
-              <AntDesignIcons
-                style={{position: 'absolute', right: 15}}
-                name="calendar"
-                color={colors.iconLightPinkColor}
-                size={20}
-              />
-            }
-          />
-        </TouchableOpacity>
-        <View style={styles.dateTimePickerContainer}>
-        <DateTimePickerComponent
-          mode='date' 
-          date={eventForm.eventDate.value}
-          show={showDatePicker}
-          minimumDate={new Date()}
-          setDateValue={value => onChangeForm(value, constants.eventDate)}
-        />
-        </View>
-        <TouchableOpacity activeOpacity={0.7} onPress={() => setShowTimePicker(!showTimePicker)}>
-          <InputComponent
-            value={''}
-            onChangeText={value => onChangeForm(value, constants.eventTime)}
-            label="Event Time"
-            editable={false}
-            errorMessage={eventForm.eventTime.errorMessage}
-            placeholder={getTime(eventForm.eventTime.value)}
-            rightIconComponent={
-              <MaterialIcons
-                style={{position: 'absolute', right: 15}}
-                name="timer"
-                color={colors.iconLightPinkColor}
-                size={20}
-              />
-            }
-          />
-        </TouchableOpacity>
-        <View style={styles.dateTimePickerContainer}>
-        <DateTimePickerComponent
-           mode='time' 
-           date={eventForm.eventTime.value}
-           show={showTimePicker}
-           setDateValue={value => onChangeForm(value, constants.eventTime)}
-        />
-        </View>
-        <InputComponent
-          value={eventForm.eventLocation.value}
-          onChangeText={value => onChangeForm(value, constants.eventLocation)}
-          label="Event Location"
-          multiline
-          numberOfLines={5}
-          errorMessage={eventForm.eventLocation.errorMessage}
-          placeholder="Singh Residency, near Tarakpur bus Stand, Ahmednagar, 414003."
+          value={eventForm.userMobileNumber.value}
+          onChangeText={value =>
+            onChangeForm(value, constants.userMobileNumber)
+          }
+          label="Enter Mobile Number"
+          keyboardType="numeric"
+          errorMessage={eventForm.userMobileNumber.errorMessage}
+          placeholder="9028476756"
         />
         <InputComponent
-          value={eventForm.eventFees.value}
-          onChangeText={value => onChangeForm(value, constants.eventFees)}
-          label="Event Fees"
-          keyboardType='numeric'
-          placeholder="Enter fees in ruppes..."
+          value={eventForm.userEmail.value}
+          onChangeText={value => onChangeForm(value, constants.userEmail)}
+          label="Enter Email"
+          placeholder="varun.k@gmail.com"
         />
-        <CheckboxComponent label='Meal provided by organiser ?' value={eventForm.mealProvided.value} onValueChange={value => onChangeForm(value, constants.mealProvided)}/>
-        <CheckboxComponent label='Accomodation provided by organiser ?' value={eventForm.accomodationProvided.value} onValueChange={value => onChangeForm(value, constants.accomodationProvided)}/>
         <ButtonComponent
           onPress={onFormSubmit}
           containerStyle={{marginTop: 30}}>
@@ -221,6 +165,6 @@ const styles = StyleSheet.create({
   },
   dateTimePickerContainer: {
     marginBottom: 10,
-    borderRadius: 20
-  }
+    borderRadius: 20,
+  },
 });

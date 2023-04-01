@@ -5,7 +5,6 @@ import TextComponent from '../reusables/textComponent';
 import {colors} from '../utils/appStyles';
 
 const WelcomeComponent = (): ReactElement => {
-    console.log("in WelcomeComponent")
   return (
     <View style={styles.welcomeComponent}>
       <View style={styles.welcomeHelloText}>

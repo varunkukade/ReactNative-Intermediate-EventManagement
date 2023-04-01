@@ -29,9 +29,36 @@ export const generateArray = (n: number): number[] => {
 };
 
 export const getDate = (date: Date) => {
-  return moment(date).format('LL')
-}
+  return moment(date).format('LL');
+};
 
 export const getTime = (time: Date) => {
-  return moment(time).format('LT')
+  return moment(time).format('LT');
+};
+
+type ValidationObject = {
+  isValid: boolean;
+  errorMessage: string
 }
+
+export const mobileNumbervalidation = (value: string): ValidationObject => {
+  let validationObject = {
+     isValid: true,
+     errorMessage: ""
+  }
+  if (checkIfEmpty(value)) {
+    validationObject = {
+      isValid: false,
+      errorMessage: 'Mobile Number cannot be empty.'
+    }
+  } else {
+    let pattern = /^[6-9]\d{9}$/;
+    if (!pattern.test(value)){
+      validationObject = {
+        isValid: false,
+        errorMessage: 'Invalid Mobile Number.'
+      }
+    }
+  }
+  return validationObject;
+};
