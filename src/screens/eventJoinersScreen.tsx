@@ -1,5 +1,5 @@
 import React, {ReactElement, useEffect, useState} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Button, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/textComponent';
@@ -10,6 +10,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import {EachPerson, getPeopleAPICall} from '../reduxConfig/slices/peopleSlice';
+import CenterPopupComponent from '../reusables/popupComponent';
 
 type EventJoinersScreenProps = {
   type: 'all' | 'pending' | 'completed';
@@ -168,6 +169,9 @@ const EventJoinersScreen = ({
           <EntypoIcons name="plus" color={colors.whiteColor} size={20} />
         </TouchableOpacity>
       ) : null}
+      <CenterPopupComponent isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible}>
+        <Button title="hey" onPress={()=> setIsModalVisible(false)}></Button>
+      </CenterPopupComponent>
     </>
   );
 };
