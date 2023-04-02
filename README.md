@@ -17,7 +17,6 @@ Motive of this app is to have one stop solution for all the event management for
   Current features in the app: 
 
    1. Add new event with event name, desc, date, time, location, fees(if any)
-   2. View all the events at one place. 
-   3. View event details by clicking on each event.
-   4. Add people to the event.
-   5. View all people added in event at one place. People are divided into 3 tabs (All people, people who have payment pending, people who have payement completed)
+   2. View all the events at one place. View event details by clicking on each event.
+   4. Add people to the event. Delete added people from the event.
+   5. View all people added in event at one place. People are divided into 3 tabs (All people, people who have payment pending, people who have payement completed). You can move user from pending to completed and viceversa.
