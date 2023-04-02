@@ -60,7 +60,6 @@ const EventListComponent = (): ReactElement => {
   );
 
   const onLongPressEvent = (data: EachEvent) => {
-    console.log("data",data)
     setLongPressedEvent(data);
     setIsModalVisible(true)
   };
