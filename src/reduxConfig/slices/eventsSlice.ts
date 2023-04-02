@@ -2,8 +2,10 @@ import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import database from '@react-native-firebase/database';
 import apiUrls from '../apiUrls';
 
+type status = 'idle' | 'succeedded' | 'failed' | 'loading'
+
 export type EachEvent = {
-  eventId: string | number[];
+  eventId: string;
   eventTitle: string;
   eventDate: string;
   eventTime: string;
@@ -16,14 +18,26 @@ export type EachEvent = {
 
 type EventsState = {
   events: EachEvent[];
-  status: 'idle' | 'succeedded' | 'failed' | 'loading';
-  error: string;
+  statuses: {
+    addEventAPICall: status;
+    getEventAPICall: status;
+  }
+  errors: {
+    addEventAPICall: string,
+    getEventAPICall: string
+  },
 };
 
 const initialState: EventsState = {
   events: [],
-  status: 'idle',
-  error: '',
+  statuses: {
+    addEventAPICall:'idle',
+    getEventAPICall:'idle'
+  },
+  errors: {
+    addEventAPICall:'',
+    getEventAPICall:''
+  },
 };
 
 export const eventsSlice = createSlice({
@@ -53,29 +67,17 @@ export const eventsSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(addEventAPICall.pending, (state, action) => {
-        state.status = 'loading';
+        state.statuses.addEventAPICall = 'loading';
       })
       .addCase(addEventAPICall.fulfilled, (state, action) => {
-        state.status = 'succeedded';
-        const {eventDate, eventId, eventTitle, eventTime, eventDesc, eventLocation, eventFees, mealProvided, accomodationProvided} = action.meta.arg;
-        state.events.push({
-          eventId,
-          eventTitle,
-          eventDate,
-          eventTime,
-          eventDesc,
-          eventLocation,
-          eventFees,
-          mealProvided,
-          accomodationProvided
-        });
+        state.statuses.addEventAPICall = 'succeedded';
       })
       .addCase(addEventAPICall.rejected, (state, action) => {
-        state.error = 'Failed to add event. Please try again after some time';
-        state.status = 'failed';
+        state.errors.addEventAPICall = 'Failed to add event. Please try again after some time';
+        state.statuses.addEventAPICall = 'failed';
       })
       .addCase(getEventsAPICall.pending, (state, action) => {
-        state.status = 'loading';
+        state.statuses.getEventAPICall = 'loading';
       })
       .addCase(getEventsAPICall.fulfilled, (state, action) => {
         state.events.length = 0;
@@ -84,12 +86,12 @@ export const eventsSlice = createSlice({
             JSON.stringify(action.payload.responseData),
           );
         }
-        state.status = 'succeedded';
+        state.statuses.getEventAPICall = 'succeedded';
       })
       .addCase(getEventsAPICall.rejected, (state, action) => {
-        state.error =
+        state.errors.getEventAPICall =
           'Failed to fetch events. Please try again after some time';
-        state.status = 'failed';
+        state.statuses.getEventAPICall = 'failed';
       });
   },
 });
@@ -100,7 +102,7 @@ export default eventsSlice.reducer;
 
 export const addEventAPICall = createAsyncThunk(
   'events/addEvent',
-  async (requestObject: EachEvent, thunkAPI) => {
+  async (requestObject: Omit<EachEvent,'eventId'> , thunkAPI) => {
     try {
       database().ref(apiUrls.events).push(requestObject);
       return {success: true};
@@ -122,7 +124,9 @@ export const getEventsAPICall = createAsyncThunk(
           let responseObj = snapshot.val();
           if (responseObj && Object.keys(responseObj).length > 0) {
             for (const key in responseObj) {
-              responseArr.push(responseObj[key]);
+              let updatedObj = JSON.parse(JSON.stringify(responseObj[key]));
+              updatedObj.eventId = key;
+              responseArr.push(updatedObj);
             }
           }
         });

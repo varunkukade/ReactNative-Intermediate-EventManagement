@@ -9,17 +9,19 @@ interface ButtonComponentProps extends Omit<ButtonCommonProps,'activeOpacity'> {
   children: ReactNode;
   containerStyle?: StyleProp<ViewStyle> 
   textStyle?: StyleProp<TextStyle>
+  bgColor?: string
 } ;
 
 const ButtonComponent = ({
   children,
   containerStyle,
   textStyle,
+  bgColor,
   ...props
 }: ButtonComponentProps): ReactElement => {
 
   return (
-    <TouchableOpacity activeOpacity={0.7} {...props} style={[containerStyle,styles.wrapperComponent]}>
+    <TouchableOpacity activeOpacity={0.7} {...props} style={[containerStyle,styles.wrapperComponent, {backgroundColor: bgColor? bgColor: colors.primaryColor}]}>
         <TextComponent style={[{color: colors.whiteColor}, textStyle]} weight="bold">{children}</TextComponent>
     </TouchableOpacity>
   );
@@ -30,7 +32,6 @@ export default ButtonComponent;
 const styles = StyleSheet.create({
   wrapperComponent: {
     height: 45,
-    backgroundColor: colors.primaryColor,
     alignItems:"center",
     justifyContent:"center",
     borderRadius: 20

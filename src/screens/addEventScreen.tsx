@@ -73,8 +73,7 @@ const AddEventScreen = (): ReactElement => {
   const onFormSubmit = (): void => {
     const {eventTitle, eventDate, eventTime, eventDesc, eventLocation, eventFees, mealProvided, accomodationProvided} = eventForm;
     if (eventTitle.value && eventDate.value && eventTime.value && eventDesc.value && eventLocation.value) {
-      let requestObj: EachEvent = {
-        eventId: uuid.v4(),
+      let requestObj: Omit<EachEvent, 'eventId'> = {
         eventTitle: eventTitle.value,
         eventDate: eventDate.value.toString(),
         eventTime: eventTime.value.toString(),

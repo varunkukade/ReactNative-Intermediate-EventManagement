@@ -4,11 +4,10 @@ import {measureMents} from '../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
-import uuid from 'react-native-uuid';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {ButtonComponent, InputComponent} from '../reusables';
 import {mobileNumbervalidation} from '../utils/commonFunctions';
-import { addPeopleAPICall } from '../reduxConfig/slices/peopleSlice';
+import { EachPerson, addPeopleAPICall } from '../reduxConfig/slices/peopleSlice';
 
 type ConstantsType = {
   userName: 'userName';
@@ -88,15 +87,13 @@ const AddPeopleScreen = (): ReactElement => {
     ) {
       if(selectedEventDetails){
         setFormErrors('empty');
-        let requestObj = {
-          userId: uuid.v4(),
+        let requestObj: Omit<EachPerson, 'userId'> = {
           userEmail: userEmail.value,
           userMobileNumber: userMobileNumber.value,
           userName: userName.value,
           isPaymentPending: true,
           eventId: selectedEventDetails.eventId,
         };
-        console.log(requestObj);
         dispatch(addPeopleAPICall(requestObj)).then(resp => {
           if (resp.meta.requestStatus === "fulfilled") {
             Alert.alert('User added successfully!');

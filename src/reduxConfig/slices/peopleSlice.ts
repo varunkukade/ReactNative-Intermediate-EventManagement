@@ -2,25 +2,47 @@ import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import database from '@react-native-firebase/database';
 import apiUrls from '../apiUrls';
 
+type status = 'idle' | 'succeedded' | 'failed' | 'loading';
+
 export type EachPerson = {
-  userId: string | number[];
+  userId: string;
   userEmail: string;
   userMobileNumber: string;
   userName: string;
-  eventId: string | number [];
+  eventId: string | number[];
   isPaymentPending: boolean;
 };
 
 type PeopleState = {
   people: EachPerson[];
-  status: 'idle' | 'succeedded' | 'failed' | 'loading';
-  error: string;
+  statuses: {
+    addPeopleAPICall: status;
+    getPeopleAPICall: status;
+    removePeopleAPICall: status;
+    updatePeopleAPICall: status;
+  };
+  errors: {
+    addPeopleAPICall: string;
+    getPeopleAPICall: string;
+    removePeopleAPICall: string;
+    updatePeopleAPICall: string;
+  };
 };
 
 const initialState: PeopleState = {
   people: [],
-  status: 'idle',
-  error: '',
+  statuses: {
+    addPeopleAPICall: 'idle',
+    getPeopleAPICall: 'idle',
+    removePeopleAPICall: 'idle',
+    updatePeopleAPICall: 'idle',
+  },
+  errors: {
+    addPeopleAPICall: '',
+    getPeopleAPICall: '',
+    removePeopleAPICall: '',
+    updatePeopleAPICall: '',
+  },
 };
 
 export const peopleSlice = createSlice({
@@ -30,26 +52,18 @@ export const peopleSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(addPeopleAPICall.pending, (state, action) => {
-        state.status = 'loading';
+        state.statuses.addPeopleAPICall = 'loading';
       })
       .addCase(addPeopleAPICall.fulfilled, (state, action) => {
-        state.status = 'succeedded';
-        const {userId, userEmail, userMobileNumber, userName, eventId, isPaymentPending} = action.meta.arg;
-        state.people.push({
-          userId,
-          userEmail,
-          userMobileNumber,
-          userName,
-          eventId,
-          isPaymentPending
-        });
+        state.statuses.addPeopleAPICall = 'succeedded';
       })
       .addCase(addPeopleAPICall.rejected, (state, action) => {
-        state.error = 'Failed to add User. Please try again after some time';
-        state.status = 'failed';
+        state.errors.addPeopleAPICall =
+          'Failed to add User. Please try again after some time';
+        state.statuses.addPeopleAPICall = 'failed';
       })
       .addCase(getPeopleAPICall.pending, (state, action) => {
-        state.status = 'loading';
+        state.statuses.getPeopleAPICall = 'loading';
       })
       .addCase(getPeopleAPICall.fulfilled, (state, action) => {
         state.people.length = 0;
@@ -58,12 +72,42 @@ export const peopleSlice = createSlice({
             JSON.stringify(action.payload.responseData),
           );
         }
-        state.status = 'succeedded';
+        state.statuses.getPeopleAPICall = 'succeedded';
       })
       .addCase(getPeopleAPICall.rejected, (state, action) => {
-        state.error =
+        state.errors.addPeopleAPICall =
           'Failed to fetch People for this event. Please try again after some time';
-        state.status = 'failed';
+        state.statuses.getPeopleAPICall = 'failed';
+      })
+      .addCase(removePeopleAPICall.pending, (state, action) => {
+        state.statuses.removePeopleAPICall = 'loading';
+      })
+      .addCase(removePeopleAPICall.fulfilled, (state, action) => {
+        state.statuses.removePeopleAPICall = 'succeedded';
+      })
+      .addCase(removePeopleAPICall.rejected, (state, action) => {
+        state.errors.removePeopleAPICall =
+          'Failed to remove this user from this event. Please try again after some time';
+        state.statuses.removePeopleAPICall = 'failed';
+      })
+      .addCase(updatePeopleAPICall.pending, (state, action) => {
+        state.statuses.updatePeopleAPICall = 'loading';
+      })
+      .addCase(updatePeopleAPICall.fulfilled, (state, action) => {
+        state.statuses.updatePeopleAPICall = 'succeedded';
+        const {isPaymentPending} = action.meta.arg.newUpdate;
+        state.people = state.people.map(eachPerson => {
+          if (eachPerson.userId === action.meta.arg.userId) {
+            if (isPaymentPending !== undefined)
+              eachPerson.isPaymentPending = isPaymentPending;
+            return eachPerson;
+          } else return eachPerson;
+        });
+      })
+      .addCase(updatePeopleAPICall.rejected, (state, action) => {
+        state.errors.updatePeopleAPICall =
+          'Failed to remove this user from this event. Please try again after some time';
+        state.statuses.removePeopleAPICall = 'failed';
       });
   },
 });
@@ -72,9 +116,23 @@ export default peopleSlice.reducer;
 
 export const addPeopleAPICall = createAsyncThunk(
   'people/addPeople',
-  async (requestObject: EachPerson, thunkAPI) => {
+  async (requestObject: Omit<EachPerson, 'userId'>, thunkAPI) => {
     try {
       database().ref(apiUrls.people).push(requestObject);
+      return {success: true};
+    } catch (err) {
+      return {success: false, error: err};
+    }
+  },
+);
+
+export const removePeopleAPICall = createAsyncThunk(
+  'people/removePeople',
+  async (userId: string, thunkAPI) => {
+    try {
+      database()
+        .ref(apiUrls.people + `/${userId}`)
+        .remove();
       return {success: true};
     } catch (err) {
       return {success: false, error: err};
@@ -94,11 +152,32 @@ export const getPeopleAPICall = createAsyncThunk(
           let responseObj = snapshot.val();
           if (responseObj && Object.keys(responseObj).length > 0) {
             for (const key in responseObj) {
-              responseArr.push(responseObj[key]);
+              let updatedObj = JSON.parse(JSON.stringify(responseObj[key]));
+              updatedObj.userId = key;
+              responseArr.push(updatedObj);
             }
           }
         });
       return {success: true, responseData: responseArr};
+    } catch (err) {
+      return {success: false, error: err};
+    }
+  },
+);
+
+type updatePeopleAPICallRequest = {
+  userId: string;
+  newUpdate: Partial<EachPerson>;
+};
+
+export const updatePeopleAPICall = createAsyncThunk(
+  'people/updatePeople',
+  async (requestObj: updatePeopleAPICallRequest, thunkAPI) => {
+    try {
+      database()
+        .ref(apiUrls.people + `/${requestObj.userId}`)
+        .update(requestObj.newUpdate);
+      return {success: true};
     } catch (err) {
       return {success: false, error: err};
     }

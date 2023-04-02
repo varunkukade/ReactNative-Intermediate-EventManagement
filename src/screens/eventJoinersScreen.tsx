@@ -1,5 +1,5 @@
 import React, {ReactElement, useEffect, useState} from 'react';
-import {Button, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Alert, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/textComponent';
@@ -9,8 +9,19 @@ import {generateArray} from '../utils/commonFunctions';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
-import {EachPerson, getPeopleAPICall} from '../reduxConfig/slices/peopleSlice';
-import CenterPopupComponent from '../reusables/popupComponent';
+import {
+  EachPerson,
+  getPeopleAPICall,
+  removePeopleAPICall,
+  updatePeopleAPICall,
+} from '../reduxConfig/slices/peopleSlice';
+import BottomHalfPopupComponent, {
+  EachAction,
+} from '../reusables/bottomHalfPopupComponent';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import CenterPopupComponent, {
+  popupData,
+} from '../reusables/centerPopupComponent';
 
 type EventJoinersScreenProps = {
   type: 'all' | 'pending' | 'completed';
@@ -32,7 +43,15 @@ const EventJoinersScreen = ({
   > = useNavigation();
 
   //useStates
-  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<EachPerson | null>(null);
+
+  //modal states
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDeletePopupVisible, setIsDeletePopupVisible] = useState(false);
+  const [isMoveToCompletedPopupVisible, setIsMoveToCompletedPopupVisible] =
+    useState(false);
+  const [isMoveToPendingPopupVisible, setIsMoveToPendingPopupVisible] =
+    useState(false);
 
   const currentSelectedEvent = useAppSelector(
     state => state.common.currentSelectedEvent,
@@ -81,9 +100,10 @@ const EventJoinersScreen = ({
     },
   );
 
-  const onLongPressUser = () => {
+  const onLongPressUser = (user: EachPerson) => {
     //when user click long press on any user show then buttons to mark user as complete or pending.
-    setIsModalVisible(!isModalVisible)
+    setSelectedUser(user);
+    setIsModalVisible(!isModalVisible);
   };
 
   //Given type and data return the View component
@@ -96,7 +116,7 @@ const EventJoinersScreen = ({
       <TouchableOpacity
         activeOpacity={0.7}
         key={index}
-        onLongPress={onLongPressUser}
+        onLongPress={() => onLongPressUser(data)}
         style={styles.eachEventComponent}>
         <View style={styles.secondSection}>
           <TextComponent
@@ -128,18 +148,135 @@ const EventJoinersScreen = ({
     );
   };
 
+  const onMoveToCompletedClick = () => {
+    setIsModalVisible(!isModalVisible);
+    setIsMoveToCompletedPopupVisible(!isMoveToCompletedPopupVisible);
+  };
+
+  const onMoveToPendingClick = () => {
+    setIsModalVisible(!isModalVisible);
+    setIsMoveToPendingPopupVisible(!isMoveToPendingPopupVisible);
+  };
+
+  const onDeleteUserClick = () => {
+    setIsModalVisible(!isModalVisible);
+    setIsDeletePopupVisible(!isDeletePopupVisible);
+  };
+
+  const onCancelClick = () => {
+    if (isDeletePopupVisible) setIsDeletePopupVisible(false);
+    if (isMoveToCompletedPopupVisible) setIsMoveToCompletedPopupVisible(false);
+    if (isMoveToPendingPopupVisible) setIsMoveToPendingPopupVisible(false);
+  };
+
+  const onConfirmDeleteClick = () => {
+    //call delete API and delete the user from list.
+    if (!selectedUser) return;
+    dispatch(removePeopleAPICall(selectedUser?.userId)).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        dispatch(getPeopleAPICall());
+        setIsDeletePopupVisible(false);
+        Alert.alert('User removed successfully!');
+      } else {
+        Alert.alert(peopleState.errors.removePeopleAPICall);
+      }
+    });
+  };
+
+  const onConfirmMoveClick = () => {
+    //update people list with updated value of isPending.
+    if (!selectedUser) return;
+    dispatch(
+      updatePeopleAPICall({
+        userId: selectedUser.userId,
+        newUpdate: {isPaymentPending: !selectedUser.isPaymentPending},
+      }),
+    ).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        setIsMoveToCompletedPopupVisible(false);
+        setIsMoveToPendingPopupVisible(false);
+        Alert.alert('User moved successfully!');
+      } else {
+        Alert.alert(peopleState.errors.updatePeopleAPICall);
+      }
+    });
+  };
+
+  let actionsArray: EachAction[] = [
+    {
+      label: 'Move to Completed',
+      icon: () => (
+        <EntypoIcons
+          size={22}
+          color={colors.blackColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      onClick: () => onMoveToCompletedClick(),
+      isVisible: selectedUser?.isPaymentPending ? true : false,
+    },
+    {
+      label: 'Move to Pending',
+      icon: () => (
+        <EntypoIcons
+          size={22}
+          color={colors.blackColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      onClick: () => onMoveToPendingClick(),
+      isVisible: !selectedUser?.isPaymentPending ? true : false,
+    },
+    {
+      label: 'Delete User',
+      icon: () => (
+        <MaterialIcons
+          size={22}
+          color={colors.blackColor}
+          name="delete-outline"
+        />
+      ),
+      onClick: () => onDeleteUserClick(),
+      isVisible: true,
+    },
+  ];
+
+  let deletePopupData: popupData = {
+    header: 'Delete User',
+    description: 'Are you sure to remove this user? This cannot be undone.',
+    onCancelClick: onCancelClick,
+    onConfirmClick: onConfirmDeleteClick,
+  };
+
+  let moveToCompletedPopupData: popupData = {
+    header: 'Move to Completed',
+    description:
+      'Are you sure to move this user to completed tab? Completed tab includes users who have completed the payment for this event.',
+    onCancelClick: onCancelClick,
+    onConfirmClick: onConfirmMoveClick,
+  };
+
+  let moveToPendingPopupData: popupData = {
+    header: 'Move to Pending',
+    description:
+      'Are you sure to move this user to pending tab? Pending tab includes users who have not yet completed the payment for this event.',
+    onCancelClick: onCancelClick,
+    onConfirmClick: onConfirmMoveClick,
+  };
+
   return (
     <>
       <View style={styles.eventListContainer}>
         <TextComponent
           weight="bold"
-          style={{color: colors.primaryColor, fontSize: 15, marginBottom: 10}}>
+          style={{color: colors.blackColor, fontSize: 15, marginBottom: 10}}>
           Total People:{' '}
           {peopleData?.getSize() && peopleData?.getSize() > 0
             ? peopleData?.getSize()
             : 0}
         </TextComponent>
-        {peopleState.status === 'succeedded' && peopleData?.getSize() > 0 ? (
+        {peopleState.statuses.getPeopleAPICall === 'succeedded' &&
+        peopleData?.getSize() > 0 ? (
           <RecyclerListView
             rowRenderer={rowRenderer}
             dataProvider={peopleData}
@@ -147,17 +284,21 @@ const EventJoinersScreen = ({
             initialRenderIndex={0}
             scrollViewProps={{showsVerticalScrollIndicator: false}}
           />
-        ) : peopleState.status === 'loading' ? (
+        ) : peopleState.statuses.getPeopleAPICall === 'loading' ? (
           skelatons.map((eachItem, index) => (
             <View key={index} style={styles.eventLoadingSkelaton} />
           ))
-        ) : peopleState.status === 'failed' ? (
+        ) : peopleState.statuses.getPeopleAPICall === 'failed' ? (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-            <TextComponent weight="bold">{peopleState.error}</TextComponent>
+            <TextComponent weight="bold">
+              {peopleState.errors.getPeopleAPICall}
+            </TextComponent>
           </View>
         ) : (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-            <TextComponent weight="bold">No Records Found!</TextComponent>
+            <TextComponent style={{color: colors.greyColor}} weight="bold">
+              No Records Found!
+            </TextComponent>
           </View>
         )}
       </View>
@@ -169,9 +310,26 @@ const EventJoinersScreen = ({
           <EntypoIcons name="plus" color={colors.whiteColor} size={20} />
         </TouchableOpacity>
       ) : null}
-      <CenterPopupComponent isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible}>
-        <Button title="hey" onPress={()=> setIsModalVisible(false)}></Button>
-      </CenterPopupComponent>
+      <BottomHalfPopupComponent
+        actions={actionsArray}
+        isModalVisible={isModalVisible}
+        setIsModalVisible={setIsModalVisible}
+      />
+      <CenterPopupComponent
+        popupData={deletePopupData}
+        isModalVisible={isDeletePopupVisible}
+        setIsModalVisible={setIsDeletePopupVisible}
+      />
+      <CenterPopupComponent
+        popupData={moveToCompletedPopupData}
+        isModalVisible={isMoveToCompletedPopupVisible}
+        setIsModalVisible={setIsMoveToCompletedPopupVisible}
+      />
+      <CenterPopupComponent
+        popupData={moveToPendingPopupData}
+        isModalVisible={isMoveToPendingPopupVisible}
+        setIsModalVisible={setIsMoveToPendingPopupVisible}
+      />
     </>
   );
 };

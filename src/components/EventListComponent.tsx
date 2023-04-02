@@ -21,7 +21,7 @@ const EventListComponent = (): ReactElement => {
   });
   
   //navigation
-  const navigation: NativeStackNavigationProp<HomeStackParamList, "HomeScreen"> =
+  const navigation: NativeStackNavigationProp<HomeStackParamList, "BottomTabNavigator"> =
     useNavigation();
 
   //dispatch and selectors
@@ -33,7 +33,7 @@ const EventListComponent = (): ReactElement => {
     //when this screen is mounted call getEvents API.
     //if you want to call something when screen is focused, use useFocusEffect.
     dispatch(getEventsAPICall())
-  }, [])
+  },[])
 
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
@@ -93,13 +93,13 @@ const EventListComponent = (): ReactElement => {
     <View style={styles.eventListContainer}>
       <TextComponent
         weight="bold"
-        style={{color: colors.primaryColor, fontSize: 15, marginBottom: 10}}>
+        style={{color: colors.blackColor, fontSize: 15, marginBottom: 10}}>
         Total Events:{' '}
         {eventsData?.getSize() && eventsData?.getSize() > 0
           ? eventsData?.getSize()
           : 0}
       </TextComponent>
-      {eventsState.status === "succeedded" && eventsData?.getSize() > 0 ? (
+      {eventsState.statuses.getEventAPICall === "succeedded" && eventsData?.getSize() > 0 ? (
         <RecyclerListView
           rowRenderer={rowRenderer}
           dataProvider={eventsData}
@@ -107,13 +107,13 @@ const EventListComponent = (): ReactElement => {
           initialRenderIndex={0}
           scrollViewProps={{showsVerticalScrollIndicator: false}}
         />
-      ) : eventsState.status === "loading" ? (
+      ) : eventsState.statuses.getEventAPICall === "loading" ? (
         skelatons.map((eachItem, index) => (
           <View key={index} style={styles.eventLoadingSkelaton} />
         ))
-      ) : eventsState.status === "failed" ? (
+      ) : eventsState.statuses.getEventAPICall === "failed" ? (
         <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-          <TextComponent weight="bold">{eventsState.error}</TextComponent>
+          <TextComponent weight="bold">{eventsState.errors.getEventAPICall}</TextComponent>
         </View>
       ): (
         <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
