@@ -12,6 +12,7 @@ Motive of this app is to have one stop solution for all the event management for
    5. React native Date Picker - For date and time input. 
    6. React Native Fast Image - This is improved wrapper for the Core Image Component. It includes better caching and performance.
    7. Recycler ListView - This is third party library by Flipcart for displaying the infinite list. It is better than core Flatlist component as it recycles the non visible views for displaying new views.This reduces expensive operation of creating new objects for new views and also avoid expensive garbage collection for old views.
+   8. React-native-modal - Updated version of https://reactnative.dev/docs/modal. You can view sleek bottom half modal and center modal for various actions.
 
 
   Current features in the app: 
