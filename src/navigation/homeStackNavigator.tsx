@@ -4,9 +4,11 @@ import {AddEventScreen, AddPeopleScreen, EventDetailsScreen} from '../screens/in
 import {colors, fontStyles} from '../utils/appStyles';
 import EventJoinersTopTabs from './topTabsNavigator';
 import { BottomTabNavigator } from '.';
+import { NavigatorScreenParams } from '@react-navigation/native';
+import { BottomTabParamList } from './bottomTabNavigator';
 
 export type HomeStackParamList = {
-  BottomTabNavigator: undefined;
+  BottomTabNavigator: undefined | NavigatorScreenParams<BottomTabParamList>;
   AddEventScreen: undefined;
   EventDetailsScreen: undefined;
   EventJoinersTopTab: undefined;

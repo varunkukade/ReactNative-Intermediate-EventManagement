@@ -1,26 +1,37 @@
 import React, {ReactElement, useState} from 'react';
-import {Alert, ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import uuid from 'react-native-uuid';
-import { useAppDispatch } from '../reduxConfig/store';
-import { addEventAPICall, EachEvent } from '../reduxConfig/slices/eventsSlice';
-import { ButtonComponent, CheckboxComponent, DateTimePickerComponent, InputComponent } from '../reusables';
-import { getDate, getTime } from '../utils/commonFunctions';
+import {useAppDispatch} from '../reduxConfig/store';
+import {addEventAPICall, EachEvent} from '../reduxConfig/slices/eventsSlice';
+import {
+  ButtonComponent,
+  CheckboxComponent,
+  DateTimePickerComponent,
+  InputComponent,
+} from '../reusables';
+import {getDate, getTime} from '../utils/commonFunctions';
 
 const constants = {
   eventTitle: 'eventTitle',
   eventDate: 'eventDate',
-  eventTime:'eventTime',
+  eventTime: 'eventTime',
   eventDesc: 'eventDesc',
   eventLocation: 'eventLocation',
-  eventFees:'eventFees',
-  mealProvided:'mealProvided',
-  accomodationProvided: 'accomodationProvided'
+  eventFees: 'eventFees',
+  mealProvided: 'mealProvided',
+  accomodationProvided: 'accomodationProvided',
 };
 
 interface EachFormField<T> {
@@ -52,7 +63,7 @@ const AddEventScreen = (): ReactElement => {
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddEventFormData = {
     eventTitle: {value: '', errorMessage: ''},
-    eventDesc: {value : '', errorMessage: ''},
+    eventDesc: {value: '', errorMessage: ''},
     eventDate: {value: new Date(), errorMessage: ''},
     eventTime: {value: new Date(), errorMessage: ''},
     eventLocation: {value: '', errorMessage: ''},
@@ -66,13 +77,31 @@ const AddEventScreen = (): ReactElement => {
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
 
-  const onChangeForm = (value: string | Date | boolean, fieldName: string): void => {
+  const onChangeForm = (
+    value: string | Date | boolean,
+    fieldName: string,
+  ): void => {
     setEventForm({...eventForm, [fieldName]: {value: value, errorMessage: ''}});
   };
 
   const onFormSubmit = (): void => {
-    const {eventTitle, eventDate, eventTime, eventDesc, eventLocation, eventFees, mealProvided, accomodationProvided} = eventForm;
-    if (eventTitle.value && eventDate.value && eventTime.value && eventDesc.value && eventLocation.value) {
+    const {
+      eventTitle,
+      eventDate,
+      eventTime,
+      eventDesc,
+      eventLocation,
+      eventFees,
+      mealProvided,
+      accomodationProvided,
+    } = eventForm;
+    if (
+      eventTitle.value &&
+      eventDate.value &&
+      eventTime.value &&
+      eventDesc.value &&
+      eventLocation.value
+    ) {
       let requestObj: Omit<EachEvent, 'eventId'> = {
         eventTitle: eventTitle.value,
         eventDate: eventDate.value.toString(),
@@ -81,18 +110,29 @@ const AddEventScreen = (): ReactElement => {
         eventLocation: eventLocation.value,
         eventFees: eventFees.value,
         mealProvided: mealProvided.value,
-        accomodationProvided: accomodationProvided.value
-      }
-      dispatch(addEventAPICall(requestObj))
-      .then((resp)=> {
-        if(resp.meta.requestStatus === "fulfilled"){
+        accomodationProvided: accomodationProvided.value,
+      };
+      dispatch(addEventAPICall(requestObj)).then(resp => {
+        if (resp.meta.requestStatus === 'fulfilled') {
           Alert.alert('Event saved successfully');
           setEventForm(initialEventForm);
-          navigation.navigate('BottomTabNavigator');
-        }else {
+          //Navigation state object - https://reactnavigation.org/docs/navigation-state/
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'BottomTabNavigator',
+                state: {
+                  index: 0,
+                  routes: [{name: 'Home'}],
+                },
+              },
+            ],
+          });
+        } else {
           Alert.alert('Error in saving the event. Please try after some time.');
         }
-      })
+      });
     } else {
       //set the errors if exist
       setEventForm({
@@ -111,11 +151,15 @@ const AddEventScreen = (): ReactElement => {
         },
         eventDesc: {
           ...eventDesc,
-          errorMessage: eventDesc.value ? '' : 'Event Description cannot be empty',
+          errorMessage: eventDesc.value
+            ? ''
+            : 'Event Description cannot be empty',
         },
         eventLocation: {
           ...eventLocation,
-          errorMessage: eventLocation.value ? '' : 'Event Location cannot be empty',
+          errorMessage: eventLocation.value
+            ? ''
+            : 'Event Location cannot be empty',
         },
       });
     }
@@ -140,7 +184,9 @@ const AddEventScreen = (): ReactElement => {
           errorMessage={eventForm.eventDesc.errorMessage}
           placeholder="Add a informative description..."
         />
-        <TouchableOpacity activeOpacity={0.7} onPress={() => setShowDatePicker(!showDatePicker)}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => setShowDatePicker(!showDatePicker)}>
           <InputComponent
             value={''}
             onChangeText={value => onChangeForm(value, constants.eventDate)}
@@ -159,15 +205,17 @@ const AddEventScreen = (): ReactElement => {
           />
         </TouchableOpacity>
         <View style={styles.dateTimePickerContainer}>
-        <DateTimePickerComponent
-          mode='date' 
-          date={eventForm.eventDate.value}
-          show={showDatePicker}
-          minimumDate={new Date()}
-          setDateValue={value => onChangeForm(value, constants.eventDate)}
-        />
+          <DateTimePickerComponent
+            mode="date"
+            date={eventForm.eventDate.value}
+            show={showDatePicker}
+            minimumDate={new Date()}
+            setDateValue={value => onChangeForm(value, constants.eventDate)}
+          />
         </View>
-        <TouchableOpacity activeOpacity={0.7} onPress={() => setShowTimePicker(!showTimePicker)}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => setShowTimePicker(!showTimePicker)}>
           <InputComponent
             value={''}
             onChangeText={value => onChangeForm(value, constants.eventTime)}
@@ -186,12 +234,12 @@ const AddEventScreen = (): ReactElement => {
           />
         </TouchableOpacity>
         <View style={styles.dateTimePickerContainer}>
-        <DateTimePickerComponent
-           mode='time' 
-           date={eventForm.eventTime.value}
-           show={showTimePicker}
-           setDateValue={value => onChangeForm(value, constants.eventTime)}
-        />
+          <DateTimePickerComponent
+            mode="time"
+            date={eventForm.eventTime.value}
+            show={showTimePicker}
+            setDateValue={value => onChangeForm(value, constants.eventTime)}
+          />
         </View>
         <InputComponent
           value={eventForm.eventLocation.value}
@@ -206,11 +254,21 @@ const AddEventScreen = (): ReactElement => {
           value={eventForm.eventFees.value}
           onChangeText={value => onChangeForm(value, constants.eventFees)}
           label="Event Fees"
-          keyboardType='numeric'
+          keyboardType="numeric"
           placeholder="Enter fees in ruppes..."
         />
-        <CheckboxComponent label='Meal provided by organiser ?' value={eventForm.mealProvided.value} onValueChange={value => onChangeForm(value, constants.mealProvided)}/>
-        <CheckboxComponent label='Accomodation provided by organiser ?' value={eventForm.accomodationProvided.value} onValueChange={value => onChangeForm(value, constants.accomodationProvided)}/>
+        <CheckboxComponent
+          label="Meal provided by organiser ?"
+          value={eventForm.mealProvided.value}
+          onValueChange={value => onChangeForm(value, constants.mealProvided)}
+        />
+        <CheckboxComponent
+          label="Accomodation provided by organiser ?"
+          value={eventForm.accomodationProvided.value}
+          onValueChange={value =>
+            onChangeForm(value, constants.accomodationProvided)
+          }
+        />
         <ButtonComponent
           onPress={onFormSubmit}
           containerStyle={{marginTop: 30}}>
@@ -232,6 +290,6 @@ const styles = StyleSheet.create({
   },
   dateTimePickerContainer: {
     marginBottom: 10,
-    borderRadius: 20
-  }
+    borderRadius: 20,
+  },
 });

@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from 'react';
+import React, {ReactElement, useState} from 'react';
 import {Alert, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
@@ -8,7 +8,7 @@ import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {generateArray} from '../utils/commonFunctions';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {
   EachPerson,
   getPeopleAPICall,
@@ -83,11 +83,11 @@ const EventJoinersScreen = ({
     getPeopleArray(peopleState.people),
   );
 
-  useEffect(() => {
-    //when this screen is mounted call getPeople API.
-    //if you want to call something when screen is focused, use useFocusEffect.
-    dispatch(getPeopleAPICall());
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      dispatch(getPeopleAPICall());
+    }, [dispatch, getPeopleAPICall])
+  )
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(

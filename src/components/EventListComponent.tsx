@@ -10,7 +10,7 @@ import {EachEvent, getEventsAPICall, removeEventAPICall} from '../reduxConfig/sl
 import moment from 'moment';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {setSelectedEvent} from '../reduxConfig/slices/commonSlice';
 import BottomHalfPopupComponent, { EachAction } from '../reusables/bottomHalfPopupComponent';
 import CenterPopupComponent, { popupData } from '../reusables/centerPopupComponent';
@@ -42,11 +42,11 @@ const EventListComponent = (): ReactElement => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeletePopupVisible, setIsDeletePopupVisible] = useState(false);
 
-  useEffect(() => {
-    //when this screen is mounted call getEvents API.
-    //if you want to call something when screen is focused, use useFocusEffect.
-    dispatch(getEventsAPICall());
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      dispatch(getEventsAPICall());
+    }, [dispatch, getEventsAPICall])
+  )
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(
