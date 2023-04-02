@@ -21,10 +21,12 @@ type EventsState = {
   statuses: {
     addEventAPICall: status;
     getEventAPICall: status;
+    removeEventAPICall: status;
   }
   errors: {
-    addEventAPICall: string,
+    addEventAPICall: string
     getEventAPICall: string
+    removeEventAPICall: string
   },
 };
 
@@ -32,11 +34,13 @@ const initialState: EventsState = {
   events: [],
   statuses: {
     addEventAPICall:'idle',
-    getEventAPICall:'idle'
+    getEventAPICall:'idle',
+    removeEventAPICall: 'idle'
   },
   errors: {
     addEventAPICall:'',
-    getEventAPICall:''
+    getEventAPICall:'',
+    removeEventAPICall: ''
   },
 };
 
@@ -92,6 +96,17 @@ export const eventsSlice = createSlice({
         state.errors.getEventAPICall =
           'Failed to fetch events. Please try again after some time';
         state.statuses.getEventAPICall = 'failed';
+      })
+      .addCase(removeEventAPICall.pending, (state, action) => {
+        state.statuses.removeEventAPICall = 'loading';
+      })
+      .addCase(removeEventAPICall.fulfilled, (state, action) => {
+        state.statuses.removeEventAPICall = 'succeedded';
+      })
+      .addCase(removeEventAPICall.rejected, (state, action) => {
+        state.errors.removeEventAPICall =
+          'Failed to remove event. Please try again after some time';
+        state.statuses.removeEventAPICall = 'failed';
       });
   },
 });
@@ -105,6 +120,20 @@ export const addEventAPICall = createAsyncThunk(
   async (requestObject: Omit<EachEvent,'eventId'> , thunkAPI) => {
     try {
       database().ref(apiUrls.events).push(requestObject);
+      return {success: true};
+    } catch (err) {
+      return {success: false, error: err};
+    }
+  },
+);
+
+export const removeEventAPICall = createAsyncThunk(
+  'people/removeEvent',
+  async (eventId: string, thunkAPI) => {
+    try {
+      database()
+        .ref(apiUrls.events + `/${eventId}`)
+        .remove();
       return {success: true};
     } catch (err) {
       return {success: false, error: err};

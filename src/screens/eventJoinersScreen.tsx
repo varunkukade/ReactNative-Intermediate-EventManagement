@@ -312,6 +312,7 @@ const EventJoinersScreen = ({
       ) : null}
       <BottomHalfPopupComponent
         actions={actionsArray}
+        modalHeader='User Actions'
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
       />

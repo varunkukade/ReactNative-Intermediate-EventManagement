@@ -1,40 +1,52 @@
-import React, {ReactElement, useEffect} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {ReactElement, useEffect, useState} from 'react';
+import {Alert, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/textComponent';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import { useAppDispatch, useAppSelector } from '../reduxConfig/store';
-import { generateArray } from '../utils/commonFunctions';
-import { EachEvent, getEventsAPICall } from '../reduxConfig/slices/eventsSlice';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
+import {generateArray} from '../utils/commonFunctions';
+import {EachEvent, getEventsAPICall, removeEventAPICall} from '../reduxConfig/slices/eventsSlice';
 import moment from 'moment';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { HomeStackParamList } from '../navigation/homeStackNavigator';
-import { useNavigation } from '@react-navigation/native';
-import { setSelectedEvent } from '../reduxConfig/slices/commonSlice';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {HomeStackParamList} from '../navigation/homeStackNavigator';
+import {useNavigation} from '@react-navigation/native';
+import {setSelectedEvent} from '../reduxConfig/slices/commonSlice';
+import BottomHalfPopupComponent, { EachAction } from '../reusables/bottomHalfPopupComponent';
+import CenterPopupComponent, { popupData } from '../reusables/centerPopupComponent';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const EventListComponent = (): ReactElement => {
-
   const skelatons = generateArray(5);
   let dataProvider = new DataProvider((r1, r2) => {
     return r1 !== r2;
   });
-  
+
   //navigation
-  const navigation: NativeStackNavigationProp<HomeStackParamList, "BottomTabNavigator"> =
-    useNavigation();
+  const navigation: NativeStackNavigationProp<
+    HomeStackParamList,
+    'BottomTabNavigator'
+  > = useNavigation();
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const eventsState = useAppSelector(state => state.events)
+  const eventsState = useAppSelector(state => state.events);
   const eventsData = dataProvider.cloneWithRows(eventsState.events);
- 
-  useEffect(()=> {
+
+  //useStates
+  const [longPressedEvent, setLongPressedEvent] = useState<EachEvent | null>(
+    null,
+  );
+
+  //modal states
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDeletePopupVisible, setIsDeletePopupVisible] = useState(false);
+
+  useEffect(() => {
     //when this screen is mounted call getEvents API.
     //if you want to call something when screen is focused, use useFocusEffect.
-    dispatch(getEventsAPICall())
-  },[])
-
+    dispatch(getEventsAPICall());
+  }, []);
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(
@@ -46,7 +58,13 @@ const EventListComponent = (): ReactElement => {
       dim.height = 100;
     },
   );
-  
+
+  const onLongPressEvent = (data: EachEvent) => {
+    console.log("data",data)
+    setLongPressedEvent(data);
+    setIsModalVisible(true)
+  };
+
   //Given type and data return the View component
   const rowRenderer = (
     type: number,
@@ -54,7 +72,11 @@ const EventListComponent = (): ReactElement => {
     index: number,
   ): ReactElement => {
     return (
-      <View key={index} style={styles.eachEventComponent}>
+      <TouchableOpacity
+        onLongPress={() => onLongPressEvent(data)}
+        activeOpacity={0.5}
+        key={index}
+        style={styles.eachEventComponent}>
         <View style={styles.secondSection}>
           <TextComponent
             weight="normal"
@@ -74,10 +96,13 @@ const EventListComponent = (): ReactElement => {
           </TextComponent>
         </View>
         <View style={styles.thirdSection}>
-          <TouchableOpacity activeOpacity={0.7} onPress={()=> {
-            dispatch(setSelectedEvent(data))
-            navigation.navigate("EventDetailsScreen")
-          }} style={styles.navigateButton}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => {
+              dispatch(setSelectedEvent(data));
+              navigation.navigate('EventDetailsScreen');
+            }}
+            style={styles.navigateButton}>
             <EntypoIcons
               name="chevron-right"
               color={colors.whiteColor}
@@ -85,42 +110,103 @@ const EventListComponent = (): ReactElement => {
             />
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
-  return (
-    <View style={styles.eventListContainer}>
-      <TextComponent
-        weight="bold"
-        style={{color: colors.blackColor, fontSize: 15, marginBottom: 10}}>
-        Total Events:{' '}
-        {eventsData?.getSize() && eventsData?.getSize() > 0
-          ? eventsData?.getSize()
-          : 0}
-      </TextComponent>
-      {eventsState.statuses.getEventAPICall === "succeedded" && eventsData?.getSize() > 0 ? (
-        <RecyclerListView
-          rowRenderer={rowRenderer}
-          dataProvider={eventsData}
-          layoutProvider={layoutProvider}
-          initialRenderIndex={0}
-          scrollViewProps={{showsVerticalScrollIndicator: false}}
+  const onDeleteEventClick = () => {
+    setIsModalVisible(!isModalVisible);
+    setIsDeletePopupVisible(!isDeletePopupVisible);
+  };
+
+  const onCancelClick = () => {
+    if (isDeletePopupVisible) setIsDeletePopupVisible(false);
+  };
+
+  const onConfirmDeleteClick = () => {
+    //call delete API and delete the user from list.
+    if (!longPressedEvent) return;
+    dispatch(removeEventAPICall(longPressedEvent.eventId)).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        dispatch(getEventsAPICall());
+        setIsDeletePopupVisible(false);
+        Alert.alert('Event removed successfully!');
+      } else {
+        Alert.alert(eventsState.errors.removeEventAPICall);
+      }
+    });
+  };
+
+  let actionsArray: EachAction[] = [
+    {
+      label: 'Delete Event',
+      icon: () => (
+        <MaterialIcons
+          size={22}
+          color={colors.blackColor}
+          name="delete-outline"
         />
-      ) : eventsState.statuses.getEventAPICall === "loading" ? (
-        skelatons.map((eachItem, index) => (
-          <View key={index} style={styles.eventLoadingSkelaton} />
-        ))
-      ) : eventsState.statuses.getEventAPICall === "failed" ? (
-        <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-          <TextComponent weight="bold">{eventsState.errors.getEventAPICall}</TextComponent>
-        </View>
-      ): (
-        <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-          <TextComponent weight="bold">No Events Found!</TextComponent>
-        </View>
-      )}
-    </View>
+      ),
+      onClick: () => onDeleteEventClick(),
+      isVisible: true,
+    },
+  ];
+
+  let deletePopupData: popupData = {
+    header: 'Delete Event',
+    description: 'Are you sure to remove this event? This cannot be undone.',
+    onCancelClick: onCancelClick,
+    onConfirmClick: onConfirmDeleteClick,
+  };
+
+  return (
+    <>
+      <View style={styles.eventListContainer}>
+        <TextComponent
+          weight="bold"
+          style={{color: colors.blackColor, fontSize: 15, marginBottom: 10}}>
+          Total Events:{' '}
+          {eventsData?.getSize() && eventsData?.getSize() > 0
+            ? eventsData?.getSize()
+            : 0}
+        </TextComponent>
+        {eventsState.statuses.getEventAPICall === 'succeedded' &&
+        eventsData?.getSize() > 0 ? (
+          <RecyclerListView
+            rowRenderer={rowRenderer}
+            dataProvider={eventsData}
+            layoutProvider={layoutProvider}
+            initialRenderIndex={0}
+            scrollViewProps={{showsVerticalScrollIndicator: false}}
+          />
+        ) : eventsState.statuses.getEventAPICall === 'loading' ? (
+          skelatons.map((eachItem, index) => (
+            <View key={index} style={styles.eventLoadingSkelaton} />
+          ))
+        ) : eventsState.statuses.getEventAPICall === 'failed' ? (
+          <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
+            <TextComponent weight="bold">
+              {eventsState.errors.getEventAPICall}
+            </TextComponent>
+          </View>
+        ) : (
+          <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
+            <TextComponent weight="bold">No Events Found!</TextComponent>
+          </View>
+        )}
+      </View>
+      <BottomHalfPopupComponent
+        actions={actionsArray}
+        modalHeader='Event Actions'
+        isModalVisible={isModalVisible}
+        setIsModalVisible={setIsModalVisible}
+      />
+      <CenterPopupComponent
+        popupData={deletePopupData}
+        isModalVisible={isDeletePopupVisible}
+        setIsModalVisible={setIsDeletePopupVisible}
+      />
+    </>
   );
 };
 

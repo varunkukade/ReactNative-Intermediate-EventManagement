@@ -21,12 +21,14 @@ interface CenterPopupComponentProps
   isModalVisible: boolean;
   setIsModalVisible: (value: boolean) => void;
   actions: EachAction[];
+  modalHeader: string
 }
 
 const BottomHalfPopupComponent = ({
   setIsModalVisible,
   isModalVisible,
   actions,
+  modalHeader,
   ...props
 }: CenterPopupComponentProps): ReactElement => {
   const togglePopupState = () => {
@@ -45,7 +47,7 @@ const BottomHalfPopupComponent = ({
           <TextComponent
             weight="extraBold"
             style={{fontSize: 17, color: colors.primaryColor}}>
-            User Actions
+            {modalHeader}
           </TextComponent>
         </View>
         <View style={styles.actionsContainer}>
