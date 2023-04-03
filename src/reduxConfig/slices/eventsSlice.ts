@@ -23,7 +23,12 @@ type EventsState = {
     getEventAPICall: status;
     removeEventAPICall: status;
   }
-  errors: {
+  errorMessages: {
+    addEventAPICall: string
+    getEventAPICall: string
+    removeEventAPICall: string
+  }
+  successMessages: {
     addEventAPICall: string
     getEventAPICall: string
     removeEventAPICall: string
@@ -37,11 +42,16 @@ const initialState: EventsState = {
     getEventAPICall:'idle',
     removeEventAPICall: 'idle'
   },
-  errors: {
+  errorMessages: {
     addEventAPICall:'',
     getEventAPICall:'',
     removeEventAPICall: ''
   },
+  successMessages: {
+    addEventAPICall:'',
+    getEventAPICall:'',
+    removeEventAPICall: ''
+  }
 };
 
 export const eventsSlice = createSlice({
@@ -75,9 +85,10 @@ export const eventsSlice = createSlice({
       })
       .addCase(addEventAPICall.fulfilled, (state, action) => {
         state.statuses.addEventAPICall = 'succeedded';
+        state.successMessages.addEventAPICall = 'Event saved successfully'
       })
       .addCase(addEventAPICall.rejected, (state, action) => {
-        state.errors.addEventAPICall = 'Failed to add event. Please try again after some time';
+        state.errorMessages.addEventAPICall = 'Failed to add event. Please try again after some time';
         state.statuses.addEventAPICall = 'failed';
       })
       .addCase(getEventsAPICall.pending, (state, action) => {
@@ -93,7 +104,7 @@ export const eventsSlice = createSlice({
         state.statuses.getEventAPICall = 'succeedded';
       })
       .addCase(getEventsAPICall.rejected, (state, action) => {
-        state.errors.getEventAPICall =
+        state.errorMessages.getEventAPICall =
           'Failed to fetch events. Please try again after some time';
         state.statuses.getEventAPICall = 'failed';
       })
@@ -102,10 +113,11 @@ export const eventsSlice = createSlice({
       })
       .addCase(removeEventAPICall.fulfilled, (state, action) => {
         state.events = state.events.filter(eachEvent => eachEvent.eventId !== action.meta.arg);
+        state.successMessages.removeEventAPICall = 'Event removed successfully!'
         state.statuses.removeEventAPICall = 'succeedded';
       })
       .addCase(removeEventAPICall.rejected, (state, action) => {
-        state.errors.removeEventAPICall =
+        state.errorMessages.removeEventAPICall =
           'Failed to remove event. Please try again after some time';
         state.statuses.removeEventAPICall = 'failed';
       });

@@ -41,6 +41,7 @@ const AddPeopleScreen = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const selectedEventDetails = useAppSelector(state => state.common.currentSelectedEvent);
+  const peopleState = useAppSelector(state => state.people);
 
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddPeopleFormData = {
@@ -96,12 +97,12 @@ const AddPeopleScreen = (): ReactElement => {
         };
         dispatch(addPeopleAPICall(requestObj)).then(resp => {
           if (resp.meta.requestStatus === "fulfilled") {
-            Alert.alert('User added successfully!');
+            Alert.alert(peopleState.successMessages.addPeopleAPICall);
             setEventForm(initialEventForm);
             dispatch(getPeopleAPICall())
             navigation.navigate('EventJoinersTopTab')
           } else {
-            Alert.alert('Error in adding the user. Please try after some time.');
+            Alert.alert(peopleState.errorMessages.addPeopleAPICall);
           }
         });
       }

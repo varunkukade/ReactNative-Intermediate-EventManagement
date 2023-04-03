@@ -43,7 +43,11 @@ const EventListComponent = (): ReactElement => {
   const [isDeletePopupVisible, setIsDeletePopupVisible] = useState(false);
 
   useEffect(()=> {
-    dispatch(getEventsAPICall());
+    dispatch(getEventsAPICall()).then(resp => {
+      if (resp.meta.requestStatus === 'rejected') {
+        Alert.alert(eventsState.errorMessages.getEventAPICall);
+      }
+    });
   },[])
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
@@ -126,9 +130,9 @@ const EventListComponent = (): ReactElement => {
     dispatch(removeEventAPICall(longPressedEvent.eventId)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsDeletePopupVisible(false);
-        Alert.alert('Event removed successfully!');
+        Alert.alert(eventsState.successMessages.removeEventAPICall);
       } else {
-        Alert.alert(eventsState.errors.removeEventAPICall);
+        Alert.alert(eventsState.errorMessages.removeEventAPICall);
       }
     });
   };
@@ -182,7 +186,7 @@ const EventListComponent = (): ReactElement => {
         ) : eventsState.statuses.getEventAPICall === 'failed' ? (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
             <TextComponent weight="bold">
-              {eventsState.errors.getEventAPICall}
+              {eventsState.errorMessages.getEventAPICall}
             </TextComponent>
           </View>
         ) : (

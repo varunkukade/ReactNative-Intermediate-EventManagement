@@ -85,7 +85,12 @@ const EventJoinersScreen = ({
 
 
   useEffect(()=> {
-    dispatch(getPeopleAPICall());
+    dispatch(getPeopleAPICall())
+    .then((res)=> {
+      if (res.meta.requestStatus === "rejected") {
+        Alert.alert(peopleState.errorMessages.getPeopleAPICall);
+      }
+    })
   },[])
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
@@ -174,9 +179,9 @@ const EventJoinersScreen = ({
     dispatch(removePeopleAPICall(selectedUser?.userId)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsDeletePopupVisible(false);
-        Alert.alert('User removed successfully!');
+        Alert.alert(peopleState.successMessages.removePeopleAPICall);
       } else {
-        Alert.alert(peopleState.errors.removePeopleAPICall);
+        Alert.alert(peopleState.errorMessages.removePeopleAPICall);
       }
     });
   };
@@ -193,9 +198,9 @@ const EventJoinersScreen = ({
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsMoveToCompletedPopupVisible(false);
         setIsMoveToPendingPopupVisible(false);
-        Alert.alert('User moved successfully!');
+        Alert.alert(peopleState.successMessages.updatePeopleAPICall);
       } else {
-        Alert.alert(peopleState.errors.updatePeopleAPICall);
+        Alert.alert(peopleState.errorMessages.updatePeopleAPICall);
       }
     });
   };
@@ -289,7 +294,7 @@ const EventJoinersScreen = ({
         ) : peopleState.statuses.getPeopleAPICall === 'failed' ? (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
             <TextComponent weight="bold">
-              {peopleState.errors.getPeopleAPICall}
+              {peopleState.errorMessages.getPeopleAPICall}
             </TextComponent>
           </View>
         ) : (

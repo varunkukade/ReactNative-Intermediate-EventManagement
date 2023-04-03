@@ -1,4 +1,4 @@
-import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import database from '@react-native-firebase/database';
 import apiUrls from '../apiUrls';
 
@@ -21,7 +21,13 @@ type PeopleState = {
     removePeopleAPICall: status;
     updatePeopleAPICall: status;
   };
-  errors: {
+  errorMessages: {
+    addPeopleAPICall: string;
+    getPeopleAPICall: string;
+    removePeopleAPICall: string;
+    updatePeopleAPICall: string;
+  };
+  successMessages: {
     addPeopleAPICall: string;
     getPeopleAPICall: string;
     removePeopleAPICall: string;
@@ -37,12 +43,18 @@ const initialState: PeopleState = {
     removePeopleAPICall: 'idle',
     updatePeopleAPICall: 'idle',
   },
-  errors: {
+  errorMessages: {
     addPeopleAPICall: '',
     getPeopleAPICall: '',
     removePeopleAPICall: '',
     updatePeopleAPICall: '',
   },
+  successMessages: {
+    addPeopleAPICall: '',
+    getPeopleAPICall: '',
+    removePeopleAPICall: '',
+    updatePeopleAPICall: '',
+  }
 };
 
 export const peopleSlice = createSlice({
@@ -55,10 +67,11 @@ export const peopleSlice = createSlice({
         state.statuses.addPeopleAPICall = 'loading';
       })
       .addCase(addPeopleAPICall.fulfilled, (state, action) => {
+        state.successMessages.addPeopleAPICall = 'User added successfully!'
         state.statuses.addPeopleAPICall = 'succeedded';
       })
       .addCase(addPeopleAPICall.rejected, (state, action) => {
-        state.errors.addPeopleAPICall =
+        state.errorMessages.addPeopleAPICall =
           'Failed to add User. Please try again after some time';
         state.statuses.addPeopleAPICall = 'failed';
       })
@@ -75,7 +88,7 @@ export const peopleSlice = createSlice({
         state.statuses.getPeopleAPICall = 'succeedded';
       })
       .addCase(getPeopleAPICall.rejected, (state, action) => {
-        state.errors.addPeopleAPICall =
+        state.errorMessages.getPeopleAPICall =
           'Failed to fetch People for this event. Please try again after some time';
         state.statuses.getPeopleAPICall = 'failed';
       })
@@ -84,10 +97,11 @@ export const peopleSlice = createSlice({
       })
       .addCase(removePeopleAPICall.fulfilled, (state, action) => {
         state.people = state.people.filter(eachPerson => eachPerson.userId !== action.meta.arg);
+        state.successMessages.removePeopleAPICall = 'User removed successfully!'
         state.statuses.removePeopleAPICall = 'succeedded';
       })
       .addCase(removePeopleAPICall.rejected, (state, action) => {
-        state.errors.removePeopleAPICall =
+        state.errorMessages.removePeopleAPICall =
           'Failed to remove this user from this event. Please try again after some time';
         state.statuses.removePeopleAPICall = 'failed';
       })
@@ -95,7 +109,6 @@ export const peopleSlice = createSlice({
         state.statuses.updatePeopleAPICall = 'loading';
       })
       .addCase(updatePeopleAPICall.fulfilled, (state, action) => {
-        state.statuses.updatePeopleAPICall = 'succeedded';
         const {isPaymentPending} = action.meta.arg.newUpdate;
         state.people = state.people.map(eachPerson => {
           if (eachPerson.userId === action.meta.arg.userId) {
@@ -104,9 +117,11 @@ export const peopleSlice = createSlice({
             return eachPerson;
           } else return eachPerson;
         });
+        state.successMessages.updatePeopleAPICall = 'User updated successfully!'
+        state.statuses.updatePeopleAPICall = 'succeedded';
       })
       .addCase(updatePeopleAPICall.rejected, (state, action) => {
-        state.errors.updatePeopleAPICall =
+        state.errorMessages.updatePeopleAPICall =
           'Failed to remove this user from this event. Please try again after some time';
         state.statuses.removePeopleAPICall = 'failed';
       });

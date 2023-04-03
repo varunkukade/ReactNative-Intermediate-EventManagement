@@ -12,8 +12,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
-import uuid from 'react-native-uuid';
-import {useAppDispatch} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {addEventAPICall, EachEvent} from '../reduxConfig/slices/eventsSlice';
 import {
   ButtonComponent,
@@ -77,6 +76,9 @@ const AddEventScreen = (): ReactElement => {
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
 
+  //useSelectors
+  const eventState = useAppSelector(state => state.events);
+
   const onChangeForm = (
     value: string | Date | boolean,
     fieldName: string,
@@ -114,7 +116,7 @@ const AddEventScreen = (): ReactElement => {
       };
       dispatch(addEventAPICall(requestObj)).then(resp => {
         if (resp.meta.requestStatus === 'fulfilled') {
-          Alert.alert('Event saved successfully');
+          Alert.alert(eventState.successMessages.addEventAPICall);
           setEventForm(initialEventForm);
           //Navigation state object - https://reactnavigation.org/docs/navigation-state/
           navigation.reset({
@@ -130,7 +132,7 @@ const AddEventScreen = (): ReactElement => {
             ],
           });
         } else {
-          Alert.alert('Error in saving the event. Please try after some time.');
+          Alert.alert(eventState.errorMessages.addEventAPICall);
         }
       });
     } else {
