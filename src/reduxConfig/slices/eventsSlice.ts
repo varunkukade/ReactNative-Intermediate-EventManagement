@@ -101,6 +101,7 @@ export const eventsSlice = createSlice({
         state.statuses.removeEventAPICall = 'loading';
       })
       .addCase(removeEventAPICall.fulfilled, (state, action) => {
+        state.events = state.events.filter(eachEvent => eachEvent.eventId !== action.meta.arg);
         state.statuses.removeEventAPICall = 'succeedded';
       })
       .addCase(removeEventAPICall.rejected, (state, action) => {

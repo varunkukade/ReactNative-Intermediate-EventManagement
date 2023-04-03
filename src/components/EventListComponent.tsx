@@ -10,7 +10,7 @@ import {EachEvent, getEventsAPICall, removeEventAPICall} from '../reduxConfig/sl
 import moment from 'moment';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {setSelectedEvent} from '../reduxConfig/slices/commonSlice';
 import BottomHalfPopupComponent, { EachAction } from '../reusables/bottomHalfPopupComponent';
 import CenterPopupComponent, { popupData } from '../reusables/centerPopupComponent';
@@ -42,11 +42,9 @@ const EventListComponent = (): ReactElement => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeletePopupVisible, setIsDeletePopupVisible] = useState(false);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      dispatch(getEventsAPICall());
-    }, [dispatch, getEventsAPICall])
-  )
+  useEffect(()=> {
+    dispatch(getEventsAPICall());
+  },[])
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(
@@ -127,7 +125,6 @@ const EventListComponent = (): ReactElement => {
     if (!longPressedEvent) return;
     dispatch(removeEventAPICall(longPressedEvent.eventId)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
-        dispatch(getEventsAPICall());
         setIsDeletePopupVisible(false);
         Alert.alert('Event removed successfully!');
       } else {

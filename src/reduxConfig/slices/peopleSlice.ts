@@ -83,6 +83,7 @@ export const peopleSlice = createSlice({
         state.statuses.removePeopleAPICall = 'loading';
       })
       .addCase(removePeopleAPICall.fulfilled, (state, action) => {
+        state.people = state.people.filter(eachPerson => eachPerson.userId !== action.meta.arg);
         state.statuses.removePeopleAPICall = 'succeedded';
       })
       .addCase(removePeopleAPICall.rejected, (state, action) => {

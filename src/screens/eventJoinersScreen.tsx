@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from 'react';
+import React, {ReactElement, useEffect, useState} from 'react';
 import {Alert, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
@@ -83,11 +83,10 @@ const EventJoinersScreen = ({
     getPeopleArray(peopleState.people),
   );
 
-  useFocusEffect(
-    React.useCallback(() => {
-      dispatch(getPeopleAPICall());
-    }, [dispatch, getPeopleAPICall])
-  )
+
+  useEffect(()=> {
+    dispatch(getPeopleAPICall());
+  },[])
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(
@@ -174,7 +173,6 @@ const EventJoinersScreen = ({
     if (!selectedUser) return;
     dispatch(removePeopleAPICall(selectedUser?.userId)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
-        dispatch(getPeopleAPICall());
         setIsDeletePopupVisible(false);
         Alert.alert('User removed successfully!');
       } else {

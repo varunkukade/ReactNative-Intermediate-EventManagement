@@ -7,7 +7,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {ButtonComponent, InputComponent} from '../reusables';
 import {mobileNumbervalidation} from '../utils/commonFunctions';
-import { EachPerson, addPeopleAPICall } from '../reduxConfig/slices/peopleSlice';
+import { EachPerson, addPeopleAPICall, getPeopleAPICall } from '../reduxConfig/slices/peopleSlice';
 
 type ConstantsType = {
   userName: 'userName';
@@ -98,6 +98,7 @@ const AddPeopleScreen = (): ReactElement => {
           if (resp.meta.requestStatus === "fulfilled") {
             Alert.alert('User added successfully!');
             setEventForm(initialEventForm);
+            dispatch(getPeopleAPICall())
             navigation.navigate('EventJoinersTopTab')
           } else {
             Alert.alert('Error in adding the user. Please try after some time.');
