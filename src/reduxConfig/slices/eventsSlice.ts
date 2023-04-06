@@ -1,8 +1,9 @@
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import database from '@react-native-firebase/database';
+import firestore from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
 
-type status = 'idle' | 'succeedded' | 'failed' | 'loading'
+type status = 'idle' | 'succeedded' | 'failed' | 'loading';
 
 export type EachEvent = {
   eventId: string;
@@ -11,9 +12,9 @@ export type EachEvent = {
   eventTime: string;
   eventDesc: string;
   eventLocation: string;
-  eventFees: string
-  mealProvided: boolean
-  accomodationProvided: boolean
+  eventFees: string;
+  mealProvided: boolean;
+  accomodationProvided: boolean;
 };
 
 type EventsState = {
@@ -22,36 +23,36 @@ type EventsState = {
     addEventAPICall: status;
     getEventAPICall: status;
     removeEventAPICall: status;
-  }
+  };
   errorMessages: {
-    addEventAPICall: string
-    getEventAPICall: string
-    removeEventAPICall: string
-  }
+    addEventAPICall: string;
+    getEventAPICall: string;
+    removeEventAPICall: string;
+  };
   successMessages: {
-    addEventAPICall: string
-    getEventAPICall: string
-    removeEventAPICall: string
-  },
+    addEventAPICall: string;
+    getEventAPICall: string;
+    removeEventAPICall: string;
+  };
 };
 
 const initialState: EventsState = {
   events: [],
   statuses: {
-    addEventAPICall:'idle',
-    getEventAPICall:'idle',
-    removeEventAPICall: 'idle'
+    addEventAPICall: 'idle',
+    getEventAPICall: 'idle',
+    removeEventAPICall: 'idle',
   },
   errorMessages: {
-    addEventAPICall:'',
-    getEventAPICall:'',
-    removeEventAPICall: ''
+    addEventAPICall: '',
+    getEventAPICall: '',
+    removeEventAPICall: '',
   },
   successMessages: {
-    addEventAPICall:'',
-    getEventAPICall:'',
-    removeEventAPICall: ''
-  }
+    addEventAPICall: '',
+    getEventAPICall: '',
+    removeEventAPICall: '',
+  },
 };
 
 export const eventsSlice = createSlice({
@@ -59,7 +60,17 @@ export const eventsSlice = createSlice({
   initialState,
   reducers: {
     addEvent: (state, action: PayloadAction<EachEvent>) => {
-      const {eventTitle, eventDate, eventDesc, eventId,eventLocation, eventTime, eventFees, mealProvided, accomodationProvided} = action.payload
+      const {
+        eventTitle,
+        eventDate,
+        eventDesc,
+        eventId,
+        eventLocation,
+        eventTime,
+        eventFees,
+        mealProvided,
+        accomodationProvided,
+      } = action.payload;
       state.events.push({
         eventId,
         eventTitle,
@@ -69,7 +80,7 @@ export const eventsSlice = createSlice({
         eventLocation,
         eventFees,
         mealProvided,
-        accomodationProvided
+        accomodationProvided,
       });
     },
     removeEvent: (state, action: PayloadAction<string>) => {
@@ -85,10 +96,11 @@ export const eventsSlice = createSlice({
       })
       .addCase(addEventAPICall.fulfilled, (state, action) => {
         state.statuses.addEventAPICall = 'succeedded';
-        state.successMessages.addEventAPICall = 'Event saved successfully'
+        state.successMessages.addEventAPICall = 'Event saved successfully';
       })
       .addCase(addEventAPICall.rejected, (state, action) => {
-        state.errorMessages.addEventAPICall = 'Failed to add event. Please try again after some time';
+        state.errorMessages.addEventAPICall =
+          'Failed to add event. Please try again after some time';
         state.statuses.addEventAPICall = 'failed';
       })
       .addCase(getEventsAPICall.pending, (state, action) => {
@@ -112,8 +124,11 @@ export const eventsSlice = createSlice({
         state.statuses.removeEventAPICall = 'loading';
       })
       .addCase(removeEventAPICall.fulfilled, (state, action) => {
-        state.events = state.events.filter(eachEvent => eachEvent.eventId !== action.meta.arg);
-        state.successMessages.removeEventAPICall = 'Event removed successfully!'
+        state.events = state.events.filter(
+          eachEvent => eachEvent.eventId !== action.meta.arg,
+        );
+        state.successMessages.removeEventAPICall =
+          'Event removed successfully!';
         state.statuses.removeEventAPICall = 'succeedded';
       })
       .addCase(removeEventAPICall.rejected, (state, action) => {
@@ -130,10 +145,12 @@ export default eventsSlice.reducer;
 
 export const addEventAPICall = createAsyncThunk(
   'events/addEvent',
-  async (requestObject: Omit<EachEvent,'eventId'> , thunkAPI) => {
+  async (requestObject: Omit<EachEvent, 'eventId'>, thunkAPI) => {
     try {
-      database().ref(apiUrls.events).push(requestObject);
-      return {success: true};
+      await firestore()
+        .collection(apiUrls.events)
+        .add(requestObject)
+        return {success: true};
     } catch (err) {
       return {success: false, error: err};
     }
@@ -159,20 +176,19 @@ export const getEventsAPICall = createAsyncThunk(
   async () => {
     let responseArr: EachEvent[] = [];
     try {
-      await database()
-        .ref(apiUrls.events)
-        .once('value')
-        .then(snapshot => {
-          let responseObj = snapshot.val();
-          if (responseObj && Object.keys(responseObj).length > 0) {
-            for (const key in responseObj) {
-              let updatedObj = JSON.parse(JSON.stringify(responseObj[key]));
-              updatedObj.eventId = key;
-              responseArr.push(updatedObj);
-            }
-          }
+      await firestore()
+        .collection(apiUrls.events)
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(documentSnapshot => {
+            let updatedObj = JSON.parse(
+              JSON.stringify(documentSnapshot.data()),
+            );
+            updatedObj.eventId = documentSnapshot.id;
+            responseArr.push(updatedObj);
+          });
         });
-      return {success: true, responseData: responseArr};
+        return {success: true, responseData: responseArr};
     } catch (err) {
       return {success: false, error: err};
     }

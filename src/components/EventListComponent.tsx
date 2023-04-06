@@ -43,11 +43,16 @@ const EventListComponent = (): ReactElement => {
   const [isDeletePopupVisible, setIsDeletePopupVisible] = useState(false);
 
   useEffect(()=> {
-    dispatch(getEventsAPICall()).then(resp => {
+    const promise = dispatch(getEventsAPICall())
+    promise.then((resp)=> {
       if (resp.meta.requestStatus === 'rejected') {
         Alert.alert(eventsState.errorMessages.getEventAPICall);
       }
-    });
+    })
+    return () => {
+      // `createAsyncThunk` attaches an `abort()` method to the promise
+      promise.abort()
+    }
   },[])
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation

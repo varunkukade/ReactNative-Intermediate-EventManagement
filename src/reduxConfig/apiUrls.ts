@@ -1,5 +1,5 @@
 const apiUrls = {
-  events : "/events",
+  events : "Events",
   people : "/people"
 }
 
