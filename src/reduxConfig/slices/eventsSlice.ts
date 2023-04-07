@@ -1,5 +1,4 @@
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import database from '@react-native-firebase/database';
 import firestore from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
 
@@ -32,7 +31,7 @@ const initialState: EventsState = {
     addEventAPICall: 'idle',
     getEventAPICall: 'idle',
     removeEventAPICall: 'idle',
-  }
+  },
 };
 
 export const eventsSlice = createSlice({
@@ -118,13 +117,11 @@ export const addEventAPICall = createAsyncThunk(
   'events/addEvent',
   async (requestObject: Omit<EachEvent, 'eventId'>, thunkAPI) => {
     try {
-      await firestore()
-        .collection(apiUrls.events)
-        .add(requestObject)
-        return {message: "Event added successfully"};
+      await firestore().collection(apiUrls.events).add(requestObject);
+      return {message: 'Event added successfully'};
     } catch (err) {
       //return rejected promise.
-      return {message: "Failed to add event. Please try again after some time"};
+      return {message: 'Failed to add event. Please try again after some time'};
     }
   },
 );
@@ -133,17 +130,16 @@ export const removeEventAPICall = createAsyncThunk(
   'people/removeEvent',
   async (eventId: string, thunkAPI) => {
     try {
-      database()
-        .ref(apiUrls.events + `/${eventId}`)
-        .remove();
-        return {message: "Event removed successfully"};
+      firestore().collection(apiUrls.events).doc(eventId).delete();
+      return {message: 'Event removed successfully'};
     } catch (err) {
       //return rejected promise
-      return {message: "Failed to remove events. Please try again after some time"};
+      return {
+        message: 'Failed to remove events. Please try again after some time',
+      };
     }
   },
 );
-
 
 export const getEventsAPICall = createAsyncThunk(
   'events/getEvent',
@@ -163,11 +159,13 @@ export const getEventsAPICall = createAsyncThunk(
             responseArr.push(updatedObj);
           });
         });
-        //return the resolved promise with data.
-      return {responseData: responseArr, message: "Event fetched successfully"};
+      //return the resolved promise with data.
+      return {responseData: responseArr, message: 'Event fetched successfully'};
     } catch (err) {
       //return rejected promise.
-      return {message: "Failed to fetch events. Please try again after some time"};
+      return {
+        message: 'Failed to fetch events. Please try again after some time',
+      };
     }
   },
 );

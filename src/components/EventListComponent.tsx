@@ -139,9 +139,9 @@ const EventListComponent = (): ReactElement => {
     dispatch(removeEventAPICall(longPressedEvent.eventId)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsDeletePopupVisible(false);
-        Alert.alert(eventsState.successMessages.removeEventAPICall);
+        Alert.alert(resp.payload.message);
       } else {
-        Alert.alert(eventsState.errorMessages.removeEventAPICall);
+        Alert.alert(resp.payload.message);
       }
     });
   };
@@ -195,7 +195,7 @@ const EventListComponent = (): ReactElement => {
         ) : eventsState.statuses.getEventAPICall === 'failed' ? (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
             <TextComponent weight="bold">
-              {eventsState.errorMessages.getEventAPICall}
+            'Failed to fetch events. Please try again after some time'
             </TextComponent>
           </View>
         ) : (

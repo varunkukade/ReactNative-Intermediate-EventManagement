@@ -8,7 +8,7 @@ import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {generateArray} from '../utils/commonFunctions';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {
   EachPerson,
   getPeopleAPICall,
@@ -83,15 +83,13 @@ const EventJoinersScreen = ({
     getPeopleArray(peopleState.people),
   );
 
-
-  useEffect(()=> {
-    dispatch(getPeopleAPICall())
-    .then((res)=> {
-      if (res.meta.requestStatus === "rejected") {
-        Alert.alert(peopleState.errorMessages.getPeopleAPICall);
+  useEffect(() => {
+    dispatch(getPeopleAPICall()).then(res => {
+      if (res.meta.requestStatus === 'rejected') {
+        Alert.alert(res.payload.message);
       }
-    })
-  },[])
+    });
+  }, []);
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(
@@ -179,9 +177,9 @@ const EventJoinersScreen = ({
     dispatch(removePeopleAPICall(selectedUser?.userId)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsDeletePopupVisible(false);
-        Alert.alert(peopleState.successMessages.removePeopleAPICall);
+        Alert.alert(resp.payload.message);
       } else {
-        Alert.alert(peopleState.errorMessages.removePeopleAPICall);
+        Alert.alert(resp.payload.message);
       }
     });
   };
@@ -198,9 +196,9 @@ const EventJoinersScreen = ({
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsMoveToCompletedPopupVisible(false);
         setIsMoveToPendingPopupVisible(false);
-        Alert.alert(peopleState.successMessages.updatePeopleAPICall);
+        Alert.alert(resp.payload.message);
       } else {
-        Alert.alert(peopleState.errorMessages.updatePeopleAPICall);
+        Alert.alert(resp.payload.message);
       }
     });
   };
@@ -294,7 +292,7 @@ const EventJoinersScreen = ({
         ) : peopleState.statuses.getPeopleAPICall === 'failed' ? (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
             <TextComponent weight="bold">
-              {peopleState.errorMessages.getPeopleAPICall}
+            'Failed to fetch users. Please try again after some time'
             </TextComponent>
           </View>
         ) : (
@@ -315,7 +313,7 @@ const EventJoinersScreen = ({
       ) : null}
       <BottomHalfPopupComponent
         actions={actionsArray}
-        modalHeader='User Actions'
+        modalHeader="User Actions"
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
       />

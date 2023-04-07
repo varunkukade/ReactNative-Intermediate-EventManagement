@@ -97,12 +97,12 @@ const AddPeopleScreen = (): ReactElement => {
         };
         dispatch(addPeopleAPICall(requestObj)).then(resp => {
           if (resp.meta.requestStatus === "fulfilled") {
-            Alert.alert(peopleState.successMessages.addPeopleAPICall);
+            Alert.alert(resp.payload.message);
             setEventForm(initialEventForm);
             dispatch(getPeopleAPICall())
             navigation.navigate('EventJoinersTopTab')
           } else {
-            Alert.alert(peopleState.errorMessages.addPeopleAPICall);
+            Alert.alert(resp.payload.message);
           }
         });
       }
