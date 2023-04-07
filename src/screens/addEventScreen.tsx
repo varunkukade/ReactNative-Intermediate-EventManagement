@@ -1,10 +1,11 @@
 import React, {ReactElement, useState} from 'react';
 import {
-  Alert,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
+  ToastAndroid,
+  Platform
 } from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
@@ -116,7 +117,7 @@ const AddEventScreen = (): ReactElement => {
       };
       dispatch(addEventAPICall(requestObj)).then(resp => {
         if (resp.meta.requestStatus === 'fulfilled') {
-          Alert.alert(resp.payload.message);
+          if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
           setEventForm(initialEventForm);
           //Navigation state object - https://reactnavigation.org/docs/navigation-state/
           navigation.reset({
@@ -132,7 +133,7 @@ const AddEventScreen = (): ReactElement => {
             ],
           });
         } else {
-          Alert.alert(eventState.errorMessages.addEventAPICall);
+          if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
         }
       });
     } else {

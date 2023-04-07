@@ -1,5 +1,5 @@
 import React, {ReactElement, useEffect, useState} from 'react';
-import {Alert, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Platform, StyleSheet, ToastAndroid, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/textComponent';
@@ -22,6 +22,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import CenterPopupComponent, {
   popupData,
 } from '../reusables/centerPopupComponent';
+import { TopTabParamList } from '../navigation/topTabsNavigator';
 
 type EventJoinersScreenProps = {
   type: 'all' | 'pending' | 'completed';
@@ -41,6 +42,11 @@ const EventJoinersScreen = ({
     HomeStackParamList,
     'EventJoinersTopTab'
   > = useNavigation();
+
+  const TopTabNavigation: NativeStackNavigationProp<
+  TopTabParamList,
+  'All'
+> = useNavigation();
 
   //useStates
   const [selectedUser, setSelectedUser] = useState<EachPerson | null>(null);
@@ -86,7 +92,7 @@ const EventJoinersScreen = ({
   useEffect(() => {
     dispatch(getPeopleAPICall()).then(res => {
       if (res.meta.requestStatus === 'rejected') {
-        Alert.alert(res.payload.message);
+        if(Platform.OS === "android") ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
       }
     });
   }, []);
@@ -177,9 +183,9 @@ const EventJoinersScreen = ({
     dispatch(removePeopleAPICall(selectedUser?.userId)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsDeletePopupVisible(false);
-        Alert.alert(resp.payload.message);
+        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
-        Alert.alert(resp.payload.message);
+        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
   };
@@ -187,6 +193,7 @@ const EventJoinersScreen = ({
   const onConfirmMoveClick = () => {
     //update people list with updated value of isPending.
     if (!selectedUser) return;
+    let isPending = selectedUser.isPaymentPending
     dispatch(
       updatePeopleAPICall({
         userId: selectedUser.userId,
@@ -196,9 +203,11 @@ const EventJoinersScreen = ({
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsMoveToCompletedPopupVisible(false);
         setIsMoveToPendingPopupVisible(false);
-        Alert.alert(resp.payload.message);
+        if(isPending) TopTabNavigation.navigate("Completed")
+        else TopTabNavigation.navigate("Pending")
+        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
-        Alert.alert(resp.payload.message);
+        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
   };

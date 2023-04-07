@@ -1,5 +1,5 @@
 import React, {ReactElement, useState} from 'react';
-import {Alert, ScrollView, StyleSheet, View} from 'react-native';
+import {Platform, ScrollView, StyleSheet, ToastAndroid, View} from 'react-native';
 import {measureMents} from '../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
@@ -97,12 +97,12 @@ const AddPeopleScreen = (): ReactElement => {
         };
         dispatch(addPeopleAPICall(requestObj)).then(resp => {
           if (resp.meta.requestStatus === "fulfilled") {
-            Alert.alert(resp.payload.message);
+            if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
             setEventForm(initialEventForm);
             dispatch(getPeopleAPICall())
             navigation.navigate('EventJoinersTopTab')
           } else {
-            Alert.alert(resp.payload.message);
+            if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
           }
         });
       }

@@ -3,7 +3,14 @@ import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs
 import {EventJoinersScreen} from '../screens';
 import {fontStyles} from '../utils/appStyles';
 
-const TopTab = createMaterialTopTabNavigator();
+
+export type TopTabParamList = {
+  All: undefined;
+  Pending: undefined;
+  Completed: undefined;
+};
+
+const TopTab = createMaterialTopTabNavigator<TopTabParamList>();
 
 const EventJoinersTopTabs = () => {
   return (

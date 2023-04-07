@@ -1,5 +1,5 @@
 import React, {ReactElement, useEffect, useState} from 'react';
-import {Alert, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View, ToastAndroid, Platform} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/textComponent';
@@ -54,7 +54,7 @@ const EventListComponent = (): ReactElement => {
     dispatch(getEventsAPICall())
     .then((resp)=> {
       if (resp.meta.requestStatus === "rejected") {
-        Alert.alert(resp.payload.message);
+        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     })
   }, []);
@@ -139,9 +139,9 @@ const EventListComponent = (): ReactElement => {
     dispatch(removeEventAPICall(longPressedEvent.eventId)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsDeletePopupVisible(false);
-        Alert.alert(resp.payload.message);
+        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
-        Alert.alert(resp.payload.message);
+        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
   };
