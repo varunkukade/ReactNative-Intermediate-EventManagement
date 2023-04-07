@@ -24,16 +24,6 @@ type EventsState = {
     getEventAPICall: status;
     removeEventAPICall: status;
   };
-  errorMessages: {
-    addEventAPICall: string;
-    getEventAPICall: string;
-    removeEventAPICall: string;
-  };
-  successMessages: {
-    addEventAPICall: string;
-    getEventAPICall: string;
-    removeEventAPICall: string;
-  };
 };
 
 const initialState: EventsState = {
@@ -42,17 +32,7 @@ const initialState: EventsState = {
     addEventAPICall: 'idle',
     getEventAPICall: 'idle',
     removeEventAPICall: 'idle',
-  },
-  errorMessages: {
-    addEventAPICall: '',
-    getEventAPICall: '',
-    removeEventAPICall: '',
-  },
-  successMessages: {
-    addEventAPICall: '',
-    getEventAPICall: '',
-    removeEventAPICall: '',
-  },
+  }
 };
 
 export const eventsSlice = createSlice({
@@ -96,11 +76,8 @@ export const eventsSlice = createSlice({
       })
       .addCase(addEventAPICall.fulfilled, (state, action) => {
         state.statuses.addEventAPICall = 'succeedded';
-        state.successMessages.addEventAPICall = 'Event saved successfully';
       })
       .addCase(addEventAPICall.rejected, (state, action) => {
-        state.errorMessages.addEventAPICall =
-          'Failed to add event. Please try again after some time';
         state.statuses.addEventAPICall = 'failed';
       })
       .addCase(getEventsAPICall.pending, (state, action) => {
@@ -116,8 +93,6 @@ export const eventsSlice = createSlice({
         state.statuses.getEventAPICall = 'succeedded';
       })
       .addCase(getEventsAPICall.rejected, (state, action) => {
-        state.errorMessages.getEventAPICall =
-          'Failed to fetch events. Please try again after some time';
         state.statuses.getEventAPICall = 'failed';
       })
       .addCase(removeEventAPICall.pending, (state, action) => {
@@ -127,13 +102,9 @@ export const eventsSlice = createSlice({
         state.events = state.events.filter(
           eachEvent => eachEvent.eventId !== action.meta.arg,
         );
-        state.successMessages.removeEventAPICall =
-          'Event removed successfully!';
         state.statuses.removeEventAPICall = 'succeedded';
       })
       .addCase(removeEventAPICall.rejected, (state, action) => {
-        state.errorMessages.removeEventAPICall =
-          'Failed to remove event. Please try again after some time';
         state.statuses.removeEventAPICall = 'failed';
       });
   },
@@ -150,9 +121,10 @@ export const addEventAPICall = createAsyncThunk(
       await firestore()
         .collection(apiUrls.events)
         .add(requestObject)
-        return {success: true};
+        return {message: "Event added successfully"};
     } catch (err) {
-      return {success: false, error: err};
+      //return rejected promise.
+      return {message: "Failed to add event. Please try again after some time"};
     }
   },
 );
@@ -164,16 +136,19 @@ export const removeEventAPICall = createAsyncThunk(
       database()
         .ref(apiUrls.events + `/${eventId}`)
         .remove();
-      return {success: true};
+        return {message: "Event removed successfully"};
     } catch (err) {
-      return {success: false, error: err};
+      //return rejected promise
+      return {message: "Failed to remove events. Please try again after some time"};
     }
   },
 );
 
+
 export const getEventsAPICall = createAsyncThunk(
   'events/getEvent',
   async () => {
+    //this callback is called as payload creator callback.
     let responseArr: EachEvent[] = [];
     try {
       await firestore()
@@ -188,9 +163,11 @@ export const getEventsAPICall = createAsyncThunk(
             responseArr.push(updatedObj);
           });
         });
-        return {success: true, responseData: responseArr};
+        //return the resolved promise with data.
+      return {responseData: responseArr, message: "Event fetched successfully"};
     } catch (err) {
-      return {success: false, error: err};
+      //return rejected promise.
+      return {message: "Failed to fetch events. Please try again after some time"};
     }
   },
 );

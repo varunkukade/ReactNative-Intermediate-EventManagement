@@ -6,14 +6,22 @@ import TextComponent from '../reusables/textComponent';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {generateArray} from '../utils/commonFunctions';
-import {EachEvent, getEventsAPICall, removeEventAPICall} from '../reduxConfig/slices/eventsSlice';
+import {
+  EachEvent,
+  getEventsAPICall,
+  removeEventAPICall,
+} from '../reduxConfig/slices/eventsSlice';
 import moment from 'moment';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import {setSelectedEvent} from '../reduxConfig/slices/commonSlice';
-import BottomHalfPopupComponent, { EachAction } from '../reusables/bottomHalfPopupComponent';
-import CenterPopupComponent, { popupData } from '../reusables/centerPopupComponent';
+import BottomHalfPopupComponent, {
+  EachAction,
+} from '../reusables/bottomHalfPopupComponent';
+import CenterPopupComponent, {
+  popupData,
+} from '../reusables/centerPopupComponent';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const EventListComponent = (): ReactElement => {
@@ -42,18 +50,14 @@ const EventListComponent = (): ReactElement => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeletePopupVisible, setIsDeletePopupVisible] = useState(false);
 
-  useEffect(()=> {
-    const promise = dispatch(getEventsAPICall())
-    promise.then((resp)=> {
-      if (resp.meta.requestStatus === 'rejected') {
-        Alert.alert(eventsState.errorMessages.getEventAPICall);
+  useEffect(() => {
+    dispatch(getEventsAPICall())
+    .then((resp)=> {
+      if (resp.meta.requestStatus === "rejected") {
+        Alert.alert(resp.payload.message);
       }
     })
-    return () => {
-      // `createAsyncThunk` attaches an `abort()` method to the promise
-      promise.abort()
-    }
-  },[])
+  }, []);
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(
@@ -68,7 +72,7 @@ const EventListComponent = (): ReactElement => {
 
   const onLongPressEvent = (data: EachEvent) => {
     setLongPressedEvent(data);
-    setIsModalVisible(true)
+    setIsModalVisible(true);
   };
 
   //Given type and data return the View component
@@ -202,7 +206,7 @@ const EventListComponent = (): ReactElement => {
       </View>
       <BottomHalfPopupComponent
         actions={actionsArray}
-        modalHeader='Event Actions'
+        modalHeader="Event Actions"
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
       />

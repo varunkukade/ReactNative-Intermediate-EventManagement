@@ -116,7 +116,7 @@ const AddEventScreen = (): ReactElement => {
       };
       dispatch(addEventAPICall(requestObj)).then(resp => {
         if (resp.meta.requestStatus === 'fulfilled') {
-          Alert.alert(eventState.successMessages.addEventAPICall);
+          Alert.alert(resp.payload.message);
           setEventForm(initialEventForm);
           //Navigation state object - https://reactnavigation.org/docs/navigation-state/
           navigation.reset({
