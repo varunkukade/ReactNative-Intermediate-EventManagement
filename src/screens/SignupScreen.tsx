@@ -17,8 +17,7 @@ import { RootStackParamList } from '../navigation/rootStackNavigator';
 import auth from '@react-native-firebase/auth';
 
 const constants = {
-  firstName: 'firstName',
-  lastName: 'lastName',
+  name: 'name',
   email: 'email',
   password: 'password',
   confirmPasssword: 'confirmPasssword',
@@ -32,8 +31,7 @@ interface EachFormField<T> {
 }
 
 type SignupFormData = {
-  firstName: EachFormField<string>;
-  lastName: EachFormField<string>;
+  name: EachFormField<string>;
   email: EachFormField<string>;
   password: EachFormField<string>;
   confirmPasssword: EachFormField<string>;
@@ -44,8 +42,7 @@ type SignupFormData = {
 const SignupScreen = () => {
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialSignupForm: SignupFormData = {
-    firstName: {value: 'Varun', errorMessage: ''},
-    lastName: {value: 'Kukade', errorMessage: ''},
+    name: {value: 'Varun Kukade', errorMessage: ''},
     email: {value: 'varun.k@gmail.com', errorMessage: ''},
     password: {value: 'varunvarun', errorMessage: ''},
     confirmPasssword: {value: 'varunvarun', errorMessage: ''},
@@ -81,12 +78,8 @@ const SignupScreen = () => {
     if (type === 'empty') {
       setSignupForm({
         ...signupForm,
-        firstName: {
-          ...signupForm.firstName,
-          errorMessage: '',
-        },
-        lastName: {
-          ...signupForm.lastName,
+        name: {
+          ...signupForm.name,
           errorMessage: '',
         },
         email: {
@@ -113,8 +106,7 @@ const SignupScreen = () => {
 
   const onFormSubmit = (): void => {
     const {
-      firstName,
-      lastName,
+      name,
       email,
       password,
       confirmPasssword,
@@ -122,8 +114,7 @@ const SignupScreen = () => {
       isAdmin,
     } = signupForm;
     if (
-      firstName.value &&
-      lastName.value &&
+      name.value &&
       emailValidation(email.value).isValid &&
       passwordValidation(password.value).isValid &&
       confirmPasswordValidation(password.value,confirmPasssword.value).isValid && 
@@ -138,7 +129,7 @@ const SignupScreen = () => {
         if (res.meta.requestStatus === 'fulfilled') {
           if(Platform.OS === "android" && res.payload) ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
           auth().currentUser?.updateProfile({ 
-            displayName: firstName.value + lastName.value,
+            displayName: name.value
           })
           setSignupForm(initialSignupForm);
           //Navigation state object - https://reactnavigation.org/docs/navigation-state/
@@ -162,13 +153,9 @@ const SignupScreen = () => {
       //set the errors if exist
       setFormErrors("", {
         ...signupForm,
-        firstName: {
-          ...firstName,
-          errorMessage: firstName.value ? '' : 'First Name cannot be empty.',
-        },
-        lastName: {
-          ...lastName,
-          errorMessage: lastName.value ? '' : 'Last Name cannot be empty.',
+        name: {
+          ...name,
+          errorMessage: name.value ? '' : 'Name cannot be empty.',
         },
         email: {
           ...email,
@@ -193,7 +180,6 @@ const SignupScreen = () => {
 
   return (
     <ScrollView
-      style={{backgroundColor: 'red'}}
       showsVerticalScrollIndicator={false}>
       <View style={styles.wrapperComponent}>
         <TextComponent
@@ -203,18 +189,11 @@ const SignupScreen = () => {
           place.
         </TextComponent>
         <InputComponent
-          value={signupForm.firstName.value}
-          onChangeText={value => onChangeForm(value, constants.firstName)}
-          label="First Name"
-          errorMessage={signupForm.firstName.errorMessage}
-          placeholder="Varun"
-        />
-        <InputComponent
-          value={signupForm.lastName.value}
-          onChangeText={value => onChangeForm(value, constants.lastName)}
-          label="Last Name"
-          errorMessage={signupForm.lastName.errorMessage}
-          placeholder="Kukade"
+          value={signupForm.name.value}
+          onChangeText={value => onChangeForm(value, constants.name)}
+          label="Name"
+          errorMessage={signupForm.name.errorMessage}
+          placeholder="Varun Kukade"
         />
         <InputComponent
           value={signupForm.email.value}
