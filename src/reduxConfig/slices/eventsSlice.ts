@@ -1,4 +1,4 @@
-import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import firestore from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
 
@@ -41,37 +41,7 @@ const initialState: EventsState = {
 export const eventsSlice = createSlice({
   name: 'events',
   initialState,
-  reducers: {
-    addEvent: (state, action: PayloadAction<EachEvent>) => {
-      const {
-        eventTitle,
-        eventDate,
-        eventDesc,
-        eventId,
-        eventLocation,
-        eventTime,
-        eventFees,
-        mealProvided,
-        accomodationProvided,
-      } = action.payload;
-      state.events.push({
-        eventId,
-        eventTitle,
-        eventDate,
-        eventTime,
-        eventDesc,
-        eventLocation,
-        eventFees,
-        mealProvided,
-        accomodationProvided,
-      });
-    },
-    removeEvent: (state, action: PayloadAction<string>) => {
-      state.events.filter(eachEvent => {
-        return eachEvent.eventId !== action.payload;
-      });
-    },
-  },
+  reducers: {},
   extraReducers(builder) {
     builder
       .addCase(addEventAPICall.pending, (state, action) => {
@@ -113,8 +83,6 @@ export const eventsSlice = createSlice({
   },
 });
 
-export const {addEvent: addEventAction, removeEvent: removeEventAction} =
-  eventsSlice.actions;
 export default eventsSlice.reducer;
 
 export const addEventAPICall = createAsyncThunk<
