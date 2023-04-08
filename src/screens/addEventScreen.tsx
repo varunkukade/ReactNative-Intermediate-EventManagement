@@ -117,7 +117,7 @@ const AddEventScreen = (): ReactElement => {
       };
       dispatch(addEventAPICall(requestObj)).then(resp => {
         if (resp.meta.requestStatus === 'fulfilled') {
-          if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+          if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
           setEventForm(initialEventForm);
           //Navigation state object - https://reactnavigation.org/docs/navigation-state/
           navigation.reset({
@@ -133,7 +133,7 @@ const AddEventScreen = (): ReactElement => {
             ],
           });
         } else {
-          if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+          if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
         }
       });
     } else {
@@ -290,6 +290,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: 30,
     paddingHorizontal: measureMents.leftPadding,
+    backgroundColor: colors.whiteColor
   },
   dateTimePickerContainer: {
     marginBottom: 10,

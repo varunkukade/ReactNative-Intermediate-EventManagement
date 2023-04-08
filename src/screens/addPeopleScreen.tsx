@@ -1,6 +1,6 @@
 import React, {ReactElement, useState} from 'react';
 import {Platform, ScrollView, StyleSheet, ToastAndroid, View} from 'react-native';
-import {measureMents} from '../utils/appStyles';
+import {colors, measureMents} from '../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
@@ -97,12 +97,12 @@ const AddPeopleScreen = (): ReactElement => {
         };
         dispatch(addPeopleAPICall(requestObj)).then(resp => {
           if (resp.meta.requestStatus === "fulfilled") {
-            if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+            if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
             setEventForm(initialEventForm);
             dispatch(getPeopleAPICall())
             navigation.navigate('EventJoinersTopTab')
           } else {
-            if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+            if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
           }
         });
       }
@@ -167,6 +167,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: 30,
     paddingHorizontal: measureMents.leftPadding,
+    backgroundColor: colors.whiteColor
   },
   dateTimePickerContainer: {
     marginBottom: 10,

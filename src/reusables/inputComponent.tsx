@@ -30,6 +30,7 @@ const InputComponent = ({
         <TextInput
           style={[styles.input, {marginBottom: errorMessage ? 0 : 15}]}
           {...props}
+          placeholderTextColor={colors.greyColor}
           onChangeText={onChangeText}
           value={value}
           cursorColor={colors.primaryColor}
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   input: {
-    backgroundColor: colors.whiteColor,
+    backgroundColor: colors.lightLavenderColor,
     marginTop: 7,
     borderRadius: 15,
     paddingVertical: 13,

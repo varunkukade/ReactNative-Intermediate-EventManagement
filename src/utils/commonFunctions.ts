@@ -38,26 +38,102 @@ export const getTime = (time: Date) => {
 
 type ValidationObject = {
   isValid: boolean;
-  errorMessage: string
-}
+  errorMessage: string;
+};
 
 export const mobileNumbervalidation = (value: string): ValidationObject => {
   let validationObject = {
-     isValid: true,
-     errorMessage: ""
-  }
+    isValid: true,
+    errorMessage: '',
+  };
   if (checkIfEmpty(value)) {
     validationObject = {
       isValid: false,
-      errorMessage: 'Mobile Number cannot be empty.'
-    }
+      errorMessage: 'Mobile Number cannot be empty.',
+    };
   } else {
     let pattern = /^[6-9]\d{9}$/;
-    if (!pattern.test(value)){
+    if (!pattern.test(value)) {
       validationObject = {
         isValid: false,
-        errorMessage: 'Invalid Mobile Number.'
-      }
+        errorMessage: 'Invalid Mobile Number.',
+      };
+    }
+  }
+  return validationObject;
+};
+
+export const emailValidation = (value: string): ValidationObject => {
+  let validationObject = {
+    isValid: true,
+    errorMessage: '',
+  };
+  if (checkIfEmpty(value)) {
+    validationObject = {
+      isValid: false,
+      errorMessage: 'Email cannot be empty.',
+    };
+  } else {
+    let pattern =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if (!pattern.test(value)) {
+      validationObject = {
+        isValid: false,
+        errorMessage: 'Invalid Email.',
+      };
+    }
+  }
+  return validationObject;
+};
+
+export const passwordValidation = (value: string): ValidationObject => {
+  let validationObject = {
+    isValid: true,
+    errorMessage: '',
+  };
+  if (checkIfEmpty(value)) {
+    validationObject = {
+      isValid: false,
+      errorMessage: 'Password cannot be empty.',
+    };
+  } else {
+    console.log(value, value.length)
+    let minChar = 6;
+    if (value.length <= minChar) {
+      validationObject = {
+        isValid: false,
+        errorMessage: 'Minimum 6 characters required.',
+      };
+    }
+  }
+  console.log(validationObject)
+  return validationObject;
+};
+
+export const confirmPasswordValidation = (
+  password: string,
+  confirmPassword: string,
+): ValidationObject => {
+  let validationObject = {
+    isValid: true,
+    errorMessage: '',
+  };
+  if (checkIfEmpty(confirmPassword)) {
+    validationObject = {
+      isValid: false,
+      errorMessage: 'Confirm Password cannot be empty.',
+    };
+  } else {
+    if(checkIfEmpty(password)){
+      validationObject = {
+        isValid: false,
+        errorMessage: 'Password cannot be empty.',
+      };
+    } else if (password !== confirmPassword) {
+      validationObject = {
+        isValid: false,
+        errorMessage: `Passwords doesn't match`,
+      };
     }
   }
   return validationObject;
