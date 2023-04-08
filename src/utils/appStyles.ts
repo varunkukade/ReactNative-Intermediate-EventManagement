@@ -7,7 +7,8 @@ export const colors = {
     blackColor: "#000000",
     lavenderColor: "#E6E6FA",
     errorColor:"#ff3333",
-    iconLightPinkColor:"#FC8EAC"
+    iconLightPinkColor:"#FC8EAC",
+    lightLavenderColor: "#FBF8FF"
 }
 
 export const measureMents = {
