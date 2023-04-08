@@ -1,6 +1,7 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import apiUrls from '../apiUrls';
 import firestore from '@react-native-firebase/firestore';
+import {MessageType} from './eventsSlice';
 
 type status = 'idle' | 'succeedded' | 'failed' | 'loading';
 
@@ -68,7 +69,7 @@ export const peopleSlice = createSlice({
       })
       .addCase(removePeopleAPICall.fulfilled, (state, action) => {
         state.people = state.people.filter(
-          eachPerson => eachPerson.userId !== action.meta.arg,
+          eachPerson => eachPerson.userId !== action.meta.arg.userId,
         );
         state.statuses.removePeopleAPICall = 'succeedded';
       })
@@ -97,65 +98,104 @@ export const peopleSlice = createSlice({
 
 export default peopleSlice.reducer;
 
-export const addPeopleAPICall = createAsyncThunk(
+export const addPeopleAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  MessageType,
+  //type of request obj passed to payload creator
+  Omit<EachPerson, 'userId'>,
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>(
   'people/addPeople',
   async (requestObject: Omit<EachPerson, 'userId'>, thunkAPI) => {
     try {
       await firestore().collection(apiUrls.people).add(requestObject);
       return {message: 'User added successfully'};
     } catch (err) {
-      return thunkAPI.rejectWithValue({message: 'Failed to add user. Please try again after some time'});
-    }
-  },
-);
-
-export const removePeopleAPICall = createAsyncThunk(
-  'people/removePeople',
-  async (userId: string, thunkAPI) => {
-    try {
-      firestore().collection(apiUrls.people).doc(userId).delete();
-      return {message: 'User removed successfully'};
-    } catch (err) {
       return thunkAPI.rejectWithValue({
-        message: 'Failed to remove user. Please try again after some time',
+        message: 'Failed to add user. Please try again after some time',
       });
     }
   },
 );
 
-export const getPeopleAPICall = createAsyncThunk(
-  'events/getPeople',
-  async (_, thunkAPI) => {
-    let responseArr: EachPerson[] = [];
-    try {
-      await firestore()
-        .collection(apiUrls.people)
-        .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(documentSnapshot => {
-            let updatedObj = JSON.parse(
-              JSON.stringify(documentSnapshot.data()),
-            );
-            updatedObj.userId = documentSnapshot.id;
-            responseArr.push(updatedObj);
-          });
+export const removePeopleAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  {
+    userId: string;
+  },
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('people/removePeople', async (requestObj: {userId: string}, thunkAPI) => {
+  try {
+    firestore().collection(apiUrls.people).doc(requestObj.userId).delete();
+    return {message: 'User removed successfully'};
+  } catch (err) {
+    return thunkAPI.rejectWithValue({
+      message: 'Failed to remove user. Please try again after some time',
+    });
+  }
+});
+
+export const getPeopleAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    responseData: EachPerson[];
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  undefined,
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('events/getPeople', async (_, thunkAPI) => {
+  let responseArr: EachPerson[] = [];
+  try {
+    await firestore()
+      .collection(apiUrls.people)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(documentSnapshot => {
+          let updatedObj = JSON.parse(JSON.stringify(documentSnapshot.data()));
+          updatedObj.userId = documentSnapshot.id;
+          responseArr.push(updatedObj);
         });
-      //return the resolved promise with data.
-      return {responseData: responseArr, message: 'Users fetched successfully'};
-    } catch (err) {
-      return thunkAPI.rejectWithValue({
-        message: 'Failed to fetch users. Please try again after some time',
       });
-    }
-  },
-);
+    //return the resolved promise with data.
+    return {responseData: responseArr, message: 'Users fetched successfully'};
+  } catch (err) {
+    return thunkAPI.rejectWithValue({
+      message: 'Failed to fetch users. Please try again after some time',
+    });
+  }
+});
 
 type updatePeopleAPICallRequest = {
   userId: string;
   newUpdate: Partial<EachPerson>;
 };
 
-export const updatePeopleAPICall = createAsyncThunk(
+export const updatePeopleAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  updatePeopleAPICallRequest,
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>(
   'people/updatePeople',
   async (requestObj: updatePeopleAPICallRequest, thunkAPI) => {
     try {

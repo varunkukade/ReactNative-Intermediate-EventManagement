@@ -91,7 +91,7 @@ const EventJoinersScreen = ({
 
   useEffect(() => {
     dispatch(getPeopleAPICall()).then(res => {
-      if (res.meta.requestStatus === 'rejected') {
+      if (res.meta.requestStatus === 'rejected' && res.payload) {
         if(Platform.OS === "android") ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
       }
     });
@@ -180,12 +180,12 @@ const EventJoinersScreen = ({
   const onConfirmDeleteClick = () => {
     //call delete API and delete the user from list.
     if (!selectedUser) return;
-    dispatch(removePeopleAPICall(selectedUser?.userId)).then(resp => {
+    dispatch(removePeopleAPICall({userId: selectedUser?.userId})).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsDeletePopupVisible(false);
-        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
-        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
   };
@@ -205,9 +205,9 @@ const EventJoinersScreen = ({
         setIsMoveToPendingPopupVisible(false);
         if(isPending) TopTabNavigation.navigate("Completed")
         else TopTabNavigation.navigate("Pending")
-        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
-        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
   };
