@@ -53,8 +53,8 @@ const EventListComponent = (): ReactElement => {
   useEffect(() => {
     dispatch(getEventsAPICall())
     .then((resp)=> {
-      if (resp.meta.requestStatus === "rejected") {
-        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      if (resp.payload && resp.meta.requestStatus === "rejected") {
+        if(Platform.OS === "android") ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
       }
     })
   }, []);
@@ -136,12 +136,12 @@ const EventListComponent = (): ReactElement => {
   const onConfirmDeleteClick = () => {
     //call delete API and delete the user from list.
     if (!longPressedEvent) return;
-    dispatch(removeEventAPICall(longPressedEvent.eventId)).then(resp => {
+    dispatch(removeEventAPICall({eventId: longPressedEvent.eventId})).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         setIsDeletePopupVisible(false);
-        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        if(Platform.OS === "android" && resp.payload ) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
-        if(Platform.OS === "android") ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
   };
@@ -195,7 +195,7 @@ const EventListComponent = (): ReactElement => {
         ) : eventsState.statuses.getEventAPICall === 'failed' ? (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
             <TextComponent weight="bold">
-            'Failed to fetch events. Please try again after some time'
+            Failed to fetch events. Please try again after some time
             </TextComponent>
           </View>
         ) : (

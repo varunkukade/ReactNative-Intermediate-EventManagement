@@ -104,7 +104,7 @@ export const addPeopleAPICall = createAsyncThunk(
       await firestore().collection(apiUrls.people).add(requestObject);
       return {message: 'User added successfully'};
     } catch (err) {
-      return {message: 'Failed to add user. Please try again after some time'};
+      return thunkAPI.rejectWithValue({message: 'Failed to add user. Please try again after some time'});
     }
   },
 );
@@ -116,16 +116,16 @@ export const removePeopleAPICall = createAsyncThunk(
       firestore().collection(apiUrls.people).doc(userId).delete();
       return {message: 'User removed successfully'};
     } catch (err) {
-      return {
+      return thunkAPI.rejectWithValue({
         message: 'Failed to remove user. Please try again after some time',
-      };
+      });
     }
   },
 );
 
 export const getPeopleAPICall = createAsyncThunk(
   'events/getPeople',
-  async () => {
+  async (_, thunkAPI) => {
     let responseArr: EachPerson[] = [];
     try {
       await firestore()
@@ -143,9 +143,9 @@ export const getPeopleAPICall = createAsyncThunk(
       //return the resolved promise with data.
       return {responseData: responseArr, message: 'Users fetched successfully'};
     } catch (err) {
-      return {
+      return thunkAPI.rejectWithValue({
         message: 'Failed to fetch users. Please try again after some time',
-      };
+      });
     }
   },
 );
@@ -167,9 +167,9 @@ export const updatePeopleAPICall = createAsyncThunk(
         message: 'User updated successfully!',
       };
     } catch (err) {
-      return {
+      return thunkAPI.rejectWithValue({
         message: 'Failed to update user. Please try again after some time',
-      };
+      });
     }
   },
 );

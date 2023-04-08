@@ -2,6 +2,10 @@ import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import firestore from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
 
+export type MessageType = {
+  message: string;
+};
+
 type status = 'idle' | 'succeedded' | 'failed' | 'loading';
 
 export type EachEvent = {
@@ -99,7 +103,7 @@ export const eventsSlice = createSlice({
       })
       .addCase(removeEventAPICall.fulfilled, (state, action) => {
         state.events = state.events.filter(
-          eachEvent => eachEvent.eventId !== action.meta.arg,
+          eachEvent => eachEvent.eventId !== action.meta.arg.eventId,
         );
         state.statuses.removeEventAPICall = 'succeedded';
       })
@@ -113,7 +117,18 @@ export const {addEvent: addEventAction, removeEvent: removeEventAction} =
   eventsSlice.actions;
 export default eventsSlice.reducer;
 
-export const addEventAPICall = createAsyncThunk(
+export const addEventAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  Omit<EachEvent, 'eventId'>,
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>(
   'events/addEvent',
   async (requestObject: Omit<EachEvent, 'eventId'>, thunkAPI) => {
     try {
@@ -121,51 +136,70 @@ export const addEventAPICall = createAsyncThunk(
       return {message: 'Event added successfully'};
     } catch (err) {
       //return rejected promise.
-      return {message: 'Failed to add event. Please try again after some time'};
+      return thunkAPI.rejectWithValue({
+        message: 'Failed to add event. Please try again after some time',
+      } as MessageType);
     }
   },
 );
 
-export const removeEventAPICall = createAsyncThunk(
-  'people/removeEvent',
-  async (eventId: string, thunkAPI) => {
-    try {
-      firestore().collection(apiUrls.events).doc(eventId).delete();
-      return {message: 'Event removed successfully'};
-    } catch (err) {
-      //return rejected promise
-      return {
-        message: 'Failed to remove events. Please try again after some time',
-      };
-    }
+export const removeEventAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
   },
-);
+  //type of request obj passed to payload creator
+  {
+    eventId: string;
+  },
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('people/removeEvent', async (requestObj: {eventId: string}, thunkAPI) => {
+  try {
+    firestore().collection(apiUrls.events).doc(requestObj.eventId).delete();
+    return {message: 'Event removed successfully'};
+  } catch (err) {
+    //return rejected promise
+    return thunkAPI.rejectWithValue({
+      message: 'Failed to remove events. Please try again after some time',
+    } as MessageType);
+  }
+});
 
-export const getEventsAPICall = createAsyncThunk(
-  'events/getEvent',
-  async () => {
-    //this callback is called as payload creator callback.
-    let responseArr: EachEvent[] = [];
-    try {
-      await firestore()
-        .collection(apiUrls.events)
-        .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(documentSnapshot => {
-            let updatedObj = JSON.parse(
-              JSON.stringify(documentSnapshot.data()),
-            );
-            updatedObj.eventId = documentSnapshot.id;
-            responseArr.push(updatedObj);
-          });
+export const getEventsAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    responseData: EachEvent[];
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  undefined,
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('events/getEvent', async (_, thunkAPI) => {
+  //this callback is called as payload creator callback.
+  let responseArr: EachEvent[] = [];
+  try {
+    await firestore()
+      .collection(apiUrls.events)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(documentSnapshot => {
+          let updatedObj = JSON.parse(JSON.stringify(documentSnapshot.data()));
+          updatedObj.eventId = documentSnapshot.id;
+          responseArr.push(updatedObj);
         });
-      //return the resolved promise with data.
-      return {responseData: responseArr, message: 'Event fetched successfully'};
-    } catch (err) {
-      //return rejected promise.
-      return {
-        message: 'Failed to fetch events. Please try again after some time',
-      };
-    }
-  },
-);
+      });
+    //return the resolved promise with data.
+    return {responseData: responseArr, message: 'Event fetched successfully'};
+  } catch (err) {
+    //return rejected promise from payload creator
+    return thunkAPI.rejectWithValue({
+      message: 'Failed to fetch events. Please try again after some time',
+    } as MessageType);
+  }
+});
