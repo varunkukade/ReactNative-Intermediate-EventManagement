@@ -88,7 +88,6 @@ export const signupAPICall = createAsyncThunk<
           requestObject.password,
         )
         .then(resp => {
-            console.log("response",resp)
           message = 'Account Created Successfully';
         })
         .catch(error => {

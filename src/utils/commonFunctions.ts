@@ -97,7 +97,6 @@ export const passwordValidation = (value: string): ValidationObject => {
       errorMessage: 'Password cannot be empty.',
     };
   } else {
-    console.log(value, value.length)
     let minChar = 6;
     if (value.length <= minChar) {
       validationObject = {
@@ -106,7 +105,6 @@ export const passwordValidation = (value: string): ValidationObject => {
       };
     }
   }
-  console.log(validationObject)
   return validationObject;
 };
 
