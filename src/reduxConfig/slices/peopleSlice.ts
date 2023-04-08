@@ -111,8 +111,12 @@ export const addPeopleAPICall = createAsyncThunk<
   'people/addPeople',
   async (requestObject: Omit<EachPerson, 'userId'>, thunkAPI) => {
     try {
-      await firestore().collection(apiUrls.people).add(requestObject);
-      return {message: 'User added successfully'};
+      return await firestore()
+        .collection(apiUrls.people)
+        .add(requestObject)
+        .then(res => {
+          return {message: 'User added successfully'};
+        });
     } catch (err) {
       return thunkAPI.rejectWithValue({
         message: 'Failed to add user. Please try again after some time',
@@ -136,8 +140,13 @@ export const removePeopleAPICall = createAsyncThunk<
   }
 >('people/removePeople', async (requestObj: {userId: string}, thunkAPI) => {
   try {
-    firestore().collection(apiUrls.people).doc(requestObj.userId).delete();
-    return {message: 'User removed successfully'};
+    return await firestore()
+      .collection(apiUrls.people)
+      .doc(requestObj.userId)
+      .delete()
+      .then(res => {
+        return {message: 'User removed successfully'};
+      });
   } catch (err) {
     return thunkAPI.rejectWithValue({
       message: 'Failed to remove user. Please try again after some time',
@@ -160,7 +169,7 @@ export const getPeopleAPICall = createAsyncThunk<
 >('events/getPeople', async (_, thunkAPI) => {
   let responseArr: EachPerson[] = [];
   try {
-    await firestore()
+    return await firestore()
       .collection(apiUrls.people)
       .get()
       .then(querySnapshot => {
@@ -169,9 +178,12 @@ export const getPeopleAPICall = createAsyncThunk<
           updatedObj.userId = documentSnapshot.id;
           responseArr.push(updatedObj);
         });
+        //return the resolved promise with data.
+        return {
+          responseData: responseArr,
+          message: 'Users fetched successfully',
+        };
       });
-    //return the resolved promise with data.
-    return {responseData: responseArr, message: 'Users fetched successfully'};
   } catch (err) {
     return thunkAPI.rejectWithValue({
       message: 'Failed to fetch users. Please try again after some time',
@@ -199,13 +211,15 @@ export const updatePeopleAPICall = createAsyncThunk<
   'people/updatePeople',
   async (requestObj: updatePeopleAPICallRequest, thunkAPI) => {
     try {
-      firestore()
+      return await firestore()
         .collection(apiUrls.people)
         .doc(requestObj.userId)
-        .update(requestObj.newUpdate);
-      return {
-        message: 'User updated successfully!',
-      };
+        .update(requestObj.newUpdate)
+        .then(res => {
+          return {
+            message: 'User updated successfully!',
+          };
+        });
     } catch (err) {
       return thunkAPI.rejectWithValue({
         message: 'Failed to update user. Please try again after some time',

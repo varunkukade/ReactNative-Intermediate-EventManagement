@@ -8,20 +8,20 @@ export type EachAction = {
   icon: () => ReactElement;
   label: string;
   onClick: () => void;
-  isVisible: boolean
+  isVisible: boolean;
 };
 
 interface CenterPopupComponentProps
   extends Omit<
     ModalProps,
-    | 'onBackButtonPress'
-    | 'onBackdropPress'
-    | 'isVisible'
+    'onBackButtonPress' | 'onBackdropPress' | 'isVisible'
   > {
   isModalVisible: boolean;
   setIsModalVisible: (value: boolean) => void;
-  actions: EachAction[];
-  modalHeader: string
+  actions?: EachAction[];
+  modalHeader?: string;
+  showActions: boolean;
+  children: ReactNode;
 }
 
 const BottomHalfPopupComponent = ({
@@ -29,6 +29,8 @@ const BottomHalfPopupComponent = ({
   isModalVisible,
   actions,
   modalHeader,
+  showActions,
+  children,
   ...props
 }: CenterPopupComponentProps): ReactElement => {
   const togglePopupState = () => {
@@ -43,29 +45,38 @@ const BottomHalfPopupComponent = ({
       isVisible={isModalVisible}>
       <ScrollView style={styles.modalContainer}>
         <View style={styles.modalCommonLine} />
-        <View style={styles.titleContainer}>
-          <TextComponent
-            weight="extraBold"
-            style={{fontSize: 17, color: colors.primaryColor}}>
-            {modalHeader}
-          </TextComponent>
-        </View>
-        <View style={styles.actionsContainer}>
-          {actions.map((eachAction, index) => {
-              if(eachAction.isVisible) {
-                return (
+        {showActions && actions?.length ? (
+          <View>
+            <View style={styles.titleContainer}>
+              <TextComponent
+                weight="extraBold"
+                style={{fontSize: 17, color: colors.primaryColor}}>
+                {modalHeader}
+              </TextComponent>
+            </View>
+            <View style={styles.actionsContainer}>
+              {actions.map((eachAction, index) => {
+                if (eachAction.isVisible) {
+                  return (
                     <View key={index} style={styles.eachActionContainer}>
-                      <TouchableOpacity onPress={eachAction.onClick} activeOpacity={0.5} style={styles.eachActionStyle}>
+                      <TouchableOpacity
+                        onPress={eachAction.onClick}
+                        activeOpacity={0.5}
+                        style={styles.eachActionStyle}>
                         {eachAction.icon()}
                       </TouchableOpacity>
-                      <TextComponent style={{textAlign:"center", color: colors.greyColor}} weight="semibold">
+                      <TextComponent
+                        style={{textAlign: 'center', color: colors.greyColor}}
+                        weight="semibold">
                         {eachAction.label}
                       </TextComponent>
                     </View>
-                  )
-              }else return null
-          } )}
-        </View>
+                  );
+                } else return children;
+              })}
+            </View>
+          </View>
+        ) : null}
       </ScrollView>
     </Modal>
   );
@@ -99,9 +110,9 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: 'row',
-    flexWrap:"wrap",
-    alignItems:"center",
-    justifyContent:"center",
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingBottom: measureMents.leftPadding,
   },
   eachActionContainer: {
@@ -109,15 +120,14 @@ const styles = StyleSheet.create({
     marginRight: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20
+    marginBottom: 20,
   },
   eachActionStyle: {
     backgroundColor: colors.lavenderColor,
     width: 50,
     height: 50,
     borderRadius: 25,
-    alignItems:"center",
-    justifyContent:"center"
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
-

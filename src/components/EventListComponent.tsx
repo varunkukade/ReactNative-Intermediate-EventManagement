@@ -207,6 +207,7 @@ const EventListComponent = (): ReactElement => {
       <BottomHalfPopupComponent
         actions={actionsArray}
         modalHeader="Event Actions"
+        showActions={true}
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
       />

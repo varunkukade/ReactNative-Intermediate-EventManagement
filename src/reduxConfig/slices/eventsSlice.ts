@@ -132,8 +132,12 @@ export const addEventAPICall = createAsyncThunk<
   'events/addEvent',
   async (requestObject: Omit<EachEvent, 'eventId'>, thunkAPI) => {
     try {
-      await firestore().collection(apiUrls.events).add(requestObject);
-      return {message: 'Event added successfully'};
+      return await firestore()
+        .collection(apiUrls.events)
+        .add(requestObject)
+        .then(res => {
+          return {message: 'Event added successfully'};
+        });
     } catch (err) {
       //return rejected promise.
       return thunkAPI.rejectWithValue({
@@ -158,8 +162,13 @@ export const removeEventAPICall = createAsyncThunk<
   }
 >('people/removeEvent', async (requestObj: {eventId: string}, thunkAPI) => {
   try {
-    firestore().collection(apiUrls.events).doc(requestObj.eventId).delete();
-    return {message: 'Event removed successfully'};
+    return await firestore()
+      .collection(apiUrls.events)
+      .doc(requestObj.eventId)
+      .delete()
+      .then(res => {
+        return {message: 'Event removed successfully'};
+      });
   } catch (err) {
     //return rejected promise
     return thunkAPI.rejectWithValue({
@@ -184,7 +193,7 @@ export const getEventsAPICall = createAsyncThunk<
   //this callback is called as payload creator callback.
   let responseArr: EachEvent[] = [];
   try {
-    await firestore()
+    return await firestore()
       .collection(apiUrls.events)
       .get()
       .then(querySnapshot => {
@@ -193,9 +202,12 @@ export const getEventsAPICall = createAsyncThunk<
           updatedObj.eventId = documentSnapshot.id;
           responseArr.push(updatedObj);
         });
+        //return the resolved promise with data.
+        return {
+          responseData: responseArr,
+          message: 'Event fetched successfully',
+        };
       });
-    //return the resolved promise with data.
-    return {responseData: responseArr, message: 'Event fetched successfully'};
   } catch (err) {
     //return rejected promise from payload creator
     return thunkAPI.rejectWithValue({

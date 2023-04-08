@@ -82,13 +82,14 @@ export const signupAPICall = createAsyncThunk<
   async (requestObject: {email: string; password: string}, thunkAPI) => {
     try {
       let message = '';
-      await auth()
+      return await auth()
         .createUserWithEmailAndPassword(
           requestObject.email,
           requestObject.password,
         )
         .then(resp => {
           message = 'Account Created Successfully';
+          return {message: message};
         })
         .catch(error => {
           if (error.code === 'auth/email-already-in-use') {
@@ -100,8 +101,8 @@ export const signupAPICall = createAsyncThunk<
           if(error.code === 'auth/weak-password') {
             message = 'Password should be atleast 6 characters long.'
           }
+          return thunkAPI.rejectWithValue({message: message});
         });
-      return {message: message};
     } catch (err: any) {
       //return rejected promise.
       return thunkAPI.rejectWithValue({
