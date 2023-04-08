@@ -10,12 +10,12 @@ import {
   EachEvent,
   getEventsAPICall,
   removeEventAPICall,
+  setSelectedEvent,
 } from '../reduxConfig/slices/eventsSlice';
 import moment from 'moment';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
-import {setSelectedEvent} from '../reduxConfig/slices/commonSlice';
 import BottomHalfPopupComponent, {
   EachAction,
 } from '../reusables/bottomHalfPopupComponent';

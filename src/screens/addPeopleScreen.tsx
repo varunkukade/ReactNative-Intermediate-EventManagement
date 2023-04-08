@@ -40,8 +40,7 @@ const AddPeopleScreen = (): ReactElement => {
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const selectedEventDetails = useAppSelector(state => state.common.currentSelectedEvent);
-  const peopleState = useAppSelector(state => state.people);
+  const selectedEventDetails = useAppSelector(state => state.events.currentSelectedEvent);
 
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddPeopleFormData = {

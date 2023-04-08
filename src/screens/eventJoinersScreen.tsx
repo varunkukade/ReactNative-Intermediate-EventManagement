@@ -60,7 +60,7 @@ const EventJoinersScreen = ({
     useState(false);
 
   const currentSelectedEvent = useAppSelector(
-    state => state.common.currentSelectedEvent,
+    state => state.events.currentSelectedEvent,
   );
 
   const getPeopleArray = (peopleState: EachPerson[]) => {

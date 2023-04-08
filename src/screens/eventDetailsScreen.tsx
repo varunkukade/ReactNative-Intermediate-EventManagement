@@ -21,7 +21,7 @@ const EventDetailsScreen = (): ReactElement | null => {
 
   //selectors
   const selectedEventDetails = useAppSelector(
-    state => state.common.currentSelectedEvent,
+    state => state.events.currentSelectedEvent,
   );
 
   if (!selectedEventDetails) return null;
