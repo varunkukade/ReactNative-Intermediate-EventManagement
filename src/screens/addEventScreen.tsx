@@ -22,6 +22,7 @@ import {
   InputComponent,
 } from '../reusables';
 import {getDate, getTime} from '../utils/commonFunctions';
+import auth from '@react-native-firebase/auth';
 
 const constants = {
   eventTitle: 'eventTitle',
@@ -87,7 +88,10 @@ const AddEventScreen = (): ReactElement => {
     setEventForm({...eventForm, [fieldName]: {value: value, errorMessage: ''}});
   };
 
+  const currentUser = auth().currentUser
+
   const onFormSubmit = (): void => {
+    if(!currentUser) return;
     const {
       eventTitle,
       eventDate,
@@ -114,6 +118,7 @@ const AddEventScreen = (): ReactElement => {
         eventFees: eventFees.value,
         mealProvided: mealProvided.value,
         accomodationProvided: accomodationProvided.value,
+        createdBy: currentUser?.uid
       };
       dispatch(addEventAPICall(requestObj)).then(resp => {
         if (resp.meta.requestStatus === 'fulfilled') {

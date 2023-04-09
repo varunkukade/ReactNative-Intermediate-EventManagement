@@ -1,6 +1,7 @@
 import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import firestore from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
+import auth from '@react-native-firebase/auth';
 
 export type MessageType = {
   message: string;
@@ -18,6 +19,7 @@ export type EachEvent = {
   eventFees: string;
   mealProvided: boolean;
   accomodationProvided: boolean;
+  createdBy: string
 };
 
 type EventsState = {
@@ -63,10 +65,11 @@ export const eventsSlice = createSlice({
         state.statuses.getEventAPICall = 'loading';
       })
       .addCase(getEventsAPICall.fulfilled, (state, action) => {
+        const currentUser = auth().currentUser
         state.events.length = 0;
         if (action.payload.responseData) {
           state.events = JSON.parse(
-            JSON.stringify(action.payload.responseData),
+            JSON.stringify(action.payload.responseData.filter((eachEvent) => eachEvent.createdBy === currentUser?.uid)),
           );
         }
         state.statuses.getEventAPICall = 'succeedded';
