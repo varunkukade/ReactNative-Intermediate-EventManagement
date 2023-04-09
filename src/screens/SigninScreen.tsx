@@ -17,6 +17,8 @@ import {emailValidation, passwordValidation} from '../utils/commonFunctions';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {signinAPICall} from '../reduxConfig/slices/userSlice';
 import {AuthStackParamList} from '../navigation/authStackNavigator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const constants = {
   email: 'email',
@@ -85,6 +87,14 @@ const SigninScreen = () => {
     }
   };
 
+  const updateAsyncStorage = async (): Promise<void> => {
+    try {
+        await AsyncStorage.setItem('isAuthenticated', "true")
+      } catch (e) {
+        // saving error
+      } 
+  }
+
   const onFormSubmit = (): void => {
     const {email, password} = signinForm;
     if (
@@ -102,6 +112,7 @@ const SigninScreen = () => {
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
           setSignupForm(initialSigninForm);
           //Navigation state object - https://reactnavigation.org/docs/navigation-state/
+          updateAsyncStorage()
           navigation.reset({
             index: 0,
             routes: [
