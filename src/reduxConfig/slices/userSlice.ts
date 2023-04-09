@@ -193,3 +193,42 @@ export const logoutAPICall = createAsyncThunk<
     } as MessageType);
   }
 });
+
+export const forgotPasswordAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  {
+    email: string;
+  },
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('user/forgotPassword', async (requestObj: {email: string}, thunkAPI) => {
+  let message = '';
+  try {
+    return await auth()
+      .sendPasswordResetEmail(requestObj.email)
+      .then(resp => {
+        message = 'Email sent Successfully';
+        return {message: message};
+      })
+      .catch(error => {
+        if (error.code === 'auth/invalid-email') {
+          message = 'Email address is invalid!';
+        }
+        if (error.code === 'auth/user-not-found') {
+          message = `Account doesn't exist with this email. Create new account with this email.`;
+        }
+        return thunkAPI.rejectWithValue({message: message});
+      });
+  } catch (err) {
+    //return rejected promise
+    return thunkAPI.rejectWithValue({
+      message: 'Failed to send email. Please try again after some time',
+    } as MessageType);
+  }
+});

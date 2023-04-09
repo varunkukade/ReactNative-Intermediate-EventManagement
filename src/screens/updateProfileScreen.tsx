@@ -34,7 +34,6 @@ const constants = {
   password: 'password',
   confirmPasssword: 'confirmPasssword',
   mobileNumber: 'mobileNumber',
-  isAdmin: 'isAdmin',
 };
 
 interface EachFormField<T> {
@@ -48,17 +47,15 @@ type SignupFormData = {
   password: EachFormField<string>;
   confirmPasssword: EachFormField<string>;
   mobileNumber: EachFormField<string>;
-  isAdmin: EachFormField<boolean>;
 };
 
-const SignupScreen = () => {
+const UpdateProfileScreen = () => {
   let initialSignupForm: SignupFormData = {
     name: {value: 'Varun Kukade', errorMessage: ''},
     email: {value: 'varun.k@gmail.com', errorMessage: ''},
     password: {value: 'Vk@#$2211', errorMessage: ''},
     confirmPasssword: {value: 'Vk@#$2211', errorMessage: ''},
     mobileNumber: {value: '9028421280', errorMessage: ''},
-    isAdmin: {value: true, errorMessage: ''},
   };
   const [signupForm, setSignupForm] =
     useState<SignupFormData>(initialSignupForm);
@@ -264,11 +261,7 @@ const SignupScreen = () => {
           errorMessage={signupForm.mobileNumber.errorMessage}
           placeholder="Enter the mobile number..."
         />
-        <CheckboxComponent
-          label="Check this if you are an admin."
-          value={signupForm.isAdmin.value}
-          onValueChange={value => onChangeForm(value, constants.isAdmin)}
-        />
+        
         <ButtonComponent
           onPress={onFormSubmit}
           containerStyle={{marginTop: 30}}>
@@ -279,7 +272,7 @@ const SignupScreen = () => {
   );
 };
 
-export default SignupScreen;
+export default UpdateProfileScreen;
 
 const styles = StyleSheet.create({
   wrapperComponent: {
@@ -287,12 +280,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryColor,
   },
   welcomeMessage: {
+    flex: 0.2,
     paddingTop: 30,
     paddingHorizontal: measureMents.leftPadding,
     paddingBottom: 20,
   },
   mainContainer: {
-    flex: 1,
+    flex: 0.8,
     backgroundColor: colors.whiteColor,
     paddingHorizontal: measureMents.leftPadding,
     borderTopLeftRadius: 40,

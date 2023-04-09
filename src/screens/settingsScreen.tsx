@@ -10,15 +10,17 @@ import { RootStackParamList } from '../navigation/rootStackNavigator';
 import { logoutAPICall } from '../reduxConfig/slices/userSlice';
 import CenterPopupComponent, { popupData } from '../reusables/centerPopupComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { HomeStackParamList } from '../navigation/homeStackNavigator';
 
 const SettingsScreen = () => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
 
   //navigation state
-  const navigation: NativeStackNavigationProp<RootStackParamList, 'HomeStack'> =
+  const rootNavigation: NativeStackNavigationProp<RootStackParamList, 'HomeStack'> =
     useNavigation();
-
+    const homeStackNavigation: NativeStackNavigationProp<HomeStackParamList, 'BottomTabNavigator'> =
+    useNavigation();
     //modal states
   const [isLogoutPopupVisible, setIsLogoutPopupVisible] = useState(false);
 
@@ -40,9 +42,9 @@ const SettingsScreen = () => {
       if (res.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && res.payload)
           ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-        //Navigation state object - https://reactnavigation.org/docs/navigation-state/
+        //Navigation state object - https://reactnavigation.org/docs/rootNavigation-state/
         updateTheAsyncStorage()
-        navigation.reset({
+        rootNavigation.reset({
           index: 0,
           routes: [
             {
@@ -69,6 +71,24 @@ const SettingsScreen = () => {
   };
   
   let actions = [
+    {
+      label: 'Update Profile',
+      icon: () => (
+        <EntypoIcons
+          size={30}
+          color={colors.primaryColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      rightIcon: () => (
+        <EntypoIcons
+          size={35}
+          color={colors.iconLightPinkColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      onPress: () => homeStackNavigation.navigate('UpdateProfileScreen'),
+    },
     {
       label: 'Log-out',
       icon: () => (

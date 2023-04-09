@@ -36,8 +36,8 @@ type SigninFormData = {
 };
 const SigninScreen = () => {
   let initialSigninForm: SigninFormData = {
-    email: {value: 'varun.k@gmail.com', errorMessage: ''},
-    password: {value: 'Vk@#$2211', errorMessage: ''},
+    email: {value: 'varunkukade999@gmail.com', errorMessage: ''},
+    password: {value: 'Vk@#$2211660', errorMessage: ''},
   };
   const [signinForm, setSignupForm] =
     useState<SigninFormData>(initialSigninForm);
@@ -149,12 +149,12 @@ const SigninScreen = () => {
     <View style={styles.wrapperComponent}>
       <View style={styles.welcomeMessage}>
         <TextComponent
-          style={{fontSize: 19, color: colors.whiteColor, marginBottom: 10}}
+          style={{fontSize: 19, color: colors.whiteColor, marginBottom: 10, textAlign:"center"}}
           weight="bold">
           Hi, Welcome Back 👋🏻
         </TextComponent>
         <TextComponent
-          style={{fontSize: 16, color: colors.whiteColor}}
+          style={{fontSize: 16, color: colors.whiteColor, textAlign:"center"}}
           weight="normal">
           You can continue to login to manage your events.
         </TextComponent>
@@ -186,6 +186,18 @@ const SigninScreen = () => {
             </TouchableOpacity>
           }
         />
+        <TouchableOpacity
+          onPress={() => authStackNavigation.navigate('ForgotPasswordScreen')}
+          style={{marginTop: 10, alignSelf: 'flex-end'}}>
+          <TextComponent
+            style={{
+              fontSize: 14,
+              color: colors.primaryColor,
+            }}
+            weight="bold">
+            Forgot Password?
+          </TextComponent>
+        </TouchableOpacity>
         <ButtonComponent
           onPress={onFormSubmit}
           containerStyle={{marginTop: 30}}>

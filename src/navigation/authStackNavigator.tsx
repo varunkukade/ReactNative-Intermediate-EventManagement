@@ -3,7 +3,7 @@ import {
   NativeStackNavigationProp,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
-import {SignupScreen, SigninScreen, OnboardingScreen} from '../screens/index';
+import {SignupScreen, SigninScreen, ForgotPasswordScreen} from '../screens/index';
 import {colors, fontStyles} from '../utils/appStyles';
 import {TextComponent} from '../reusables';
 import {TouchableOpacity} from 'react-native';
@@ -12,7 +12,7 @@ import {useNavigation} from '@react-navigation/native';
 export type AuthStackParamList = {
   SignupScreen: undefined;
   SigninScreen: undefined;
-  OnboardingScreen: undefined;
+  ForgotPasswordScreen: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -67,11 +67,17 @@ function AuthStackNavigator() {
         component={SignupScreen}
       />
       <AuthStack.Screen
-        options={{
-          headerShown: false,
-        }}
-        name="OnboardingScreen"
-        component={OnboardingScreen}
+        options={({route, navigation}) => ({
+            headerTitle: 'Forgot Password',
+            headerShadowVisible: false,
+            headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+            headerTitleAlign: 'center',
+            headerBackVisible: true,
+            headerStyle:{backgroundColor: colors.primaryColor},
+            headerTintColor: colors.whiteColor
+        })}
+        name="ForgotPasswordScreen"
+        component={ForgotPasswordScreen}
       />
       <AuthStack.Screen
         options={({route, navigation}) => ({

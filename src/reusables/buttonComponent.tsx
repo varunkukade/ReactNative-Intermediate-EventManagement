@@ -31,7 +31,7 @@ export default ButtonComponent;
 
 const styles = StyleSheet.create({
   wrapperComponent: {
-    height: 45,
+    paddingVertical: 13,
     alignItems:"center",
     justifyContent:"center",
     borderRadius: 15
