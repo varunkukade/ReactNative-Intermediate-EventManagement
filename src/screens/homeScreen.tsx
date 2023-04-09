@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 30,
     paddingHorizontal: measureMents.leftPadding,
+    backgroundColor:colors.lightLavenderColor
   },
   imageContainer: {
     width: '100%',

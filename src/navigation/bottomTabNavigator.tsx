@@ -17,7 +17,7 @@ const BottomTabNavigator = () => {
       <BottomTab.Navigator
         activeColor={colors.primaryColor}
         inactiveColor={colors.greyColor}
-        barStyle={{backgroundColor: colors.whiteColor}}
+        barStyle={{backgroundColor: colors.lightLavenderColor}}
         initialRouteName="Home">
         <BottomTab.Screen
           name="Home"

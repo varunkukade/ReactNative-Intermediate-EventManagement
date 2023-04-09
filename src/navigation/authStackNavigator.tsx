@@ -60,6 +60,8 @@ function AuthStackNavigator() {
           headerTitleAlign: 'left',
           headerBackVisible: true,
           headerRight: () => getSigninNavigator(),
+          headerStyle:{backgroundColor: colors.primaryColor},
+          headerTintColor: colors.whiteColor
         }}
         name="SignupScreen"
         component={SignupScreen}
@@ -78,6 +80,8 @@ function AuthStackNavigator() {
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
+          headerStyle:{backgroundColor: colors.primaryColor},
+          headerTintColor: colors.whiteColor
         })}
         name="SigninScreen"
         component={SigninScreen}

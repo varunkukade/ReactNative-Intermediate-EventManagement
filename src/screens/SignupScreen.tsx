@@ -1,5 +1,12 @@
 import React, {useState} from 'react';
-import {Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View} from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {
   ButtonComponent,
@@ -8,12 +15,17 @@ import {
   TextComponent,
 } from '../reusables';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { confirmPasswordValidation, emailValidation, mobileNumbervalidation, passwordValidation } from '../utils/commonFunctions';
-import { useAppDispatch } from '../reduxConfig/store';
-import { signupAPICall } from '../reduxConfig/slices/userSlice';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '../navigation/rootStackNavigator';
+import {
+  confirmPasswordValidation,
+  emailValidation,
+  mobileNumbervalidation,
+  passwordValidation,
+} from '../utils/commonFunctions';
+import {useAppDispatch} from '../reduxConfig/store';
+import {signupAPICall} from '../reduxConfig/slices/userSlice';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useNavigation} from '@react-navigation/native';
+import {RootStackParamList} from '../navigation/rootStackNavigator';
 import auth from '@react-native-firebase/auth';
 
 const constants = {
@@ -40,20 +52,19 @@ type SignupFormData = {
 };
 
 const SignupScreen = () => {
-  //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialSignupForm: SignupFormData = {
     name: {value: 'Varun Kukade', errorMessage: ''},
     email: {value: 'varun.k@gmail.com', errorMessage: ''},
-    password: {value: 'varunvarun', errorMessage: ''},
-    confirmPasssword: {value: 'varunvarun', errorMessage: ''},
+    password: {value: 'Vk@#$2211', errorMessage: ''},
+    confirmPasssword: {value: 'Vk@#$2211', errorMessage: ''},
     mobileNumber: {value: '9028421280', errorMessage: ''},
     isAdmin: {value: true, errorMessage: ''},
   };
   const [signupForm, setSignupForm] =
     useState<SignupFormData>(initialSignupForm);
 
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const onChangeForm = (
     value: string | Date | boolean,
@@ -64,17 +75,18 @@ const SignupScreen = () => {
       [fieldName]: {value: value, errorMessage: ''},
     });
   };
-  
+
   //dispatch and selectors
   const dispatch = useAppDispatch();
 
   //navigation state
-  const navigation: NativeStackNavigationProp<
-    RootStackParamList,
-    "HomeStack"
-  > = useNavigation();
-  
-  const setFormErrors = (type? : "" | "empty", eventFormObj?: SignupFormData) => {
+  const navigation: NativeStackNavigationProp<RootStackParamList, 'HomeStack'> =
+    useNavigation();
+
+  const setFormErrors = (
+    type?: '' | 'empty',
+    eventFormObj?: SignupFormData,
+  ) => {
     if (type === 'empty') {
       setSignupForm({
         ...signupForm,
@@ -100,37 +112,33 @@ const SignupScreen = () => {
         },
       });
     } else {
-      if(eventFormObj) setSignupForm(eventFormObj);
+      if (eventFormObj) setSignupForm(eventFormObj);
     }
   };
 
   const onFormSubmit = (): void => {
-    const {
-      name,
-      email,
-      password,
-      confirmPasssword,
-      mobileNumber,
-      isAdmin,
-    } = signupForm;
+    const {name, email, password, confirmPasssword, mobileNumber, isAdmin} =
+      signupForm;
     if (
       name.value &&
       emailValidation(email.value).isValid &&
       passwordValidation(password.value).isValid &&
-      confirmPasswordValidation(password.value,confirmPasssword.value).isValid && 
+      confirmPasswordValidation(password.value, confirmPasssword.value)
+        .isValid &&
       mobileNumbervalidation(mobileNumber.value).isValid
     ) {
       setFormErrors('empty');
       let requestObj: {email: string; password: string} = {
         email: email.value,
-        password: password.value
+        password: password.value,
       };
-      dispatch(signupAPICall(requestObj)).then((res)=> {
+      dispatch(signupAPICall(requestObj)).then(res => {
         if (res.meta.requestStatus === 'fulfilled') {
-          if(Platform.OS === "android" && res.payload) ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-          auth().currentUser?.updateProfile({ 
-            displayName: name.value
-          })
+          if (Platform.OS === 'android' && res.payload)
+            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+          auth().currentUser?.updateProfile({
+            displayName: name.value,
+          });
           setSignupForm(initialSignupForm);
           //Navigation state object - https://reactnavigation.org/docs/navigation-state/
           navigation.reset({
@@ -146,12 +154,13 @@ const SignupScreen = () => {
             ],
           });
         } else {
-          if(Platform.OS === "android" && res.payload) ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+          if (Platform.OS === 'android' && res.payload)
+            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
         }
-      })
+      });
     } else {
       //set the errors if exist
-      setFormErrors("", {
+      setFormErrors('', {
         ...signupForm,
         name: {
           ...name,
@@ -167,27 +176,32 @@ const SignupScreen = () => {
         },
         confirmPasssword: {
           ...confirmPasssword,
-          errorMessage: confirmPasswordValidation( password.value,confirmPasssword.value).errorMessage,
+          errorMessage: confirmPasswordValidation(
+            password.value,
+            confirmPasssword.value,
+          ).errorMessage,
         },
         mobileNumber: {
           ...mobileNumber,
-          errorMessage: mobileNumbervalidation( mobileNumber.value).errorMessage,
+          errorMessage: mobileNumbervalidation(mobileNumber.value).errorMessage,
         },
       });
     }
   };
 
-
   return (
     <ScrollView
+      style={styles.wrapperComponent}
       showsVerticalScrollIndicator={false}>
-      <View style={styles.wrapperComponent}>
+      <View style={styles.welcomeMessage}>
         <TextComponent
-          style={{fontSize: 15, marginBottom: 20}}
+          style={{fontSize: 15, marginBottom: 10, color: colors.whiteColor}}
           weight="semibold">
           Create an account so you can create and manage all your events at once
           place.
         </TextComponent>
+      </View>
+      <View style={styles.mainContainer}>
         <InputComponent
           value={signupForm.name.value}
           onChangeText={value => onChangeForm(value, constants.name)}
@@ -210,7 +224,9 @@ const SignupScreen = () => {
           placeholder="Enter a password..."
           secureTextEntry={!showPassword}
           rightIconComponent={
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={{position: 'absolute', right: 15}}>
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={{position: 'absolute', right: 15}}>
               <Ionicons
                 name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                 color={colors.iconLightPinkColor}
@@ -225,11 +241,13 @@ const SignupScreen = () => {
             onChangeForm(value, constants.confirmPasssword)
           }
           label="Confirm Password"
-          secureTextEntry= {!showConfirmPassword}
+          secureTextEntry={!showConfirmPassword}
           errorMessage={signupForm.confirmPasssword.errorMessage}
           placeholder="Confirm the entered password..."
           rightIconComponent={
-            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{position: 'absolute', right: 15}}>
+            <TouchableOpacity
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              style={{position: 'absolute', right: 15}}>
               <Ionicons
                 name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
                 color={colors.iconLightPinkColor}
@@ -254,7 +272,7 @@ const SignupScreen = () => {
         <ButtonComponent
           onPress={onFormSubmit}
           containerStyle={{marginTop: 30}}>
-          Submit
+          Register
         </ButtonComponent>
       </View>
     </ScrollView>
@@ -266,9 +284,20 @@ export default SignupScreen;
 const styles = StyleSheet.create({
   wrapperComponent: {
     flex: 1,
+    backgroundColor: colors.primaryColor,
+  },
+  welcomeMessage: {
+    paddingTop: 30,
+    paddingHorizontal: measureMents.leftPadding,
+    paddingBottom: 20,
+  },
+  mainContainer: {
+    flex: 1,
+    backgroundColor: colors.whiteColor,
+    paddingHorizontal: measureMents.leftPadding,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
     paddingTop: 30,
     paddingBottom: 30,
-    paddingHorizontal: measureMents.leftPadding,
-    backgroundColor: colors.whiteColor,
   },
 });
