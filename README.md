@@ -61,10 +61,11 @@ https://user-images.githubusercontent.com/66090579/230915064-e8ccfc85-e1c2-44b1-
 Settings screen
 https://user-images.githubusercontent.com/66090579/230915054-7e7ca411-1506-444e-ad7f-916302afe395.png
 
+Update the profile
+https://user-images.githubusercontent.com/66090579/230950059-4e4021b3-fcd9-497f-a59f-edc1700000cb.png
+
 Logout the user from the app
 https://user-images.githubusercontent.com/66090579/230915042-e929c808-46aa-4b00-9379-93683e41c870.png
 
-Logout Video 
-https://user-images.githubusercontent.com/66090579/230918247-de4f6446-2ec8-4661-b5a7-41624125e2b7.mov
 
 
