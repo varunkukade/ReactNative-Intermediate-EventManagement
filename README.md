@@ -63,3 +63,8 @@ https://user-images.githubusercontent.com/66090579/230915054-7e7ca411-1506-444e-
 
 Logout the user from the app
 https://user-images.githubusercontent.com/66090579/230915042-e929c808-46aa-4b00-9379-93683e41c870.png
+
+Logout Video 
+https://user-images.githubusercontent.com/66090579/230918247-de4f6446-2ec8-4661-b5a7-41624125e2b7.mov
+
+
