@@ -38,7 +38,7 @@ interface EachFormField<T> {
   errorMessage: string;
 }
 
-type SignupFormData = {
+type UpdateProfileFormData = {
   name: EachFormField<string>;
   email: EachFormField<string>;
   currentPassword: EachFormField<string>;
@@ -48,7 +48,7 @@ type SignupFormData = {
 };
 
 const UpdateProfileScreen = () => {
-  let initialSignupForm: SignupFormData = {
+  let initialFormData: UpdateProfileFormData = {
     name: {value: auth().currentUser?.displayName || '', errorMessage: ''},
     email: {value: auth().currentUser?.email || '', errorMessage: ''},
     currentPassword: {value: '', errorMessage: ''},
@@ -59,8 +59,8 @@ const UpdateProfileScreen = () => {
       errorMessage: '',
     },
   };
-  const [updateProfileForm, setSignupForm] =
-    useState<SignupFormData>(initialSignupForm);
+  const [updateProfileForm, setUpdateProfileForm] =
+    useState<UpdateProfileFormData>(initialFormData);
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -70,7 +70,7 @@ const UpdateProfileScreen = () => {
     value: string | Date | boolean,
     fieldName: string,
   ): void => {
-    setSignupForm({
+    setUpdateProfileForm({
       ...updateProfileForm,
       [fieldName]: {value: value, errorMessage: ''},
     });
@@ -87,10 +87,10 @@ const UpdateProfileScreen = () => {
 
   const setFormErrors = (
     type?: '' | 'empty',
-    eventFormObj?: SignupFormData,
+    eventFormObj?: UpdateProfileFormData,
   ) => {
     if (type === 'empty') {
-      setSignupForm({
+      setUpdateProfileForm({
         ...updateProfileForm,
         name: {
           ...updateProfileForm.name,
@@ -118,7 +118,7 @@ const UpdateProfileScreen = () => {
         },
       });
     } else {
-      if (eventFormObj) setSignupForm(eventFormObj);
+      if (eventFormObj) setUpdateProfileForm(eventFormObj);
     }
   };
 
