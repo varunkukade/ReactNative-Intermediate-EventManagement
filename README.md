@@ -14,16 +14,18 @@ Motive of this app is to have one stop solution for all the event management for
    7. Recycler ListView - This is third party library by Flipcart for displaying the infinite list. It is better than core Flatlist component as it recycles the non visible views for displaying new views.This reduces expensive operation of creating new objects for new views and also avoid expensive garbage collection for old views.
    8. React-native-modal - Updated version of https://reactnative.dev/docs/modal. You can view sleek bottom half modal and center modal for various actions.
    9. React-native-async-storage - For storage of data to remember state of logged in user.
+   10. React-native-image picker and React native permissions - To access the media storage of device.
 
 
   Current features in the app: 
 
    1. Create an new account, Sign-in to existing account, Forgot password, Logout.
-   2. After logged in - Organise new event with event name, desc, date, time, location, fees(if any)
-   2. View all the events at one place. View event details by clicking on each event. You can also delete the event.
-   4. Add people to the event. Delete added people from the event.
-   5. View all people added in event at one place. People are divided into 3 tabs (All people, people who have payment pending, people who have payement completed). 
-   6. You can move users in tab from pending to completed and viceversa. You can also remove the people from that event.
+   2. After logged in - Update email, password, Name, mobile number, profile picture. 
+   3. Organise new event with event name, desc, date, time, location, fees(if any)
+   4. View all the events at one place. View event details by clicking on each event. You can also delete the event.
+   5. Add people to the event. Delete added people from the event.
+   6. View all people added in event at one place. People are divided into 3 tabs (All people, people who have payment pending, people who have payement completed). 
+   7. You can move users in tab from pending to completed and viceversa. You can also remove the people from that event.
 
 App Screenshots: (If any color design mismatches in UI please ignore. I am Not very good at designing the ui😅)
 
