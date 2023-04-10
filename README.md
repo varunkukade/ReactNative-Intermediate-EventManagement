@@ -24,3 +24,42 @@ Motive of this app is to have one stop solution for all the event management for
    4. Add people to the event. Delete added people from the event.
    5. View all people added in event at one place. People are divided into 3 tabs (All people, people who have payment pending, people who have payement completed). 
    6. You can move users in tab from pending to completed and viceversa. You can also remove the people from that event.
+
+App Screenshots: 
+
+Signup Screen
+https://user-images.githubusercontent.com/66090579/230915105-4293b034-b038-4f44-9e71-7f73df45970b.png
+
+Login Screen
+https://user-images.githubusercontent.com/66090579/230915102-7afb96ad-ea9c-4718-a815-18c8c49138c4.png
+
+Forgot password Screen 
+https://user-images.githubusercontent.com/66090579/230915096-11a2716d-ce06-49c2-a016-d8e599d257cd.png
+
+Landing dashboard 
+https://user-images.githubusercontent.com/66090579/230915093-b66f49da-5493-4c1f-b0ef-f372850332d4.png
+
+Add new event screen 
+https://user-images.githubusercontent.com/66090579/230915090-1179f6cb-c2f3-4206-8905-cb252772f60a.png
+https://user-images.githubusercontent.com/66090579/230915087-bea6eeaa-7963-4372-9817-3f94fab9e1b9.png
+
+Specific Event Details 
+https://user-images.githubusercontent.com/66090579/230915083-56e5cf3a-e045-41c1-8ce0-80337a8ef933.png
+
+Add new people to specific event
+https://user-images.githubusercontent.com/66090579/230915080-de9320da-b148-4762-8d5a-f248fc31bcc8.png
+
+View all added people at one place 
+https://user-images.githubusercontent.com/66090579/230915076-21ba39b1-70c7-4fce-a6ff-579fce5fcd93.png
+
+You can delete, move users to completed/pending tabs
+https://user-images.githubusercontent.com/66090579/230915072-010970b7-d0b5-4b2b-b214-6001d0e3e072.png
+
+Popup/modal for specific action confirmation
+https://user-images.githubusercontent.com/66090579/230915064-e8ccfc85-e1c2-44b1-989a-2281e79f35dc.png
+
+Settings screen
+https://user-images.githubusercontent.com/66090579/230915054-7e7ca411-1506-444e-ad7f-916302afe395.png
+
+Logout the user from the app
+https://user-images.githubusercontent.com/66090579/230915042-e929c808-46aa-4b00-9379-93683e41c870.png
