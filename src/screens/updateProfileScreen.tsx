@@ -59,7 +59,7 @@ const UpdateProfileScreen = () => {
       errorMessage: '',
     },
   };
-  const [signupForm, setSignupForm] =
+  const [updateProfileForm, setSignupForm] =
     useState<SignupFormData>(initialSignupForm);
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -71,7 +71,7 @@ const UpdateProfileScreen = () => {
     fieldName: string,
   ): void => {
     setSignupForm({
-      ...signupForm,
+      ...updateProfileForm,
       [fieldName]: {value: value, errorMessage: ''},
     });
   };
@@ -91,29 +91,29 @@ const UpdateProfileScreen = () => {
   ) => {
     if (type === 'empty') {
       setSignupForm({
-        ...signupForm,
+        ...updateProfileForm,
         name: {
-          ...signupForm.name,
+          ...updateProfileForm.name,
           errorMessage: '',
         },
         email: {
-          ...signupForm.email,
+          ...updateProfileForm.email,
           errorMessage: '',
         },
         password: {
-          ...signupForm.password,
+          ...updateProfileForm.password,
           errorMessage: '',
         },
         currentPassword: {
-          ...signupForm.currentPassword,
+          ...updateProfileForm.currentPassword,
           errorMessage: '',
         },
         confirmPasssword: {
-          ...signupForm.confirmPasssword,
+          ...updateProfileForm.confirmPasssword,
           errorMessage: '',
         },
         mobileNumber: {
-          ...signupForm.mobileNumber,
+          ...updateProfileForm.mobileNumber,
           errorMessage: '',
         },
       });
@@ -174,9 +174,9 @@ const UpdateProfileScreen = () => {
       confirmPasssword,
       mobileNumber,
       currentPassword,
-    } = signupForm;
+    } = updateProfileForm;
     setFormErrors('', {
-      ...signupForm,
+      ...updateProfileForm,
       name: {
         ...name,
         errorMessage: name.value ? '' : 'Name cannot be empty.',
@@ -207,10 +207,10 @@ const UpdateProfileScreen = () => {
     });
   };
 
-  const updateTheProfile = async (
+  const updateTheProfile = (
     authCredential: FirebaseAuthTypes.AuthCredential,
   ) => {
-    const {name, email, password} = signupForm;
+    const {name, email, password} = updateProfileForm;
     //here first reauthenticate the user and then update the fields one by one.
     auth()
       .currentUser?.reauthenticateWithCredential(authCredential)
@@ -241,11 +241,11 @@ const UpdateProfileScreen = () => {
       confirmPasssword,
       mobileNumber,
       currentPassword,
-    } = signupForm;
+    } = updateProfileForm;
     if (
       name.value &&
       emailValidation(email.value).isValid &&
-      passwordValidation(currentPassword.value) &&
+      passwordValidation(currentPassword.value).isValid &&
       passwordValidation(password.value).isValid &&
       confirmPasswordValidation(password.value, confirmPasssword.value)
         .isValid &&
@@ -284,24 +284,24 @@ const UpdateProfileScreen = () => {
       </View>
       <View style={styles.mainContainer}>
         <InputComponent
-          value={signupForm.name.value}
+          value={updateProfileForm.name.value}
           onChangeText={value => onChangeForm(value, constants.name)}
           label="Name"
-          errorMessage={signupForm.name.errorMessage}
+          errorMessage={updateProfileForm.name.errorMessage}
           placeholder="Varun Kukade"
         />
         <InputComponent
-          value={signupForm.email.value}
+          value={updateProfileForm.email.value}
           onChangeText={value => onChangeForm(value, constants.email)}
           label="Email"
-          errorMessage={signupForm.email.errorMessage}
+          errorMessage={updateProfileForm.email.errorMessage}
           placeholder="abc@gmail.com"
         />
         <InputComponent
-          value={signupForm.currentPassword.value}
+          value={updateProfileForm.currentPassword.value}
           onChangeText={value => onChangeForm(value, constants.currentPassword)}
           label="Current Password"
-          errorMessage={signupForm.currentPassword.errorMessage}
+          errorMessage={updateProfileForm.currentPassword.errorMessage}
           placeholder="Enter a current password..."
           secureTextEntry={!showCurrentPassword}
           rightIconComponent={
@@ -317,10 +317,10 @@ const UpdateProfileScreen = () => {
           }
         />
         <InputComponent
-          value={signupForm.password.value}
+          value={updateProfileForm.password.value}
           onChangeText={value => onChangeForm(value, constants.password)}
           label="New Password"
-          errorMessage={signupForm.password.errorMessage}
+          errorMessage={updateProfileForm.password.errorMessage}
           placeholder="Enter a New password..."
           secureTextEntry={!showPassword}
           rightIconComponent={
@@ -336,13 +336,13 @@ const UpdateProfileScreen = () => {
           }
         />
         <InputComponent
-          value={signupForm.confirmPasssword.value}
+          value={updateProfileForm.confirmPasssword.value}
           onChangeText={value =>
             onChangeForm(value, constants.confirmPasssword)
           }
           label="Confirm new Password"
           secureTextEntry={!showConfirmPassword}
-          errorMessage={signupForm.confirmPasssword.errorMessage}
+          errorMessage={updateProfileForm.confirmPasssword.errorMessage}
           placeholder="Confirm the new entered password..."
           rightIconComponent={
             <TouchableOpacity
@@ -357,11 +357,11 @@ const UpdateProfileScreen = () => {
           }
         />
         <InputComponent
-          value={signupForm.mobileNumber.value}
+          value={updateProfileForm.mobileNumber.value}
           onChangeText={value => onChangeForm(value, constants.mobileNumber)}
           label="Mobile Number"
           keyboardType="numeric"
-          errorMessage={signupForm.mobileNumber.errorMessage}
+          errorMessage={updateProfileForm.mobileNumber.errorMessage}
           placeholder="Enter the mobile number..."
         />
 
