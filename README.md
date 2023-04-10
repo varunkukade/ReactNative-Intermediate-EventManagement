@@ -25,7 +25,7 @@ Motive of this app is to have one stop solution for all the event management for
    5. View all people added in event at one place. People are divided into 3 tabs (All people, people who have payment pending, people who have payement completed). 
    6. You can move users in tab from pending to completed and viceversa. You can also remove the people from that event.
 
-App Screenshots: 
+App Screenshots: (If any color design mismatches in UI please ignore. I am Not very good at designing the ui😅)
 
 Signup Screen
 https://user-images.githubusercontent.com/66090579/230915105-4293b034-b038-4f44-9e71-7f73df45970b.png
