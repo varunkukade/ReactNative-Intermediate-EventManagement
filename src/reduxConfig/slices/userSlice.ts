@@ -151,6 +151,9 @@ export const signinAPICall = createAsyncThunk<
           if (error.code === 'auth/wrong-password') {
             message = 'Wrong password for email.';
           }
+          if(error.code === 'auth/too-many-requests') {
+            message = "Account blocked due to incorrect attempts. Reset password to unblock."
+          }
           return thunkAPI.rejectWithValue({message: message});
         });
     } catch (err) {

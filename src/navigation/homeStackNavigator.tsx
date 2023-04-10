@@ -82,7 +82,13 @@ function HomeStackNavigator() {
       />
       <HomeStack.Screen
         options={({route, navigation}) => ({
-          headerShown: false,
+          headerTitle: 'Update Profile',
+          headerShadowVisible: false,
+          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleAlign: 'center',
+          headerBackVisible: true,
+          headerStyle:{backgroundColor: colors.primaryColor},
+          headerTintColor: colors.whiteColor
         })}
         name="UpdateProfileScreen"
         component={UpdateProfileScreen}

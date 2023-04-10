@@ -9,8 +9,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/rootStackNavigator';
 import { logoutAPICall } from '../reduxConfig/slices/userSlice';
 import CenterPopupComponent, { popupData } from '../reusables/centerPopupComponent';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HomeStackParamList } from '../navigation/homeStackNavigator';
+import { updateTheAsyncStorage } from '../utils/commonFunctions';
 
 const SettingsScreen = () => {
   //dispatch and selectors
@@ -27,14 +27,7 @@ const SettingsScreen = () => {
   const onCancelClick = () => {
     if (isLogoutPopupVisible) setIsLogoutPopupVisible(false);
   };
-
-  const updateTheAsyncStorage = async () => {
-    try {
-      await AsyncStorage.setItem('isAuthenticated', "false")
-    } catch (e) {
-      // saving error
-    }
-  }  
+ 
 
   const onLogoutpress = () => {
     dispatch(logoutAPICall()).then(res => {
@@ -178,6 +171,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: measureMents.leftPadding,
+    marginBottom: 20
   },
   secondSection: {
     width: '80%',

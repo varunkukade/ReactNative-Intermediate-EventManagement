@@ -8,29 +8,26 @@ import {
   View,
 } from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
-import {
-  ButtonComponent,
-  CheckboxComponent,
-  InputComponent,
-  TextComponent,
-} from '../reusables';
+import {ButtonComponent, InputComponent, TextComponent} from '../reusables';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   confirmPasswordValidation,
   emailValidation,
   mobileNumbervalidation,
   passwordValidation,
+  updateTheAsyncStorage,
 } from '../utils/commonFunctions';
 import {useAppDispatch} from '../reduxConfig/store';
-import {signupAPICall} from '../reduxConfig/slices/userSlice';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
-import auth from '@react-native-firebase/auth';
+import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
+import {logoutAPICall} from '../reduxConfig/slices/userSlice';
 
 const constants = {
   name: 'name',
   email: 'email',
+  currentPassword: 'currentPassword',
   password: 'password',
   confirmPasssword: 'confirmPasssword',
   mobileNumber: 'mobileNumber',
@@ -44,6 +41,7 @@ interface EachFormField<T> {
 type SignupFormData = {
   name: EachFormField<string>;
   email: EachFormField<string>;
+  currentPassword: EachFormField<string>;
   password: EachFormField<string>;
   confirmPasssword: EachFormField<string>;
   mobileNumber: EachFormField<string>;
@@ -51,15 +49,20 @@ type SignupFormData = {
 
 const UpdateProfileScreen = () => {
   let initialSignupForm: SignupFormData = {
-    name: {value: 'Varun Kukade', errorMessage: ''},
-    email: {value: 'varun.k@gmail.com', errorMessage: ''},
-    password: {value: 'Vk@#$2211', errorMessage: ''},
-    confirmPasssword: {value: 'Vk@#$2211', errorMessage: ''},
-    mobileNumber: {value: '9028421280', errorMessage: ''},
+    name: {value: auth().currentUser?.displayName || '', errorMessage: ''},
+    email: {value: auth().currentUser?.email || '', errorMessage: ''},
+    currentPassword: {value: '', errorMessage: ''},
+    password: {value: '', errorMessage: ''},
+    confirmPasssword: {value: '', errorMessage: ''},
+    mobileNumber: {
+      value: auth().currentUser?.phoneNumber || '',
+      errorMessage: '',
+    },
   };
   const [signupForm, setSignupForm] =
     useState<SignupFormData>(initialSignupForm);
 
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -77,8 +80,10 @@ const UpdateProfileScreen = () => {
   const dispatch = useAppDispatch();
 
   //navigation state
-  const navigation: NativeStackNavigationProp<RootStackParamList, 'HomeStack'> =
-    useNavigation();
+  const rootNavigation: NativeStackNavigationProp<
+    RootStackParamList,
+    'HomeStack'
+  > = useNavigation();
 
   const setFormErrors = (
     type?: '' | 'empty',
@@ -99,6 +104,10 @@ const UpdateProfileScreen = () => {
           ...signupForm.password,
           errorMessage: '',
         },
+        currentPassword: {
+          ...signupForm.currentPassword,
+          errorMessage: '',
+        },
         confirmPasssword: {
           ...signupForm.confirmPasssword,
           errorMessage: '',
@@ -113,76 +122,146 @@ const UpdateProfileScreen = () => {
     }
   };
 
+  const handleSuccessCase = () => {
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(
+        'Profile Updated successfully. Login again with new credentials',
+        ToastAndroid.SHORT,
+      );
+    }
+    dispatch(logoutAPICall()).then(res => {
+      updateTheAsyncStorage();
+      rootNavigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'AuthStack',
+            state: {
+              index: 0,
+              routes: [{name: 'SigninScreen'}],
+            },
+          },
+        ],
+      });
+    });
+  };
+
+  const handleErrorCodes = (err: any) => {
+    let errorMessage = '';
+    if (err.code === 'auth/no-current-user') {
+      errorMessage = 'No user currently signed in.';
+    }
+    if (err.code === 'auth/user-token-expired') {
+      errorMessage = 'No user currently signed in.';
+    }
+    if (err.code === 'auth/wrong-password') {
+      errorMessage =
+        'Current password is invalid. Reset the password and then update the profile';
+    }
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(
+        errorMessage || 'Profile Updated failed! Please try again later.',
+        ToastAndroid.LONG,
+      );
+    }
+  };
+
+  const setFormErrorsFun = () => {
+    const {
+      name,
+      email,
+      password,
+      confirmPasssword,
+      mobileNumber,
+      currentPassword,
+    } = signupForm;
+    setFormErrors('', {
+      ...signupForm,
+      name: {
+        ...name,
+        errorMessage: name.value ? '' : 'Name cannot be empty.',
+      },
+      email: {
+        ...email,
+        errorMessage: emailValidation(email.value).errorMessage,
+      },
+      currentPassword: {
+        ...currentPassword,
+        errorMessage: passwordValidation(currentPassword.value).errorMessage,
+      },
+      password: {
+        ...password,
+        errorMessage: passwordValidation(password.value).errorMessage,
+      },
+      confirmPasssword: {
+        ...confirmPasssword,
+        errorMessage: confirmPasswordValidation(
+          password.value,
+          confirmPasssword.value,
+        ).errorMessage,
+      },
+      mobileNumber: {
+        ...mobileNumber,
+        errorMessage: mobileNumbervalidation(mobileNumber.value).errorMessage,
+      },
+    });
+  };
+
+  const updateTheProfile = async (
+    authCredential: FirebaseAuthTypes.AuthCredential,
+  ) => {
+    const {name, email, password} = signupForm;
+    //here first reauthenticate the user and then update the fields one by one.
+    auth()
+      .currentUser?.reauthenticateWithCredential(authCredential)
+      .then(res => {
+        return auth().currentUser?.updateProfile({
+          displayName: name.value,
+        });
+      })
+      .then(res => {
+        return auth().currentUser?.updateEmail(email.value);
+      })
+      .then(res => {
+        return auth().currentUser?.updatePassword(password.value);
+      })
+      .then(res => {
+        handleSuccessCase();
+      })
+      .catch(err => {
+        handleErrorCodes(err);
+      });
+  };
+
   const onFormSubmit = (): void => {
-    const {name, email, password, confirmPasssword, mobileNumber, isAdmin} =
-      signupForm;
+    const {
+      name,
+      email,
+      password,
+      confirmPasssword,
+      mobileNumber,
+      currentPassword,
+    } = signupForm;
     if (
       name.value &&
       emailValidation(email.value).isValid &&
+      passwordValidation(currentPassword.value) &&
       passwordValidation(password.value).isValid &&
       confirmPasswordValidation(password.value, confirmPasssword.value)
         .isValid &&
       mobileNumbervalidation(mobileNumber.value).isValid
     ) {
       setFormErrors('empty');
-      let requestObj: {email: string; password: string} = {
-        email: email.value,
-        password: password.value,
-      };
-      dispatch(signupAPICall(requestObj)).then(res => {
-        if (res.meta.requestStatus === 'fulfilled') {
-          if (Platform.OS === 'android' && res.payload)
-            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-          auth().currentUser?.updateProfile({
-            displayName: name.value,
-          });
-          setSignupForm(initialSignupForm);
-          //Navigation state object - https://reactnavigation.org/docs/navigation-state/
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: 'HomeStack',
-                state: {
-                  index: 0,
-                  routes: [{name: 'Home'}],
-                },
-              },
-            ],
-          });
-        } else {
-          if (Platform.OS === 'android' && res.payload)
-            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-        }
-      });
+      if (auth().currentUser?.email) {
+        const authCredential = auth.EmailAuthProvider.credential(
+          auth().currentUser?.email,
+          currentPassword.value,
+        );
+        updateTheProfile(authCredential);
+      }
     } else {
       //set the errors if exist
-      setFormErrors('', {
-        ...signupForm,
-        name: {
-          ...name,
-          errorMessage: name.value ? '' : 'Name cannot be empty.',
-        },
-        email: {
-          ...email,
-          errorMessage: emailValidation(email.value).errorMessage,
-        },
-        password: {
-          ...password,
-          errorMessage: passwordValidation(password.value).errorMessage,
-        },
-        confirmPasssword: {
-          ...confirmPasssword,
-          errorMessage: confirmPasswordValidation(
-            password.value,
-            confirmPasssword.value,
-          ).errorMessage,
-        },
-        mobileNumber: {
-          ...mobileNumber,
-          errorMessage: mobileNumbervalidation(mobileNumber.value).errorMessage,
-        },
-      });
+      setFormErrorsFun();
     }
   };
 
@@ -192,10 +271,15 @@ const UpdateProfileScreen = () => {
       showsVerticalScrollIndicator={false}>
       <View style={styles.welcomeMessage}>
         <TextComponent
-          style={{fontSize: 15, marginBottom: 10, color: colors.whiteColor, textAlign:"center"}}
+          style={{
+            fontSize: 15,
+            marginBottom: 10,
+            color: colors.whiteColor,
+            textAlign: 'center',
+          }}
           weight="semibold">
-          Create an account so you can create and manage all your events at once
-          place.
+          Here you can change your profile data. You will need to relogin once
+          you update email and password.
         </TextComponent>
       </View>
       <View style={styles.mainContainer}>
@@ -214,11 +298,30 @@ const UpdateProfileScreen = () => {
           placeholder="abc@gmail.com"
         />
         <InputComponent
+          value={signupForm.currentPassword.value}
+          onChangeText={value => onChangeForm(value, constants.currentPassword)}
+          label="Current Password"
+          errorMessage={signupForm.currentPassword.errorMessage}
+          placeholder="Enter a current password..."
+          secureTextEntry={!showCurrentPassword}
+          rightIconComponent={
+            <TouchableOpacity
+              onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+              style={{position: 'absolute', right: 15}}>
+              <Ionicons
+                name={showCurrentPassword ? 'eye-off-outline' : 'eye-outline'}
+                color={colors.iconLightPinkColor}
+                size={22}
+              />
+            </TouchableOpacity>
+          }
+        />
+        <InputComponent
           value={signupForm.password.value}
           onChangeText={value => onChangeForm(value, constants.password)}
-          label="Password"
+          label="New Password"
           errorMessage={signupForm.password.errorMessage}
-          placeholder="Enter a password..."
+          placeholder="Enter a New password..."
           secureTextEntry={!showPassword}
           rightIconComponent={
             <TouchableOpacity
@@ -237,10 +340,10 @@ const UpdateProfileScreen = () => {
           onChangeText={value =>
             onChangeForm(value, constants.confirmPasssword)
           }
-          label="Confirm Password"
+          label="Confirm new Password"
           secureTextEntry={!showConfirmPassword}
           errorMessage={signupForm.confirmPasssword.errorMessage}
-          placeholder="Confirm the entered password..."
+          placeholder="Confirm the new entered password..."
           rightIconComponent={
             <TouchableOpacity
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -261,11 +364,11 @@ const UpdateProfileScreen = () => {
           errorMessage={signupForm.mobileNumber.errorMessage}
           placeholder="Enter the mobile number..."
         />
-        
+
         <ButtonComponent
           onPress={onFormSubmit}
           containerStyle={{marginTop: 30}}>
-          Register
+          Update
         </ButtonComponent>
       </View>
     </ScrollView>
@@ -281,7 +384,7 @@ const styles = StyleSheet.create({
   },
   welcomeMessage: {
     flex: 0.2,
-    paddingTop: 30,
+    paddingTop: 10,
     paddingHorizontal: measureMents.leftPadding,
     paddingBottom: 20,
   },

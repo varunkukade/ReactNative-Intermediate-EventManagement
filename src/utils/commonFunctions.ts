@@ -1,4 +1,5 @@
 import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type checkIfEmptyProps = boolean | object | string | number;
 export const checkIfEmpty = <T extends checkIfEmptyProps>(value: T) => {
@@ -35,6 +36,14 @@ export const getDate = (date: Date) => {
 export const getTime = (time: Date) => {
   return moment(time).format('LT');
 };
+
+export const updateTheAsyncStorage = async () => {
+  try {
+    await AsyncStorage.setItem('isAuthenticated', "false")
+  } catch (e) {
+    // saving error
+  }
+} 
 
 type ValidationObject = {
   isValid: boolean;
