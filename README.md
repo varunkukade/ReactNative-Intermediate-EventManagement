@@ -3,7 +3,7 @@ Event Management App
 
 Motive of this app is to have one stop solution for all the event management for events like wedding, business seminars, birthdays, paid events/free events. Admin/host/organiser will be able to add/invite people to the events. This project is in progress.If you want to run, you can clone it directly. 
 
-  Components included in the app: 
+  Components included in the app: This app is currently supports Android mobiles. Soon we will add the support for IOS devices.
 
    1. Project is completely strictly type scoped by Typescript 
    2. React Native Firebase - firestore for database and quering data, authentication for signup, signin, logout, forgot password purpose.
