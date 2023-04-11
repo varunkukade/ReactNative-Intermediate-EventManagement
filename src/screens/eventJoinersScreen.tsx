@@ -180,9 +180,9 @@ const EventJoinersScreen = ({
   const onConfirmDeleteClick = () => {
     //call delete API and delete the user from list.
     if (!selectedUser) return;
+    setIsDeletePopupVisible(false);
     dispatch(removePeopleAPICall({userId: selectedUser?.userId})).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
-        setIsDeletePopupVisible(false);
         if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
         if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -194,6 +194,8 @@ const EventJoinersScreen = ({
     //update people list with updated value of isPending.
     if (!selectedUser) return;
     let isPending = selectedUser.isPaymentPending
+    setIsMoveToCompletedPopupVisible(false);
+    setIsMoveToPendingPopupVisible(false);
     dispatch(
       updatePeopleAPICall({
         userId: selectedUser.userId,
@@ -201,8 +203,6 @@ const EventJoinersScreen = ({
       }),
     ).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
-        setIsMoveToCompletedPopupVisible(false);
-        setIsMoveToPendingPopupVisible(false);
         if(isPending) TopTabNavigation.navigate("Completed")
         else TopTabNavigation.navigate("Pending")
         if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);

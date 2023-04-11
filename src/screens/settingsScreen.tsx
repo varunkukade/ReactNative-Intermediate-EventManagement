@@ -30,8 +30,8 @@ const SettingsScreen = () => {
  
 
   const onLogoutpress = () => {
+    setIsLogoutPopupVisible(false)
     dispatch(logoutAPICall()).then(res => {
-      setIsLogoutPopupVisible(false)
       if (res.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && res.payload)
           ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);

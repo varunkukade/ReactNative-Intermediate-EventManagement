@@ -20,7 +20,10 @@ type userState = {
   statuses: {
     signupAPICall: status;
     signinAPICall: status;
+    logoutAPICall: status;
+    forgotPasswordAPICall: status;
   };
+  loadingMessage: string
 };
 
 const initialState: userState = {
@@ -34,7 +37,10 @@ const initialState: userState = {
   statuses: {
     signupAPICall: 'idle',
     signinAPICall: 'idle',
+    logoutAPICall:'idle',
+    forgotPasswordAPICall: 'idle'
   },
+  loadingMessage: ''
 };
 
 export const userSlice = createSlice({
@@ -44,6 +50,7 @@ export const userSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(signupAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Creating Your Account'
         state.statuses.signupAPICall = 'loading';
       })
       .addCase(signupAPICall.fulfilled, (state, action) => {
@@ -51,16 +58,37 @@ export const userSlice = createSlice({
       })
       .addCase(signupAPICall.rejected, (state, action) => {
         state.statuses.signupAPICall = 'failed';
+      })
+      .addCase(signinAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Logging You In'
+        state.statuses.signinAPICall = 'loading';
+      })
+      .addCase(signinAPICall.fulfilled, (state, action) => {
+        state.statuses.signinAPICall = 'succeedded';
+      })
+      .addCase(signinAPICall.rejected, (state, action) => {
+        state.statuses.signinAPICall = 'failed';
+      })
+      .addCase(logoutAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Logging You Out'
+        state.statuses.logoutAPICall = 'loading';
+      })
+      .addCase(logoutAPICall.fulfilled, (state, action) => {
+        state.statuses.logoutAPICall = 'succeedded';
+      })
+      .addCase(logoutAPICall.rejected, (state, action) => {
+        state.statuses.logoutAPICall = 'failed';
+      })
+      .addCase(forgotPasswordAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Sending You Email'
+        state.statuses.forgotPasswordAPICall = 'loading';
+      })
+      .addCase(forgotPasswordAPICall.fulfilled, (state, action) => {
+        state.statuses.forgotPasswordAPICall = 'succeedded';
+      })
+      .addCase(forgotPasswordAPICall.rejected, (state, action) => {
+        state.statuses.forgotPasswordAPICall = 'failed';
       });
-    //   .addCase(signinAPICall.pending, (state, action) => {
-    //     state.statuses.signinAPICall = 'loading';
-    //   })
-    //   .addCase(signinAPICall.fulfilled, (state, action) => {
-    //     state.statuses.signinAPICall = 'succeedded';
-    //   })
-    //   .addCase(signinAPICall.rejected, (state, action) => {
-    //     state.statuses.signinAPICall = 'failed';
-    //   });
   },
 });
 

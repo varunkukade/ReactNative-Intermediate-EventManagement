@@ -22,6 +22,7 @@ type PeopleState = {
     removePeopleAPICall: status;
     updatePeopleAPICall: status;
   };
+  loadingMessage: string;
 };
 
 const initialState: PeopleState = {
@@ -32,6 +33,7 @@ const initialState: PeopleState = {
     removePeopleAPICall: 'idle',
     updatePeopleAPICall: 'idle',
   },
+  loadingMessage: ''
 };
 
 export const peopleSlice = createSlice({
@@ -41,6 +43,7 @@ export const peopleSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(addPeopleAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Adding User To Event'
         state.statuses.addPeopleAPICall = 'loading';
       })
       .addCase(addPeopleAPICall.fulfilled, (state, action) => {
@@ -65,6 +68,7 @@ export const peopleSlice = createSlice({
         state.statuses.getPeopleAPICall = 'failed';
       })
       .addCase(removePeopleAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Deleting the user'
         state.statuses.removePeopleAPICall = 'loading';
       })
       .addCase(removePeopleAPICall.fulfilled, (state, action) => {
@@ -77,6 +81,7 @@ export const peopleSlice = createSlice({
         state.statuses.removePeopleAPICall = 'failed';
       })
       .addCase(updatePeopleAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Updating User Status'
         state.statuses.updatePeopleAPICall = 'loading';
       })
       .addCase(updatePeopleAPICall.fulfilled, (state, action) => {

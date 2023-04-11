@@ -30,6 +30,7 @@ type EventsState = {
     getEventAPICall: status;
     removeEventAPICall: status;
   };
+  loadingMessage: string;
 };
 
 const initialState: EventsState = {
@@ -40,6 +41,7 @@ const initialState: EventsState = {
     getEventAPICall: 'idle',
     removeEventAPICall: 'idle',
   },
+  loadingMessage: ''
 };
 
 export const eventsSlice = createSlice({
@@ -53,6 +55,7 @@ export const eventsSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(addEventAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Creating New Event'
         state.statuses.addEventAPICall = 'loading';
       })
       .addCase(addEventAPICall.fulfilled, (state, action) => {
@@ -78,6 +81,7 @@ export const eventsSlice = createSlice({
         state.statuses.getEventAPICall = 'failed';
       })
       .addCase(removeEventAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Deleting the Event'
         state.statuses.removeEventAPICall = 'loading';
       })
       .addCase(removeEventAPICall.fulfilled, (state, action) => {

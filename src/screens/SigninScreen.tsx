@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {
+  ActivityIndicator,
   Platform,
   StyleSheet,
   Text,
@@ -18,7 +19,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {signinAPICall} from '../reduxConfig/slices/userSlice';
 import {AuthStackParamList} from '../navigation/authStackNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 
 const constants = {
   email: 'email',
@@ -89,11 +89,11 @@ const SigninScreen = () => {
 
   const updateAsyncStorage = async (): Promise<void> => {
     try {
-        await AsyncStorage.setItem('isAuthenticated', "true")
-      } catch (e) {
-        // saving error
-      } 
-  }
+      await AsyncStorage.setItem('isAuthenticated', 'true');
+    } catch (e) {
+      // saving error
+    }
+  };
 
   const onFormSubmit = (): void => {
     const {email, password} = signinForm;
@@ -112,7 +112,7 @@ const SigninScreen = () => {
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
           setSignupForm(initialSigninForm);
           //Navigation state object - https://reactnavigation.org/docs/navigation-state/
-          updateAsyncStorage()
+          updateAsyncStorage();
           navigation.reset({
             index: 0,
             routes: [
@@ -149,12 +149,17 @@ const SigninScreen = () => {
     <View style={styles.wrapperComponent}>
       <View style={styles.welcomeMessage}>
         <TextComponent
-          style={{fontSize: 19, color: colors.whiteColor, marginBottom: 10, textAlign:"center"}}
+          style={{
+            fontSize: 19,
+            color: colors.whiteColor,
+            marginBottom: 10,
+            textAlign: 'center',
+          }}
           weight="bold">
           Hi, Welcome Back 👋🏻
         </TextComponent>
         <TextComponent
-          style={{fontSize: 16, color: colors.whiteColor, textAlign:"center"}}
+          style={{fontSize: 16, color: colors.whiteColor, textAlign: 'center'}}
           weight="normal">
           You can continue to login to manage your events.
         </TextComponent>
