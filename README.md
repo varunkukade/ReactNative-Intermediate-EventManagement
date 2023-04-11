@@ -15,6 +15,7 @@ Motive of this app is to have one stop solution for all the event management for
    8. React-native-modal - Updated version of https://reactnative.dev/docs/modal. You can view sleek bottom half modal and center modal for various actions.
    9. React-native-async-storage - For storage of data to remember state of logged in user.
    10. React-native-image picker and React native permissions - To access the media storage of device.
+   11. React-native-reanimated - This is a animated library by React Native. It has better performance than Animated API of React native as Animated API involves constant to and fro communication between UI and JS thread. Reanimated completely works on UI thread by utilizing the concept of worklets.
 
 
   Current features in the app: 
