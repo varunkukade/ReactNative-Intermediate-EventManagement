@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import auth from '@react-native-firebase/auth';
+import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
 
 export type MessageType = {
   message: string;
@@ -22,8 +22,9 @@ type userState = {
     signinAPICall: status;
     logoutAPICall: status;
     forgotPasswordAPICall: status;
+    updateProfileAPICall: status;
   };
-  loadingMessage: string
+  loadingMessage: string;
 };
 
 const initialState: userState = {
@@ -37,10 +38,11 @@ const initialState: userState = {
   statuses: {
     signupAPICall: 'idle',
     signinAPICall: 'idle',
-    logoutAPICall:'idle',
-    forgotPasswordAPICall: 'idle'
+    logoutAPICall: 'idle',
+    forgotPasswordAPICall: 'idle',
+    updateProfileAPICall: 'idle'
   },
-  loadingMessage: ''
+  loadingMessage: '',
 };
 
 export const userSlice = createSlice({
@@ -50,7 +52,7 @@ export const userSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(signupAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Creating Your Account'
+        state.loadingMessage = 'Creating Your Account';
         state.statuses.signupAPICall = 'loading';
       })
       .addCase(signupAPICall.fulfilled, (state, action) => {
@@ -60,7 +62,7 @@ export const userSlice = createSlice({
         state.statuses.signupAPICall = 'failed';
       })
       .addCase(signinAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Logging You In'
+        state.loadingMessage = 'Logging You In';
         state.statuses.signinAPICall = 'loading';
       })
       .addCase(signinAPICall.fulfilled, (state, action) => {
@@ -70,7 +72,7 @@ export const userSlice = createSlice({
         state.statuses.signinAPICall = 'failed';
       })
       .addCase(logoutAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Logging You Out'
+        state.loadingMessage = 'Logging You Out';
         state.statuses.logoutAPICall = 'loading';
       })
       .addCase(logoutAPICall.fulfilled, (state, action) => {
@@ -80,7 +82,7 @@ export const userSlice = createSlice({
         state.statuses.logoutAPICall = 'failed';
       })
       .addCase(forgotPasswordAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Sending You Email'
+        state.loadingMessage = 'Sending You Email';
         state.statuses.forgotPasswordAPICall = 'loading';
       })
       .addCase(forgotPasswordAPICall.fulfilled, (state, action) => {
@@ -88,7 +90,17 @@ export const userSlice = createSlice({
       })
       .addCase(forgotPasswordAPICall.rejected, (state, action) => {
         state.statuses.forgotPasswordAPICall = 'failed';
-      });
+      })
+      .addCase(updateProfileAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Updating the profile';
+        state.statuses.updateProfileAPICall = 'loading';
+      })
+      .addCase(updateProfileAPICall.fulfilled, (state, action) => {
+        state.statuses.updateProfileAPICall = 'succeedded';
+      })
+      .addCase(updateProfileAPICall.rejected, (state, action) => {
+        state.statuses.updateProfileAPICall = 'failed';
+      });;
   },
 });
 
@@ -179,8 +191,9 @@ export const signinAPICall = createAsyncThunk<
           if (error.code === 'auth/wrong-password') {
             message = 'Wrong password for email.';
           }
-          if(error.code === 'auth/too-many-requests') {
-            message = "Account blocked due to incorrect attempts. Reset password to unblock."
+          if (error.code === 'auth/too-many-requests') {
+            message =
+              'Account blocked due to incorrect attempts. Reset password to unblock.';
           }
           return thunkAPI.rejectWithValue({message: message});
         });
@@ -260,6 +273,67 @@ export const forgotPasswordAPICall = createAsyncThunk<
     //return rejected promise
     return thunkAPI.rejectWithValue({
       message: 'Failed to send email. Please try again after some time',
+    } as MessageType);
+  }
+});
+
+type UpdateProfileRequest = {
+  name: string;
+  authCredential: FirebaseAuthTypes.AuthCredential;
+  newEmail: string;
+  newPassword: string;
+  mobileNumber: string;
+};
+
+export const updateProfileAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  UpdateProfileRequest,
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('user/updateProfile', async (requestObj: UpdateProfileRequest, thunkAPI) => {
+  let message = '';
+  try {
+    return await auth()
+      .currentUser?.reauthenticateWithCredential(requestObj.authCredential)
+      .then(res => {
+        return auth().currentUser?.updateProfile({
+          displayName: requestObj.name,
+        });
+      })
+      .then(res => {
+        return auth().currentUser?.updateEmail(requestObj.newEmail);
+      })
+      .then(res => {
+        return auth().currentUser?.updatePassword(requestObj.newPassword);
+      })
+      .then(res => {
+        message =
+          'Profile Updated successfully.Login again with new credentials';
+        return {message: message};
+      })
+      .catch(err => {
+        if (err.code === 'auth/no-current-user') {
+          message = 'No user currently signed in.';
+        }
+        if (err.code === 'auth/user-token-expired') {
+          message = 'No user currently signed in.';
+        }
+        if (err.code === 'auth/wrong-password') {
+          message =
+            'Current password is invalid. Reset the password and then update the profile';
+        }
+        return thunkAPI.rejectWithValue({message: message});
+      });
+  } catch (err) {
+    //return rejected promise
+    return thunkAPI.rejectWithValue({
+      message: 'Failed to update profile. Please try again after some time',
     } as MessageType);
   }
 });

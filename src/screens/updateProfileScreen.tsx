@@ -22,7 +22,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
 import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
-import {logoutAPICall} from '../reduxConfig/slices/userSlice';
+import {logoutAPICall, updateProfileAPICall} from '../reduxConfig/slices/userSlice';
 
 const constants = {
   name: 'name',
@@ -122,10 +122,10 @@ const UpdateProfileScreen = () => {
     }
   };
 
-  const handleSuccessCase = () => {
+  const handleSuccessCase = (message: string) => {
     if (Platform.OS === 'android') {
       ToastAndroid.show(
-        'Profile Updated successfully. Login again with new credentials',
+        message,
         ToastAndroid.SHORT,
       );
     }
@@ -144,26 +144,6 @@ const UpdateProfileScreen = () => {
         ],
       });
     });
-  };
-
-  const handleErrorCodes = (err: any) => {
-    let errorMessage = '';
-    if (err.code === 'auth/no-current-user') {
-      errorMessage = 'No user currently signed in.';
-    }
-    if (err.code === 'auth/user-token-expired') {
-      errorMessage = 'No user currently signed in.';
-    }
-    if (err.code === 'auth/wrong-password') {
-      errorMessage =
-        'Current password is invalid. Reset the password and then update the profile';
-    }
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(
-        errorMessage || 'Profile Updated failed! Please try again later.',
-        ToastAndroid.LONG,
-      );
-    }
   };
 
   const setFormErrorsFun = () => {
@@ -207,32 +187,6 @@ const UpdateProfileScreen = () => {
     });
   };
 
-  const updateTheProfile = (
-    authCredential: FirebaseAuthTypes.AuthCredential,
-  ) => {
-    const {name, email, password} = updateProfileForm;
-    //here first reauthenticate the user and then update the fields one by one.
-    auth()
-      .currentUser?.reauthenticateWithCredential(authCredential)
-      .then(res => {
-        return auth().currentUser?.updateProfile({
-          displayName: name.value,
-        });
-      })
-      .then(res => {
-        return auth().currentUser?.updateEmail(email.value);
-      })
-      .then(res => {
-        return auth().currentUser?.updatePassword(password.value);
-      })
-      .then(res => {
-        handleSuccessCase();
-      })
-      .catch(err => {
-        handleErrorCodes(err);
-      });
-  };
-
   const onFormSubmit = (): void => {
     const {
       name,
@@ -252,13 +206,29 @@ const UpdateProfileScreen = () => {
       mobileNumbervalidation(mobileNumber.value).isValid
     ) {
       setFormErrors('empty');
-      if (auth().currentUser?.email) {
-        const authCredential = auth.EmailAuthProvider.credential(
-          auth().currentUser?.email,
-          currentPassword.value,
-        );
-        updateTheProfile(authCredential);
+      const authCredential = auth.EmailAuthProvider.credential(
+        auth().currentUser?.email,
+        currentPassword.value,
+      );
+      let requestObj = {
+        name: name.value,
+        authCredential: authCredential,
+        newEmail : email.value,
+        newPassword: password.value,
+        mobileNumber: mobileNumber.value
       }
+      dispatch(updateProfileAPICall(requestObj)).then(resp => {
+        if (resp.meta.requestStatus === 'fulfilled') {
+          handleSuccessCase(resp.payload.message)
+        } else {
+          if (Platform.OS === 'android') {
+            ToastAndroid.show(
+              resp.payload.message || 'Profile Updated failed! Please try again later.',
+              ToastAndroid.LONG,
+            );
+          }
+        }
+      });
     } else {
       //set the errors if exist
       setFormErrorsFun();
