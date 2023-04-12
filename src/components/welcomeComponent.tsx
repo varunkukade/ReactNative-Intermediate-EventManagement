@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from 'react';
+import React, {ReactElement, useEffect, useState} from 'react';
 import {
   Alert,
   Linking,
@@ -14,9 +14,37 @@ import {colors} from '../utils/appStyles';
 import * as ImagePicker from 'react-native-image-picker';
 import auth from '@react-native-firebase/auth';
 import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
+import {useAppDispatch} from '../reduxConfig/store';
+import {
+  getProfilePicture,
+  uploadProfilePictureAPICall,
+} from '../reduxConfig/slices/userSlice';
+
+const PROFILE_PICTURE_SIZE = 60;
 
 const WelcomeComponent = (): ReactElement => {
-  const [uri, setUri] = useState('');
+  //dispatch and selectors
+  const dispatch = useAppDispatch();
+
+  const [uri, setUri] = useState("")
+
+  useEffect(() => {
+    dispatch(
+      getProfilePicture({imageName: 'profile-' + auth().currentUser?.email}),
+    ).then((resp)=> {
+      if (resp.payload) {
+        if(Platform.OS === "android" && resp.meta.requestStatus === "fulfilled") {
+          auth().currentUser?.updateProfile({
+            photoURL: resp.payload.uri
+          })
+          .then((res)=> {
+            setUri(auth().currentUser?.photoURL)
+          })
+        }
+      }
+    })
+  }, []);
 
   const displayAlert = () => {
     Alert.alert(
@@ -42,26 +70,43 @@ const WelcomeComponent = (): ReactElement => {
     );
   };
 
-  const updateProfilePicture = (response: ImagePicker.ImagePickerResponse) => {
+  const resizeProfilePicture = (response: ImagePicker.ImagePickerResponse) => {
     if (!(response.assets && response.assets.length > 0)) return;
-    auth()
-      .currentUser?.updateProfile({
-        photoURL: response.assets[0]?.uri || '',
+    ImageResizer.createResizedImage(
+      response.assets[0].uri,
+      PROFILE_PICTURE_SIZE,
+      PROFILE_PICTURE_SIZE,
+      'PNG',
+      100,
+      0,
+      null,
+    )
+      .then(response => {
+        // response.uri is the URI of the new image that can now be uploaded to firebase storage...
+        //resized image uri
+        let uri = response.uri;
+        //generating image name
+        let imageName = 'profile-' + auth().currentUser?.email;
+        //to resolve file path issue on different platforms
+        let uploadUri =
+          Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+        //upload image to firebase storage
+        return dispatch(uploadProfilePictureAPICall({imageName, uploadUri}));
       })
       .then(res => {
-        if (response.assets && response.assets.length > 0)
-          setUri(response.assets[0]?.uri || '');
-        if (Platform.OS === 'android') {
-          ToastAndroid.show(
-            'Profile picture Updated successfully.',
-            ToastAndroid.SHORT,
-          );
+        if (res.meta.requestStatus === 'fulfilled') {
+          if (Platform.OS === 'android' && res.payload)
+            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+          //Navigation state object - https://reactnavigation.org/docs/navigation-state/
+        } else {
+          if (Platform.OS === 'android' && res.payload)
+            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
         }
       })
       .catch(err => {
         if (Platform.OS === 'android') {
           ToastAndroid.show(
-            'Failed to update Profile picture. Please try again later.',
+            'Oops, something went wrong. Failed to update Profile picture. Please try again later.',
             ToastAndroid.SHORT,
           );
         }
@@ -92,7 +137,7 @@ const WelcomeComponent = (): ReactElement => {
             } else if (response.errorCode) {
               Alert.alert('ImagePicker Error: ', response.errorMessage);
             } else {
-              updateProfilePicture(response);
+              resizeProfilePicture(response);
             }
           });
           break;
@@ -123,11 +168,15 @@ const WelcomeComponent = (): ReactElement => {
         style={styles.profilePicContainer}>
         <ImageComponent
           source={
-            auth().currentUser?.photoURL !== ''
+            auth().currentUser?.photoURL !== null
               ? {uri: auth().currentUser?.photoURL}
               : require('../../images/dummyPicture.png')
           }
-          style={{width: 60, height: 60, borderRadius: 30}}
+          style={{
+            width: PROFILE_PICTURE_SIZE,
+            height: PROFILE_PICTURE_SIZE,
+            borderRadius: PROFILE_PICTURE_SIZE / 2,
+          }}
         />
         <TextComponent style={{color: colors.greyColor}} weight="extraBold">
           Update

@@ -1,9 +1,7 @@
 import React, {useState} from 'react';
 import {
-  ActivityIndicator,
   Platform,
   StyleSheet,
-  Text,
   ToastAndroid,
   TouchableOpacity,
   View,
@@ -19,6 +17,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {signinAPICall} from '../reduxConfig/slices/userSlice';
 import {AuthStackParamList} from '../navigation/authStackNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
 
 const constants = {
   email: 'email',
@@ -36,7 +35,7 @@ type SigninFormData = {
 };
 const SigninScreen = () => {
   let initialSigninForm: SigninFormData = {
-    email: {value: 'varunkukade888@gmail.com', errorMessage: ''},
+    email: {value: 'varun.k+999@gmail.com', errorMessage: ''},
     password: {value: 'Vk@#$2211', errorMessage: ''},
   };
   const [signinForm, setSignupForm] =
@@ -111,25 +110,31 @@ const SigninScreen = () => {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
           setSignupForm(initialSigninForm);
-          //Navigation state object - https://reactnavigation.org/docs/navigation-state/
-          updateAsyncStorage();
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: 'HomeStack',
-                state: {
-                  index: 0,
-                  routes: [{name: 'Home'}],
-                },
-              },
-            ],
-          });
+          return auth().currentUser?.updateProfile({
+            photoURL: ""
+          })
         } else {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
         }
-      });
+      })
+      .then((res)=> {
+        //Navigation state object - https://reactnavigation.org/docs/navigation-state/
+        updateAsyncStorage();
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'HomeStack',
+              state: {
+                index: 0,
+                routes: [{name: 'Home'}],
+              },
+            },
+          ],
+        });
+      })
+      ;
     } else {
       //set the errors if exist
       setFormErrors('', {

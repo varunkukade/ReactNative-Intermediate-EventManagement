@@ -47,7 +47,8 @@ const LoadingAnimation = () => {
       userSliceStatuses.signinAPICall === LOADING ||
       userSliceStatuses.signupAPICall === LOADING ||
       userSliceStatuses.forgotPasswordAPICall === LOADING ||
-      userSliceStatuses.updateProfileAPICall === LOADING
+      userSliceStatuses.updateProfileAPICall === LOADING || 
+      userSliceStatuses.uploadProfilePictureAPICall === LOADING
     )
       return userSlice.loadingMessage;
     else if (
@@ -67,6 +68,7 @@ const LoadingAnimation = () => {
       userSliceStatuses.forgotPasswordAPICall === LOADING ||
       userSliceStatuses.logoutAPICall === LOADING ||
       userSliceStatuses.updateProfileAPICall === LOADING ||
+      userSliceStatuses.uploadProfilePictureAPICall === LOADING ||
       peopleSliceStatuses.addPeopleAPICall === LOADING ||
       peopleSliceStatuses.removePeopleAPICall === LOADING ||
       peopleSliceStatuses.updatePeopleAPICall === LOADING

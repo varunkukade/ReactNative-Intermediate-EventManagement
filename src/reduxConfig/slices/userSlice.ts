@@ -1,5 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
+import storage from '@react-native-firebase/storage';
 
 export type MessageType = {
   message: string;
@@ -23,6 +24,7 @@ type userState = {
     logoutAPICall: status;
     forgotPasswordAPICall: status;
     updateProfileAPICall: status;
+    uploadProfilePictureAPICall: status;
   };
   loadingMessage: string;
 };
@@ -40,7 +42,8 @@ const initialState: userState = {
     signinAPICall: 'idle',
     logoutAPICall: 'idle',
     forgotPasswordAPICall: 'idle',
-    updateProfileAPICall: 'idle'
+    updateProfileAPICall: 'idle',
+    uploadProfilePictureAPICall: 'idle',
   },
   loadingMessage: '',
 };
@@ -100,7 +103,17 @@ export const userSlice = createSlice({
       })
       .addCase(updateProfileAPICall.rejected, (state, action) => {
         state.statuses.updateProfileAPICall = 'failed';
-      });;
+      })
+      .addCase(uploadProfilePictureAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Uploading the image';
+        state.statuses.uploadProfilePictureAPICall = 'loading';
+      })
+      .addCase(uploadProfilePictureAPICall.fulfilled, (state, action) => {
+        state.statuses.uploadProfilePictureAPICall = 'succeedded';
+      })
+      .addCase(uploadProfilePictureAPICall.rejected, (state, action) => {
+        state.statuses.uploadProfilePictureAPICall = 'failed';
+      });
   },
 });
 
@@ -337,3 +350,94 @@ export const updateProfileAPICall = createAsyncThunk<
     } as MessageType);
   }
 });
+
+//upload profile picture to the google cloud storage using firebase storage
+export const uploadProfilePictureAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  {
+    imageName: string;
+    uploadUri: string;
+  },
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>(
+  'user/uploadProfilePicture',
+  async (
+    requestObj: {
+      imageName: string;
+      uploadUri: string;
+    },
+    thunkAPI,
+  ) => {
+    let message = '';
+    try {
+      return await storage()
+        .ref(`/user/${auth().currentUser?.uid}/` + requestObj.imageName)
+        .putFile(requestObj.uploadUri)
+        .then(resp => {
+          message = 'Profile Picture Uploaded Successfully!';
+          return {message: message};
+        })
+        .catch(error => {
+          return thunkAPI.rejectWithValue({message: error.message});
+        });
+    } catch (err) {
+      //return rejected promise
+      return thunkAPI.rejectWithValue({
+        message:
+          'Failed to upload profile picture. Please try again after some time',
+      } as MessageType);
+    }
+  },
+);
+
+//get profile picture from the google cloud storage using firebase storage
+export const getProfilePicture = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
+    uri: string;
+  },
+  //type of request obj passed to payload creator
+  {
+    imageName: string;
+  },
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>(
+  'user/getProfilePicture',
+  async (
+    requestObj: {
+      imageName: string;
+    },
+    thunkAPI,
+  ) => {
+    let message = '';
+    try {
+      return await storage()
+        .ref(`/user/${auth().currentUser?.uid}/` + requestObj.imageName)
+        .getDownloadURL()
+        .then(resp => {
+          message = 'Profile Picture Fetched Successfully!';
+          return {message: message, uri: resp};
+        })
+        .catch(error => {
+          return thunkAPI.rejectWithValue({message: error.message});
+        });
+    } catch (err) {
+      //return rejected promise
+      return thunkAPI.rejectWithValue({
+        message:
+          'Failed to fetch profile picture. Please try again after some time',
+      } as MessageType);
+    }
+  },
+);
