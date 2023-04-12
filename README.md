@@ -6,7 +6,7 @@ Motive of this app is to have one stop solution for all the event management for
   Components included in the app: This app is currently supports Android mobiles. Soon we will add the support for IOS devices.
 
    1. Project is completely strictly type scoped by Typescript 
-   2. React Native Firebase - firestore for database and quering data, authentication for signup, signin, logout, forgot password purpose.
+   2. React Native Firebase - Used firestore for database and quering data. Used authentication for signup,signin, logout, forgot password purpose. Used cloud storage for storing user's profile picture.
    3. React navigation native stack , React Navigation Material bottom and top tabs - For screens, tabs and navigation of screens
    4. Redux Toolkit - This is the recommanded approach by react core team instead of just redux. This helps to reduce most of the boilerplate code for redux for gobal data/state management. This includes thunk middleware by default.
    5. React native Date Picker - For date and time input. 
@@ -16,6 +16,7 @@ Motive of this app is to have one stop solution for all the event management for
    9. React-native-async-storage - For storage of data to remember state of logged in user.
    10. React-native-image picker and React native permissions - To access the media storage of device.
    11. React-native-reanimated - This is a animated library by React Native. It has better performance than Animated API of React native as Animated API involves constant to and fro communication between UI and JS thread. Reanimated completely works on UI thread by utilizing the concept of worklets.
+   12. React-native-image-resizer - Use to create different image sizes for different purposes. Also size of image can be reduced.
 
 
   Current features in the app: 
