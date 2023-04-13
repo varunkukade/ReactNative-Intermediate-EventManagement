@@ -37,8 +37,8 @@ type SigninFormData = {
 };
 const SigninScreen = () => {
   let initialSigninForm: SigninFormData = {
-    email: {value: 'varun.k@gmail.com', errorMessage: ''},
-    password: {value: 'Vk@#$2211660', errorMessage: ''},
+    email: {value: 'varunkukade999@gmail.com', errorMessage: ''},
+    password: {value: 'Vk@#$2211', errorMessage: ''},
   };
   const [signinForm, setSigninForm] =
     useState<SigninFormData>(initialSigninForm);
@@ -99,33 +99,30 @@ const SigninScreen = () => {
         email: email.value,
         password: password.value,
       };
-      dispatch(signinAPICall(requestObj))
-        .then(res => {
-          if (res.meta.requestStatus === 'fulfilled') {
-            if (Platform.OS === 'android' && res.payload)
-              ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-            setSigninForm(initialSigninForm);
-            //Navigation state object - https://reactnavigation.org/docs/navigation-state/
-            return updateTheAsyncStorage('true');
-          } else {
-            if (Platform.OS === 'android' && res.payload)
-              ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-          }
-        })
-        .then(res => {
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: 'HomeStack',
-                state: {
-                  index: 0,
-                  routes: [{name: 'Home'}],
+      dispatch(signinAPICall(requestObj)).then(res => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          if (res.payload)
+            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+          setSigninForm(initialSigninForm);
+          updateTheAsyncStorage('true').then(res => {
+            navigation.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'HomeStack',
+                  state: {
+                    index: 0,
+                    routes: [{name: 'Home'}],
+                  },
                 },
-              },
-            ],
+              ],
+            });
           });
-        });
+        } else {
+          if (res.payload)
+            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+        }
+      });
     } else {
       //set the errors if exist
       setFormErrors('', {

@@ -65,6 +65,7 @@ export const userSlice = createSlice({
         state.statuses.signinAPICall = 'succeedded';
       })
       .addCase(signinAPICall.rejected, (state, action) => {
+        console.log("action",action)
         state.statuses.signinAPICall = 'failed';
       })
       .addCase(logoutAPICall.pending, (state, action) => {
@@ -207,8 +208,8 @@ export const signinAPICall = createAsyncThunk<
     try {
       return await auth()
         .signInWithEmailAndPassword(requestObj.email, requestObj.password)
-        .then(resp => {
-          return auth().currentUser?.updateProfile({
+        .then(async function (resp){
+          return await auth().currentUser?.updateProfile({
             photoURL: '',
           });
         })
@@ -234,6 +235,7 @@ export const signinAPICall = createAsyncThunk<
             message =
               'Account blocked due to incorrect attempts. Reset password to unblock.';
           }
+          console.log("message",message)
           return thunkAPI.rejectWithValue({message: message});
         });
     } catch (err) {
