@@ -107,6 +107,7 @@ const WelcomeComponent = (): ReactElement => {
             response.assets.length > 0 &&
             response.assets[0].uri
           ){
+            console.log("response.assets[0].uri",response.assets[0].uri)
             setUri(response.assets[0].uri);
           }
         } else {
@@ -177,7 +178,7 @@ const WelcomeComponent = (): ReactElement => {
         onPress={askPermissions}
         activeOpacity={0.6}
         style={styles.profilePicContainer}>
-        {userApiCallStatuses.getProfilePictureAPICall === 'loading' ||  userApiCallStatuses.getProfilePictureAPICall === "failed" || userApiCallStatuses.getProfilePictureAPICall === "idle"  ? (
+        {uri === "" ? (
           <View style={styles.profilePicSkaleton} />
         ) : (
           <ImageComponent
