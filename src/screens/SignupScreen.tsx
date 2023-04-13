@@ -128,17 +128,25 @@ const SignupScreen = () => {
       mobileNumbervalidation(mobileNumber.value).isValid
     ) {
       setFormErrors('empty');
-      let requestObj: {email: string; password: string} = {
+      let requestObj: {email: string; password: string, mobileNumber: string} = {
         email: email.value,
         password: password.value,
+        mobileNumber: mobileNumber.value
       };
-      dispatch(signupAPICall(requestObj)).then(res => {
-        if (res.meta.requestStatus === 'fulfilled') {
-          if (Platform.OS === 'android' && res.payload)
-            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-          auth().currentUser?.updateProfile({
-            displayName: name.value,
-          });
+      dispatch(signupAPICall(requestObj))
+        .then(res => {
+          if (res.meta.requestStatus === 'fulfilled') {
+            if (Platform.OS === 'android' && res.payload)
+              ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+            return auth().currentUser?.updateProfile({
+              displayName: name.value,
+            });
+          } else {
+            if (Platform.OS === 'android' && res.payload)
+              ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+          }
+        })
+        .then(res => {
           setSignupForm(initialSignupForm);
           //Navigation state object - https://reactnavigation.org/docs/navigation-state/
           navigation.reset({
@@ -153,11 +161,7 @@ const SignupScreen = () => {
               },
             ],
           });
-        } else {
-          if (Platform.OS === 'android' && res.payload)
-            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-        }
-      });
+        });
     } else {
       //set the errors if exist
       setFormErrors('', {
@@ -195,7 +199,12 @@ const SignupScreen = () => {
       showsVerticalScrollIndicator={false}>
       <View style={styles.welcomeMessage}>
         <TextComponent
-          style={{fontSize: 15, marginBottom: 10, color: colors.whiteColor, textAlign:"center"}}
+          style={{
+            fontSize: 15,
+            marginBottom: 10,
+            color: colors.whiteColor,
+            textAlign: 'center',
+          }}
           weight="semibold">
           Create an account so you can create and manage all your events at once
           place.

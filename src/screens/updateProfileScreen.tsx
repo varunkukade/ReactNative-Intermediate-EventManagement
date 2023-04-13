@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Platform,
   ScrollView,
@@ -15,6 +15,7 @@ import {
   emailValidation,
   mobileNumbervalidation,
   passwordValidation,
+  resetReduxState,
   updateTheAsyncStorage,
 } from '../utils/commonFunctions';
 import {useAppDispatch} from '../reduxConfig/store';
@@ -22,7 +23,11 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
 import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
-import {logoutAPICall, updateProfileAPICall} from '../reduxConfig/slices/userSlice';
+import {
+  getProfileDataAPICall,
+  logoutAPICall,
+  updateProfileAPICall,
+} from '../reduxConfig/slices/userSlice';
 
 const constants = {
   name: 'name',
@@ -55,7 +60,7 @@ const UpdateProfileScreen = () => {
     password: {value: '', errorMessage: ''},
     confirmPasssword: {value: '', errorMessage: ''},
     mobileNumber: {
-      value: auth().currentUser?.phoneNumber || '',
+      value: '',
       errorMessage: '',
     },
   };
@@ -65,6 +70,26 @@ const UpdateProfileScreen = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    dispatch(getProfileDataAPICall()).then(resp => {
+      if (resp.payload) {
+        if (
+          Platform.OS === 'android' &&
+          resp.meta.requestStatus === 'fulfilled' &&
+          resp.payload.type === 'success'
+        ) {
+          setUpdateProfileForm({
+            ...updateProfileForm,
+            mobileNumber: {
+              value: resp.payload.responseData.mobileNumber,
+              errorMessage: '',
+            },
+          });
+        }
+      }
+    });
+  }, []);
 
   const onChangeForm = (
     value: string | Date | boolean,
@@ -124,13 +149,11 @@ const UpdateProfileScreen = () => {
 
   const handleSuccessCase = (message: string) => {
     if (Platform.OS === 'android') {
-      ToastAndroid.show(
-        message,
-        ToastAndroid.SHORT,
-      );
+      ToastAndroid.show(message, ToastAndroid.SHORT);
     }
     dispatch(logoutAPICall()).then(res => {
-      updateTheAsyncStorage();
+      updateTheAsyncStorage("false");
+      resetReduxState()
       rootNavigation.reset({
         index: 0,
         routes: [
@@ -213,17 +236,18 @@ const UpdateProfileScreen = () => {
       let requestObj = {
         name: name.value,
         authCredential: authCredential,
-        newEmail : email.value,
+        newEmail: email.value,
         newPassword: password.value,
-        mobileNumber: mobileNumber.value
-      }
+        mobileNumber: mobileNumber.value,
+      };
       dispatch(updateProfileAPICall(requestObj)).then(resp => {
         if (resp.meta.requestStatus === 'fulfilled') {
-          handleSuccessCase(resp.payload.message)
+          handleSuccessCase(resp.payload.message);
         } else {
           if (Platform.OS === 'android') {
             ToastAndroid.show(
-              resp.payload.message || 'Profile Updated failed! Please try again later.',
+              resp.payload.message ||
+                'Profile Updated failed! Please try again later.',
               ToastAndroid.LONG,
             );
           }

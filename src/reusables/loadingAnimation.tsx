@@ -6,13 +6,13 @@ import Animated, {
   withSpring,
   withRepeat,
   cancelAnimation,
-  runOnUI,
 } from 'react-native-reanimated';
 import TextComponent from './textComponent';
 import {colors} from '../utils/appStyles';
 import {useAppSelector} from '../reduxConfig/store';
 
 const SIZE = 60;
+const LOADING = 'loading';
 
 const LoadingAnimation = () => {
   //useSharedValue lets us create a value which is completely handled by UI thread. UseState create a value handled by js thread.
@@ -37,7 +37,6 @@ const LoadingAnimation = () => {
   const peopleSliceStatuses = useAppSelector(state => state.people.statuses);
 
   function getLoadingMessage() {
-    let LOADING = 'loading';
     if (
       eventSliceStatuses.addEventAPICall === LOADING ||
       eventSliceStatuses.removeEventAPICall === LOADING
@@ -48,7 +47,8 @@ const LoadingAnimation = () => {
       userSliceStatuses.signupAPICall === LOADING ||
       userSliceStatuses.forgotPasswordAPICall === LOADING ||
       userSliceStatuses.updateProfileAPICall === LOADING || 
-      userSliceStatuses.uploadProfilePictureAPICall === LOADING
+      userSliceStatuses.uploadProfilePictureAPICall === LOADING || 
+      userSliceStatuses.getProfileDataAPICall === LOADING
     )
       return userSlice.loadingMessage;
     else if (
@@ -59,7 +59,6 @@ const LoadingAnimation = () => {
       return peopleSlice.loadingMessage;
   }
   function shouldDisplayLoading() {
-    let LOADING = 'loading';
     return (
       eventSliceStatuses.addEventAPICall === LOADING ||
       eventSliceStatuses.removeEventAPICall === LOADING ||
@@ -69,6 +68,7 @@ const LoadingAnimation = () => {
       userSliceStatuses.logoutAPICall === LOADING ||
       userSliceStatuses.updateProfileAPICall === LOADING ||
       userSliceStatuses.uploadProfilePictureAPICall === LOADING ||
+      userSliceStatuses.getProfileDataAPICall === LOADING || 
       peopleSliceStatuses.addPeopleAPICall === LOADING ||
       peopleSliceStatuses.removePeopleAPICall === LOADING ||
       peopleSliceStatuses.updatePeopleAPICall === LOADING

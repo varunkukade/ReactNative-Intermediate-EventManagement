@@ -7,13 +7,12 @@ import {NavigationContainer} from '@react-navigation/native';
 import RootStackNavigator from './src/navigation/rootStackNavigator';
 import {LoadingAnimation} from './src/reusables';
 
-
 const App = () => {
   return (
     <Provider store={store}>
       <NavigationContainer>
         <RootStackNavigator />
-          <LoadingAnimation/>
+        <LoadingAnimation />
       </NavigationContainer>
       <StatusBar
         backgroundColor={colors.primaryColor}
@@ -23,7 +22,6 @@ const App = () => {
   );
 };
 
-const styles = StyleSheet.create({
-});
+const styles = StyleSheet.create({});
 
 export default App;

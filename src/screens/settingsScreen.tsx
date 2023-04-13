@@ -1,42 +1,54 @@
-import React, { useState } from 'react';
-import {Platform, StyleSheet, ToastAndroid, TouchableOpacity, View} from 'react-native';
+import React, {useState} from 'react';
+import {
+  Platform,
+  StyleSheet,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {TextComponent} from '../reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import { useAppDispatch } from '../reduxConfig/store';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/rootStackNavigator';
-import { logoutAPICall } from '../reduxConfig/slices/userSlice';
-import CenterPopupComponent, { popupData } from '../reusables/centerPopupComponent';
-import { HomeStackParamList } from '../navigation/homeStackNavigator';
-import { updateTheAsyncStorage } from '../utils/commonFunctions';
+import {useAppDispatch} from '../reduxConfig/store';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/rootStackNavigator';
+import {logoutAPICall} from '../reduxConfig/slices/userSlice';
+import CenterPopupComponent, {
+  popupData,
+} from '../reusables/centerPopupComponent';
+import {HomeStackParamList} from '../navigation/homeStackNavigator';
+import {resetReduxState, updateTheAsyncStorage} from '../utils/commonFunctions';
 
 const SettingsScreen = () => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
 
   //navigation state
-  const rootNavigation: NativeStackNavigationProp<RootStackParamList, 'HomeStack'> =
-    useNavigation();
-    const homeStackNavigation: NativeStackNavigationProp<HomeStackParamList, 'BottomTabNavigator'> =
-    useNavigation();
-    //modal states
+  const rootNavigation: NativeStackNavigationProp<
+    RootStackParamList,
+    'HomeStack'
+  > = useNavigation();
+  const homeStackNavigation: NativeStackNavigationProp<
+    HomeStackParamList,
+    'BottomTabNavigator'
+  > = useNavigation();
+  //modal states
   const [isLogoutPopupVisible, setIsLogoutPopupVisible] = useState(false);
 
   const onCancelClick = () => {
     if (isLogoutPopupVisible) setIsLogoutPopupVisible(false);
   };
- 
 
   const onLogoutpress = () => {
-    setIsLogoutPopupVisible(false)
+    setIsLogoutPopupVisible(false);
     dispatch(logoutAPICall()).then(res => {
       if (res.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && res.payload)
           ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
         //Navigation state object - https://reactnavigation.org/docs/rootNavigation-state/
-        updateTheAsyncStorage()
+        resetReduxState();
+        updateTheAsyncStorage('false');
         rootNavigation.reset({
           index: 0,
           routes: [
@@ -62,7 +74,11 @@ const SettingsScreen = () => {
     onCancelClick: onCancelClick,
     onConfirmClick: onLogoutpress,
   };
-  
+
+  const onUpdateProfilePress = () => {
+    homeStackNavigation.navigate('UpdateProfileScreen');
+  };
+
   let actions = [
     {
       label: 'Update Profile',
@@ -80,7 +96,7 @@ const SettingsScreen = () => {
           name="chevron-with-circle-right"
         />
       ),
-      onPress: () => homeStackNavigation.navigate('UpdateProfileScreen'),
+      onPress: onUpdateProfilePress,
     },
     {
       label: 'Log-out',
@@ -171,7 +187,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: measureMents.leftPadding,
-    marginBottom: 20
+    marginBottom: 20,
   },
   secondSection: {
     width: '80%',

@@ -39,7 +39,9 @@ const initialState: PeopleState = {
 export const peopleSlice = createSlice({
   name: 'people',
   initialState,
-  reducers: {},
+  reducers: {
+    reset: () => initialState,
+  },
   extraReducers(builder) {
     builder
       .addCase(addPeopleAPICall.pending, (state, action) => {
@@ -101,6 +103,8 @@ export const peopleSlice = createSlice({
   },
 });
 
+export const {reset: resetPeopleState} =
+  peopleSlice.actions;
 export default peopleSlice.reducer;
 
 export const addPeopleAPICall = createAsyncThunk<

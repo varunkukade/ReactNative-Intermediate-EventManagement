@@ -48,6 +48,7 @@ export const eventsSlice = createSlice({
   name: 'events',
   initialState,
   reducers: {
+    reset: () => initialState,
     setSelectedEvent: (state, action: PayloadAction<EachEvent>) => {
       state.currentSelectedEvent = JSON.parse(JSON.stringify(action.payload));
     },
@@ -97,7 +98,7 @@ export const eventsSlice = createSlice({
 });
 
 export default eventsSlice.reducer;
-export const {setSelectedEvent} =
+export const {setSelectedEvent, reset: resetEventState} =
   eventsSlice.actions;
 
 export const addEventAPICall = createAsyncThunk<

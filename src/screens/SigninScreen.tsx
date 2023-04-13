@@ -12,12 +12,14 @@ import {useAppDispatch} from '../reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
 import {useNavigation} from '@react-navigation/native';
-import {emailValidation, passwordValidation} from '../utils/commonFunctions';
+import {
+  emailValidation,
+  passwordValidation,
+  updateTheAsyncStorage,
+} from '../utils/commonFunctions';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {signinAPICall} from '../reduxConfig/slices/userSlice';
 import {AuthStackParamList} from '../navigation/authStackNavigator';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import auth from '@react-native-firebase/auth';
 
 const constants = {
   email: 'email',
@@ -38,7 +40,7 @@ const SigninScreen = () => {
     email: {value: 'varun.k+999@gmail.com', errorMessage: ''},
     password: {value: 'Vk@#$2211', errorMessage: ''},
   };
-  const [signinForm, setSignupForm] =
+  const [signinForm, setSigninForm] =
     useState<SigninFormData>(initialSigninForm);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -47,7 +49,7 @@ const SigninScreen = () => {
     value: string | Date | boolean,
     fieldName: string,
   ): void => {
-    setSignupForm({
+    setSigninForm({
       ...signinForm,
       [fieldName]: {value: value, errorMessage: ''},
     });
@@ -70,7 +72,7 @@ const SigninScreen = () => {
     eventFormObj?: SigninFormData,
   ) => {
     if (type === 'empty') {
-      setSignupForm({
+      setSigninForm({
         ...signinForm,
         email: {
           ...signinForm.email,
@@ -82,15 +84,7 @@ const SigninScreen = () => {
         },
       });
     } else {
-      if (eventFormObj) setSignupForm(eventFormObj);
-    }
-  };
-
-  const updateAsyncStorage = async (): Promise<void> => {
-    try {
-      await AsyncStorage.setItem('isAuthenticated', 'true');
-    } catch (e) {
-      // saving error
+      if (eventFormObj) setSigninForm(eventFormObj);
     }
   };
 
@@ -105,13 +99,20 @@ const SigninScreen = () => {
         email: email.value,
         password: password.value,
       };
-      dispatch(signinAPICall(requestObj)).then(res => {
-        if (res.meta.requestStatus === 'fulfilled') {
-          if (Platform.OS === 'android' && res.payload)
-            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-          setSignupForm(initialSigninForm);
-          //Navigation state object - https://reactnavigation.org/docs/navigation-state/
-          updateAsyncStorage();
+      dispatch(signinAPICall(requestObj))
+        .then(res => {
+          if (res.meta.requestStatus === 'fulfilled') {
+            if (Platform.OS === 'android' && res.payload)
+              ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+            setSigninForm(initialSigninForm);
+            //Navigation state object - https://reactnavigation.org/docs/navigation-state/
+            return updateTheAsyncStorage('true');
+          } else {
+            if (Platform.OS === 'android' && res.payload)
+              ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+          }
+        })
+        .then(res => {
           navigation.reset({
             index: 0,
             routes: [
@@ -124,11 +125,7 @@ const SigninScreen = () => {
               },
             ],
           });
-        } else {
-          if (Platform.OS === 'android' && res.payload)
-            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-        }
-      });
+        });
     } else {
       //set the errors if exist
       setFormErrors('', {

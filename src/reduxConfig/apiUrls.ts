@@ -1,6 +1,7 @@
 const apiUrls = {
   events : "Events",
-  people : "People"
+  people : "EventJoiners",
+  users : "Users"
 }
 
 export default apiUrls;

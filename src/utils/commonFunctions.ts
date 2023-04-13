@@ -1,5 +1,9 @@
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useAppDispatch} from '../reduxConfig/store';
+import {resetEventState} from '../reduxConfig/slices/eventsSlice';
+import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
+import {resetUserState} from '../reduxConfig/slices/userSlice';
 
 export type checkIfEmptyProps = boolean | object | string | number;
 export const checkIfEmpty = <T extends checkIfEmptyProps>(value: T) => {
@@ -37,14 +41,33 @@ export const getTime = (time: Date) => {
   return moment(time).format('LT');
 };
 
-export const updateTheAsyncStorage = async () => {
+export const updateTheAsyncStorage = async (str: 'true' | 'false') => {
   try {
-    await AsyncStorage.setItem('isAuthenticated', "false")
+    await AsyncStorage.setItem('isAuthenticated', str);
   } catch (e) {
     // saving error
   }
-} 
+};
+export const getTheAsyncStorage = async (): Promise<boolean> => {
+  try {
+    const value = await AsyncStorage.getItem('isAuthenticated');
+    console.log('in getTheAsyncStorage', value);
+    if (value !== null && value === 'true') {
+      // value previously stored
+      return true;
+    } else return false;
+  } catch (e) {
+    // error reading value
+    return false;
+  }
+};
 
+export const resetReduxState = () => {
+  const dispatch = useAppDispatch();
+  dispatch(resetEventState());
+  dispatch(resetPeopleState());
+  dispatch(resetUserState());
+};
 type ValidationObject = {
   isValid: boolean;
   errorMessage: string;
@@ -131,7 +154,7 @@ export const confirmPasswordValidation = (
       errorMessage: 'Confirm Password cannot be empty.',
     };
   } else {
-    if(checkIfEmpty(password)){
+    if (checkIfEmpty(password)) {
       validationObject = {
         isValid: false,
         errorMessage: 'Password cannot be empty.',
