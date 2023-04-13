@@ -25,6 +25,7 @@ type userState = {
     forgotPasswordAPICall: status;
     updateProfileAPICall: status;
     uploadProfilePictureAPICall: status;
+    getProfilePictureAPICall: status;
   };
   loadingMessage: string;
 };
@@ -44,6 +45,7 @@ const initialState: userState = {
     forgotPasswordAPICall: 'idle',
     updateProfileAPICall: 'idle',
     uploadProfilePictureAPICall: 'idle',
+    getProfilePictureAPICall: 'idle'
   },
   loadingMessage: '',
 };
@@ -105,7 +107,7 @@ export const userSlice = createSlice({
         state.statuses.updateProfileAPICall = 'failed';
       })
       .addCase(uploadProfilePictureAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Uploading the image';
+        state.loadingMessage = 'Updating Profile Picture';
         state.statuses.uploadProfilePictureAPICall = 'loading';
       })
       .addCase(uploadProfilePictureAPICall.fulfilled, (state, action) => {
@@ -113,6 +115,15 @@ export const userSlice = createSlice({
       })
       .addCase(uploadProfilePictureAPICall.rejected, (state, action) => {
         state.statuses.uploadProfilePictureAPICall = 'failed';
+      })
+      .addCase(getProfilePictureAPICall.pending, (state, action) => {
+        state.statuses.getProfilePictureAPICall = 'loading';
+      })
+      .addCase(getProfilePictureAPICall.fulfilled, (state, action) => {
+        state.statuses.getProfilePictureAPICall = 'succeedded';
+      })
+      .addCase(getProfilePictureAPICall.rejected, (state, action) => {
+        state.statuses.getProfilePictureAPICall = 'failed';
       });
   },
 });
@@ -187,6 +198,11 @@ export const signinAPICall = createAsyncThunk<
       return await auth()
         .signInWithEmailAndPassword(requestObj.email, requestObj.password)
         .then(resp => {
+          return auth().currentUser?.updateProfile({
+            photoURL: ""
+          })
+        })
+        .then((res)=> {
           message = 'Logged In Successfully';
           return {message: message};
         })
@@ -397,13 +413,15 @@ export const uploadProfilePictureAPICall = createAsyncThunk<
   },
 );
 
+type SuccessType = {
+  message: string;
+  uri: string;
+}
+
 //get profile picture from the google cloud storage using firebase storage
-export const getProfilePicture = createAsyncThunk<
+export const getProfilePictureAPICall = createAsyncThunk<
   //type of successfull returned obj
-  {
-    message: string;
-    uri: string;
-  },
+  SuccessType,
   //type of request obj passed to payload creator
   {
     imageName: string;
@@ -427,10 +445,10 @@ export const getProfilePicture = createAsyncThunk<
         .getDownloadURL()
         .then(resp => {
           message = 'Profile Picture Fetched Successfully!';
-          return {message: message, uri: resp};
+          return {message: message, uri: resp} as SuccessType;
         })
         .catch(error => {
-          return thunkAPI.rejectWithValue({message: error.message});
+          return thunkAPI.rejectWithValue({message: error.message} as MessageType);
         });
     } catch (err) {
       //return rejected promise

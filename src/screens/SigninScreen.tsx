@@ -110,31 +110,25 @@ const SigninScreen = () => {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
           setSignupForm(initialSigninForm);
-          return auth().currentUser?.updateProfile({
-            photoURL: ""
-          })
+          //Navigation state object - https://reactnavigation.org/docs/navigation-state/
+          updateAsyncStorage();
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'HomeStack',
+                state: {
+                  index: 0,
+                  routes: [{name: 'Home'}],
+                },
+              },
+            ],
+          });
         } else {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
         }
-      })
-      .then((res)=> {
-        //Navigation state object - https://reactnavigation.org/docs/navigation-state/
-        updateAsyncStorage();
-        navigation.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'HomeStack',
-              state: {
-                index: 0,
-                routes: [{name: 'Home'}],
-              },
-            },
-          ],
-        });
-      })
-      ;
+      });
     } else {
       //set the errors if exist
       setFormErrors('', {

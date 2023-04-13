@@ -15,9 +15,9 @@ import * as ImagePicker from 'react-native-image-picker';
 import auth from '@react-native-firebase/auth';
 import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
-import {useAppDispatch} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {
-  getProfilePicture,
+  getProfilePictureAPICall,
   uploadProfilePictureAPICall,
 } from '../reduxConfig/slices/userSlice';
 
@@ -26,24 +26,25 @@ const PROFILE_PICTURE_SIZE = 60;
 const WelcomeComponent = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
+  const userApiCallStatuses = useAppSelector(state => state.user.statuses);
 
-  const [uri, setUri] = useState("")
+  const [uri, setUri] = useState('');
 
   useEffect(() => {
     dispatch(
-      getProfilePicture({imageName: 'profile-' + auth().currentUser?.email}),
-    ).then((resp)=> {
+      getProfilePictureAPICall({
+        imageName: 'profile-' + auth().currentUser?.email,
+      }),
+    ).then(resp => {
       if (resp.payload) {
-        if(Platform.OS === "android" && resp.meta.requestStatus === "fulfilled") {
-          auth().currentUser?.updateProfile({
-            photoURL: resp.payload.uri
-          })
-          .then((res)=> {
-            setUri(auth().currentUser?.photoURL)
-          })
+        if (
+          Platform.OS === 'android' &&
+          resp.meta.requestStatus === 'fulfilled'
+        ) {
+          setUri(resp.payload.uri)
         }
       }
-    })
+    });
   }, []);
 
   const displayAlert = () => {
@@ -71,7 +72,10 @@ const WelcomeComponent = (): ReactElement => {
   };
 
   const resizeProfilePicture = (response: ImagePicker.ImagePickerResponse) => {
-    if (!(response.assets && response.assets.length > 0)) return;
+    if (
+      !(response.assets && response.assets.length > 0 && response.assets[0].uri)
+    )
+      return;
     ImageResizer.createResizedImage(
       response.assets[0].uri,
       PROFILE_PICTURE_SIZE,
@@ -97,6 +101,12 @@ const WelcomeComponent = (): ReactElement => {
         if (res.meta.requestStatus === 'fulfilled') {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+          if (
+            response.assets &&
+            response.assets.length > 0 &&
+            response.assets[0].uri
+          )
+            setUri(response.assets[0].uri);
           //Navigation state object - https://reactnavigation.org/docs/navigation-state/
         } else {
           if (Platform.OS === 'android' && res.payload)
@@ -105,7 +115,7 @@ const WelcomeComponent = (): ReactElement => {
       })
       .catch(err => {
         if (Platform.OS === 'android') {
-          ToastAndroid.show(
+          ToastAndroid.show(err?.message ||
             'Oops, something went wrong. Failed to update Profile picture. Please try again later.',
             ToastAndroid.SHORT,
           );
@@ -159,26 +169,28 @@ const WelcomeComponent = (): ReactElement => {
         <TextComponent
           weight="bold"
           style={{color: colors.primaryColor, fontSize: 20}}>
-          Varun Kukade
+          {auth().currentUser?.displayName}
         </TextComponent>
       </View>
       <TouchableOpacity
         onPress={askPermissions}
         activeOpacity={0.6}
         style={styles.profilePicContainer}>
-        <ImageComponent
-          source={
-            auth().currentUser?.photoURL !== null
-              ? {uri: auth().currentUser?.photoURL}
-              : require('../../images/dummyPicture.png')
-          }
-          style={{
-            width: PROFILE_PICTURE_SIZE,
-            height: PROFILE_PICTURE_SIZE,
-            borderRadius: PROFILE_PICTURE_SIZE / 2,
-          }}
-        />
-        <TextComponent style={{color: colors.greyColor}} weight="extraBold">
+        {userApiCallStatuses.getProfilePictureAPICall === 'loading' ||  userApiCallStatuses.getProfilePictureAPICall === "failed" || userApiCallStatuses.getProfilePictureAPICall === "idle"  ? (
+          <View style={styles.profilePicSkaleton} />
+        ) : (
+          <ImageComponent
+            source={
+              uri !== '' ? {uri} : require('../../images/dummyPicture.png')
+            }
+            style={{
+              width: PROFILE_PICTURE_SIZE,
+              height: PROFILE_PICTURE_SIZE,
+              borderRadius: PROFILE_PICTURE_SIZE / 2,
+            }}
+          />
+        )}
+        <TextComponent style={{color: colors.primaryColor}} weight="bold">
           Update
         </TextComponent>
       </TouchableOpacity>
@@ -204,5 +216,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
+  },
+  profilePicSkaleton: {
+    backgroundColor: colors.lavenderColor,
+    width: PROFILE_PICTURE_SIZE,
+    height: PROFILE_PICTURE_SIZE,
+    borderRadius: PROFILE_PICTURE_SIZE / 2,
   },
 });
