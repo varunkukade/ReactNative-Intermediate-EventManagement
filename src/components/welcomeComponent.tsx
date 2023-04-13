@@ -39,7 +39,8 @@ const WelcomeComponent = (): ReactElement => {
       if (resp.payload) {
         if (
           Platform.OS === 'android' &&
-          resp.meta.requestStatus === 'fulfilled'
+          resp.meta.requestStatus === 'fulfilled' &&
+          resp.payload.type === "success"
         ) {
           setUri(resp.payload.uri)
         }
@@ -83,7 +84,7 @@ const WelcomeComponent = (): ReactElement => {
       'PNG',
       100,
       0,
-      null,
+      undefined,
     )
       .then(response => {
         // response.uri is the URI of the new image that can now be uploaded to firebase storage...

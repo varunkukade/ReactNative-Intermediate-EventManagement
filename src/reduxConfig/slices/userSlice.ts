@@ -410,10 +410,16 @@ export const uploadProfilePictureAPICall = createAsyncThunk<
   ) => {
     let message = '';
     try {
-      return await storage()
+      let task = storage()
         .ref(`/user/${auth().currentUser?.uid}/` + requestObj.imageName)
         .putFile(requestObj.uploadUri)
-        .then(resp => {
+
+        task.on('state_changed', taskSnapshot => {
+          console.log(`upload completed ${(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100} %`)
+          console.log(`${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`);
+        });
+
+        return task.then(resp => {
           message = 'Profile Picture Uploaded Successfully!';
           return {message: message};
         })
@@ -433,6 +439,7 @@ export const uploadProfilePictureAPICall = createAsyncThunk<
 type SuccessType = {
   message: string;
   uri: string;
+  type: "success"
 };
 
 //get profile picture from the google cloud storage using firebase storage
@@ -462,11 +469,12 @@ export const getProfilePictureAPICall = createAsyncThunk<
         .getDownloadURL()
         .then(resp => {
           message = 'Profile Picture Fetched Successfully!';
-          return {message: message, uri: resp} as SuccessType;
+          return {message: message, uri: resp, type: "success"} as SuccessType;
         })
         .catch(error => {
           return thunkAPI.rejectWithValue({
             message: error.message,
+            type: "failure"
           } as MessageType);
         });
     } catch (err) {
