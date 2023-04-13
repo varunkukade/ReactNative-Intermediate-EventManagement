@@ -31,6 +31,12 @@ Motive of this app is to have one stop solution for all the event management for
 
 App Screenshots: (If any color design mismatches in UI please ignore. I am Not very good at designing the ui😅)
 
+Demo Videos link as of 14th april = 
+Prelogin - https://drive.google.com/file/d/1FlNpAaVBOzX8EZfqhWTinHW7aCw0koFe/view?usp=share_link
+
+Postlogin - https://drive.google.com/file/d/1Htr9Mzg6Acr4UsndDgr72F29mjU_EqyK/view?usp=share_link
+
+
 Signup Screen
 https://user-images.githubusercontent.com/66090579/230915105-4293b034-b038-4f44-9e71-7f73df45970b.png
 
