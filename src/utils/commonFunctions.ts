@@ -62,12 +62,6 @@ export const getTheAsyncStorage = async (): Promise<boolean> => {
   }
 };
 
-export const resetReduxState = () => {
-  const dispatch = useAppDispatch();
-  dispatch(resetEventState());
-  dispatch(resetPeopleState());
-  dispatch(resetUserState());
-};
 type ValidationObject = {
   isValid: boolean;
   errorMessage: string;

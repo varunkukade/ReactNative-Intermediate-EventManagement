@@ -316,12 +316,13 @@ export const forgotPasswordAPICall = createAsyncThunk<
   }
 });
 
-type UpdateProfileRequest = {
+export type UpdateProfileRequest = {
   name: string;
   authCredential: FirebaseAuthTypes.AuthCredential;
   newEmail: string;
   newPassword: string;
-  mobileNumber: string;
+  newMobileNumberUpdate: { mobileNumber: string }
+  docIdInFireStore: string;
 };
 
 export const updateProfileAPICall = createAsyncThunk<
@@ -334,8 +335,8 @@ export const updateProfileAPICall = createAsyncThunk<
     rejectValue: MessageType;
   }
 >('user/updateProfile', async (requestObj: UpdateProfileRequest, thunkAPI) => {
-  let message = '';
   try {
+    let message = '';
     return await auth()
       .currentUser?.reauthenticateWithCredential(requestObj.authCredential)
       .then(res => {
@@ -348,6 +349,12 @@ export const updateProfileAPICall = createAsyncThunk<
       })
       .then(res => {
         return auth().currentUser?.updatePassword(requestObj.newPassword);
+      })
+      .then(res => {
+        return firestore()
+        .collection(apiUrls.users)
+        .doc(requestObj.docIdInFireStore)
+        .update(requestObj.newMobileNumberUpdate)
       })
       .then(res => {
         message =
@@ -470,9 +477,10 @@ export const getProfilePictureAPICall = createAsyncThunk<
   },
 );
 
-type EachUser = {
+export type EachUser = {
   mobileNumber: string;
   authId: string;
+  docIdInFireStore: string
 };
 
 type ProfileResponse = {
@@ -491,7 +499,7 @@ export const getProfileDataAPICall = createAsyncThunk<
     rejectValue: MessageType;
   }
 >('user/getProfileData', async (_, thunkAPI) => {
-  let profileData = {};
+  let profileData: EachUser;
   try {
     return await firestore()
       .collection(apiUrls.users)
@@ -503,6 +511,7 @@ export const getProfileDataAPICall = createAsyncThunk<
           );
           if (updatedObj.authId === auth().currentUser?.uid) {
             profileData = JSON.parse(JSON.stringify(updatedObj));
+            profileData.docIdInFireStore = documentSnapshot.id
           }
         });
         //return the resolved promise with data.

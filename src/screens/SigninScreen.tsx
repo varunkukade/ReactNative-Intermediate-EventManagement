@@ -37,8 +37,8 @@ type SigninFormData = {
 };
 const SigninScreen = () => {
   let initialSigninForm: SigninFormData = {
-    email: {value: 'varun.k+999@gmail.com', errorMessage: ''},
-    password: {value: 'Vk@#$2211', errorMessage: ''},
+    email: {value: 'varun.k@gmail.com', errorMessage: ''},
+    password: {value: 'Vk@#$2211660', errorMessage: ''},
   };
   const [signinForm, setSigninForm] =
     useState<SigninFormData>(initialSigninForm);

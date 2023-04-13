@@ -13,12 +13,14 @@ import {useAppDispatch} from '../reduxConfig/store';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
-import {logoutAPICall} from '../reduxConfig/slices/userSlice';
+import {logoutAPICall, resetUserState} from '../reduxConfig/slices/userSlice';
 import CenterPopupComponent, {
   popupData,
 } from '../reusables/centerPopupComponent';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {resetReduxState, updateTheAsyncStorage} from '../utils/commonFunctions';
+import { updateTheAsyncStorage} from '../utils/commonFunctions';
+import { resetEventState } from '../reduxConfig/slices/eventsSlice';
+import { resetPeopleState } from '../reduxConfig/slices/peopleSlice';
 
 const SettingsScreen = () => {
   //dispatch and selectors
@@ -40,6 +42,12 @@ const SettingsScreen = () => {
     if (isLogoutPopupVisible) setIsLogoutPopupVisible(false);
   };
 
+  const resetReduxState = () => {
+    dispatch(resetEventState());
+    dispatch(resetPeopleState());
+    dispatch(resetUserState());
+  };
+  
   const onLogoutpress = () => {
     setIsLogoutPopupVisible(false);
     dispatch(logoutAPICall()).then(res => {

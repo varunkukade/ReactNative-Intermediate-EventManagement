@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Platform,
   ScrollView,
@@ -15,19 +15,23 @@ import {
   emailValidation,
   mobileNumbervalidation,
   passwordValidation,
-  resetReduxState,
   updateTheAsyncStorage,
 } from '../utils/commonFunctions';
 import {useAppDispatch} from '../reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
-import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 import {
+  EachUser,
+  UpdateProfileRequest,
   getProfileDataAPICall,
   logoutAPICall,
+  resetUserState,
   updateProfileAPICall,
 } from '../reduxConfig/slices/userSlice';
+import { resetEventState } from '../reduxConfig/slices/eventsSlice';
+import { resetPeopleState } from '../reduxConfig/slices/peopleSlice';
 
 const constants = {
   name: 'name',
@@ -71,6 +75,8 @@ const UpdateProfileScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  let profileData = useRef<null | EachUser>(null)
+
   useEffect(() => {
     dispatch(getProfileDataAPICall()).then(resp => {
       if (resp.payload) {
@@ -79,6 +85,7 @@ const UpdateProfileScreen = () => {
           resp.meta.requestStatus === 'fulfilled' &&
           resp.payload.type === 'success'
         ) {
+          profileData.current = resp.payload.responseData
           setUpdateProfileForm({
             ...updateProfileForm,
             mobileNumber: {
@@ -145,6 +152,12 @@ const UpdateProfileScreen = () => {
     } else {
       if (eventFormObj) setUpdateProfileForm(eventFormObj);
     }
+  };
+
+  const resetReduxState = () => {
+    dispatch(resetEventState());
+    dispatch(resetPeopleState());
+    dispatch(resetUserState());
   };
 
   const handleSuccessCase = (message: string) => {
@@ -233,12 +246,13 @@ const UpdateProfileScreen = () => {
         auth().currentUser?.email,
         currentPassword.value,
       );
-      let requestObj = {
+      let requestObj: UpdateProfileRequest = {
         name: name.value,
         authCredential: authCredential,
         newEmail: email.value,
         newPassword: password.value,
-        mobileNumber: mobileNumber.value,
+        newMobileNumberUpdate: {mobileNumber : mobileNumber.value} ,
+        docIdInFireStore: profileData.current?.docIdInFireStore || ""
       };
       dispatch(updateProfileAPICall(requestObj)).then(resp => {
         if (resp.meta.requestStatus === 'fulfilled') {
