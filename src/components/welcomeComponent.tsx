@@ -105,9 +105,9 @@ const WelcomeComponent = (): ReactElement => {
             response.assets &&
             response.assets.length > 0 &&
             response.assets[0].uri
-          )
+          ){
             setUri(response.assets[0].uri);
-          //Navigation state object - https://reactnavigation.org/docs/navigation-state/
+          }
         } else {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
