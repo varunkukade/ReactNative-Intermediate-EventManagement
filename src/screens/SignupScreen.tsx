@@ -53,11 +53,11 @@ type SignupFormData = {
 
 const SignupScreen = () => {
   let initialSignupForm: SignupFormData = {
-    name: {value: 'Varun Kukade', errorMessage: ''},
-    email: {value: 'varun.k@gmail.com', errorMessage: ''},
-    password: {value: 'Vk@#$2211', errorMessage: ''},
-    confirmPasssword: {value: 'Vk@#$2211', errorMessage: ''},
-    mobileNumber: {value: '9028421280', errorMessage: ''},
+    name: {value: '', errorMessage: ''},
+    email: {value: '', errorMessage: ''},
+    password: {value: '', errorMessage: ''},
+    confirmPasssword: {value: '', errorMessage: ''},
+    mobileNumber: {value: '', errorMessage: ''},
     isAdmin: {value: true, errorMessage: ''},
   };
   const [signupForm, setSignupForm] =
@@ -128,40 +128,41 @@ const SignupScreen = () => {
       mobileNumbervalidation(mobileNumber.value).isValid
     ) {
       setFormErrors('empty');
-      let requestObj: {email: string; password: string, mobileNumber: string} = {
-        email: email.value,
-        password: password.value,
-        mobileNumber: mobileNumber.value
-      };
-      dispatch(signupAPICall(requestObj))
-        .then(res => {
-          if (res.meta.requestStatus === 'fulfilled') {
-            if (Platform.OS === 'android' && res.payload)
-              ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-            return auth().currentUser?.updateProfile({
+      let requestObj: {email: string; password: string; mobileNumber: string} =
+        {
+          email: email.value,
+          password: password.value,
+          mobileNumber: mobileNumber.value,
+        };
+      dispatch(signupAPICall(requestObj)).then(res => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          if (Platform.OS === 'android' && res.payload)
+            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+          auth()
+            .currentUser?.updateProfile({
               displayName: name.value,
+            })
+            .then(res => {
+              setSignupForm(initialSignupForm);
+              //Navigation state object - https://reactnavigation.org/docs/navigation-state/
+              navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'HomeStack',
+                    state: {
+                      index: 0,
+                      routes: [{name: 'Home'}],
+                    },
+                  },
+                ],
+              });
             });
-          } else {
-            if (Platform.OS === 'android' && res.payload)
-              ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-          }
-        })
-        .then(res => {
-          setSignupForm(initialSignupForm);
-          //Navigation state object - https://reactnavigation.org/docs/navigation-state/
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: 'HomeStack',
-                state: {
-                  index: 0,
-                  routes: [{name: 'Home'}],
-                },
-              },
-            ],
-          });
-        });
+        } else {
+          if (Platform.OS === 'android' && res.payload)
+            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+        }
+      });
     } else {
       //set the errors if exist
       setFormErrors('', {
