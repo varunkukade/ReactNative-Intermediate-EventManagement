@@ -2,7 +2,7 @@ import React, {ReactElement} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {colors} from '../utils/appStyles';
 import CheckBox, {CheckBoxProps} from '@react-native-community/checkbox';
-import TextComponent from './textComponent';
+import TextComponent from './text';
 
 interface CheckboxComponentProps extends CheckBoxProps {
   label: string

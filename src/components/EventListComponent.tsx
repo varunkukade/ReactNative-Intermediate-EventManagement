@@ -2,7 +2,7 @@ import React, {ReactElement, useEffect, useState} from 'react';
 import {StyleSheet, TouchableOpacity, View, ToastAndroid, Platform} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
-import TextComponent from '../reusables/textComponent';
+import TextComponent from '../reusables/text';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {generateArray} from '../utils/commonFunctions';
@@ -18,10 +18,10 @@ import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import BottomHalfPopupComponent, {
   EachAction,
-} from '../reusables/bottomHalfPopupComponent';
+} from '../reusables/bottomHalfPopup';
 import CenterPopupComponent, {
   popupData,
-} from '../reusables/centerPopupComponent';
+} from '../reusables/centerPopup';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const EventListComponent = (): ReactElement => {

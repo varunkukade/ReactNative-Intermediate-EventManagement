@@ -12,6 +12,7 @@ export type EachPerson = {
   userName: string;
   eventId: string | number[];
   isPaymentPending: boolean;
+  paymentMode?: string
 };
 
 type PeopleState = {
@@ -200,7 +201,7 @@ export const getPeopleAPICall = createAsyncThunk<
   }
 });
 
-type updatePeopleAPICallRequest = {
+export type updatePeopleAPICallRequest = {
   userId: string;
   newUpdate: Partial<EachPerson>;
 };

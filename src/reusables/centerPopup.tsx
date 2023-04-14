@@ -2,7 +2,7 @@ import React, {ReactElement, ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Modal, {ModalProps} from 'react-native-modal';
 import {colors, measureMents} from '../utils/appStyles';
-import TextComponent from './textComponent';
+import TextComponent from './text';
 import ButtonComponent from './buttonComponent';
 
 export type popupData = {
@@ -57,6 +57,7 @@ const CenterPopupComponent = ({
           weight="normal">
           {popupData.description}
         </TextComponent>
+        {children}
         <View style={styles.buttonContainer}>
           <ButtonComponent onPress={popupData.onCancelClick} containerStyle={styles.button} textStyle={{color: colors.blackColor}} bgColor={colors.lavenderColor}>
             {popupData.confirmButtonText

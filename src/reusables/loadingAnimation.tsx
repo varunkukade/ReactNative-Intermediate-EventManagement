@@ -7,7 +7,7 @@ import Animated, {
   withRepeat,
   cancelAnimation,
 } from 'react-native-reanimated';
-import TextComponent from './textComponent';
+import TextComponent from './text';
 import {colors} from '../utils/appStyles';
 import {useAppSelector} from '../reduxConfig/store';
 

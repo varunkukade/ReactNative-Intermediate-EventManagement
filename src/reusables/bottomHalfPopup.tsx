@@ -2,7 +2,7 @@ import React, {ReactElement, ReactNode} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import Modal, {ModalProps} from 'react-native-modal';
 import {colors, measureMents} from '../utils/appStyles';
-import TextComponent from './textComponent';
+import TextComponent from './text';
 
 export type EachAction = {
   icon: () => ReactElement;

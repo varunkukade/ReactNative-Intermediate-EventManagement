@@ -1,7 +1,7 @@
 import React, {ReactElement, ReactNode} from 'react';
 import {StyleSheet, TouchableOpacity, StyleProp, ViewStyle, TouchableNativeFeedbackProps, TouchableOpacityProps, TextStyle} from 'react-native';
 import {colors} from '../utils/appStyles';
-import TextComponent from './textComponent';
+import TextComponent from './text';
 
 type ButtonCommonProps = TouchableNativeFeedbackProps & TouchableOpacityProps
 

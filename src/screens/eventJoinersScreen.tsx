@@ -1,8 +1,14 @@
 import React, {ReactElement, useEffect, useState} from 'react';
-import {Platform, StyleSheet, ToastAndroid, TouchableOpacity, View} from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
-import TextComponent from '../reusables/textComponent';
+import TextComponent from '../reusables/text';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {generateArray} from '../utils/commonFunctions';
@@ -14,15 +20,16 @@ import {
   getPeopleAPICall,
   removePeopleAPICall,
   updatePeopleAPICall,
+  updatePeopleAPICallRequest,
 } from '../reduxConfig/slices/peopleSlice';
 import BottomHalfPopupComponent, {
   EachAction,
-} from '../reusables/bottomHalfPopupComponent';
+} from '../reusables/bottomHalfPopup';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import CenterPopupComponent, {
-  popupData,
-} from '../reusables/centerPopupComponent';
-import { TopTabParamList } from '../navigation/topTabsNavigator';
+import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
+import {TopTabParamList} from '../navigation/topTabsNavigator';
+import {RadioButtonComponent} from '../reusables';
+import {EachPaymentMethod} from './addPeopleScreen';
 
 type EventJoinersScreenProps = {
   type: 'all' | 'pending' | 'completed';
@@ -43,10 +50,8 @@ const EventJoinersScreen = ({
     'EventJoinersTopTab'
   > = useNavigation();
 
-  const TopTabNavigation: NativeStackNavigationProp<
-  TopTabParamList,
-  'All'
-> = useNavigation();
+  const TopTabNavigation: NativeStackNavigationProp<TopTabParamList, 'All'> =
+    useNavigation();
 
   //useStates
   const [selectedUser, setSelectedUser] = useState<EachPerson | null>(null);
@@ -58,6 +63,15 @@ const EventJoinersScreen = ({
     useState(false);
   const [isMoveToPendingPopupVisible, setIsMoveToPendingPopupVisible] =
     useState(false);
+  const [isPaymentModePopupVisible, setIsPaymentModePopupVisible] =
+    useState(false);
+
+  //payment modes inside the "Move to Completed" popup.
+  let initialPaymentModes: EachPaymentMethod[] = [
+    {id: 1, value: true, name: 'Cash', selected: true},
+    {id: 2, value: false, name: 'Online', selected: false},
+  ]
+  const [paymentModes, setPaymentModes] = useState<EachPaymentMethod[]>(initialPaymentModes);
 
   const currentSelectedEvent = useAppSelector(
     state => state.events.currentSelectedEvent,
@@ -92,7 +106,8 @@ const EventJoinersScreen = ({
   useEffect(() => {
     dispatch(getPeopleAPICall()).then(res => {
       if (res.meta.requestStatus === 'rejected' && res.payload) {
-        if(Platform.OS === "android") ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+        if (Platform.OS === 'android')
+          ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
       }
     });
   }, []);
@@ -158,7 +173,7 @@ const EventJoinersScreen = ({
 
   const onMoveToCompletedClick = () => {
     setIsModalVisible(!isModalVisible);
-    setIsMoveToCompletedPopupVisible(!isMoveToCompletedPopupVisible);
+    setIsPaymentModePopupVisible(!isPaymentModePopupVisible);
   };
 
   const onMoveToPendingClick = () => {
@@ -175,6 +190,8 @@ const EventJoinersScreen = ({
     if (isDeletePopupVisible) setIsDeletePopupVisible(false);
     if (isMoveToCompletedPopupVisible) setIsMoveToCompletedPopupVisible(false);
     if (isMoveToPendingPopupVisible) setIsMoveToPendingPopupVisible(false);
+    if (isPaymentModePopupVisible) setIsPaymentModePopupVisible(false);
+    setPaymentModes(initialPaymentModes)
   };
 
   const onConfirmDeleteClick = () => {
@@ -183,33 +200,64 @@ const EventJoinersScreen = ({
     setIsDeletePopupVisible(false);
     dispatch(removePeopleAPICall({userId: selectedUser?.userId})).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
-        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
-        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
+  };
+
+  const onConfirmPaymentModeClick = () => {
+    setIsPaymentModePopupVisible(false);
+    setIsMoveToCompletedPopupVisible(true)
   };
 
   const onConfirmMoveClick = () => {
     //update people list with updated value of isPending.
     if (!selectedUser) return;
-    let isPending = selectedUser.isPaymentPending
+    let isPending = selectedUser.isPaymentPending;
     setIsMoveToCompletedPopupVisible(false);
     setIsMoveToPendingPopupVisible(false);
+    let requestObj: updatePeopleAPICallRequest = {
+      userId: selectedUser.userId,
+      newUpdate: {isPaymentPending: !selectedUser.isPaymentPending },
+    }
+    if(isPending){
+      //if admin is opting for payment completed right now, then pass payment mode in request obj
+      paymentModes.forEach(eachMode => {
+        if (eachMode.selected) requestObj.newUpdate.paymentMode = eachMode.name;
+      });
+    }else {
+      //if admin is opting for payment pending, then pass payment mode as empty in request obj
+      requestObj.newUpdate.paymentMode = ""
+    }
     dispatch(
-      updatePeopleAPICall({
-        userId: selectedUser.userId,
-        newUpdate: {isPaymentPending: !selectedUser.isPaymentPending},
-      }),
+      updatePeopleAPICall(requestObj),
     ).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
-        if(isPending) TopTabNavigation.navigate("Completed")
-        else TopTabNavigation.navigate("Pending")
-        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        if (isPending) {
+          TopTabNavigation.navigate('Completed');
+          setPaymentModes(initialPaymentModes)
+        }
+        else TopTabNavigation.navigate('Pending');
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
-        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
+  };
+
+  const onRadioBtnClick = (item: EachPaymentMethod) => {
+    let updatedState = paymentModes.map(eachMethod =>
+      eachMethod.id === item.id
+        ? {...eachMethod, selected: true}
+        : {...eachMethod, selected: false},
+    );
+    setPaymentModes(updatedState);
   };
 
   let actionsArray: EachAction[] = [
@@ -258,10 +306,18 @@ const EventJoinersScreen = ({
     onConfirmClick: onConfirmDeleteClick,
   };
 
+  let choosePaymentModePopupData: popupData = {
+    header: 'Choose Payment Mode',
+    description:
+      'Select the payment mode through which user has completed the payment.',
+    onCancelClick: onCancelClick,
+    onConfirmClick: onConfirmPaymentModeClick,
+  };
+
   let moveToCompletedPopupData: popupData = {
     header: 'Move to Completed',
     description:
-      'Are you sure to move this user to completed tab? Completed tab includes users who have completed the payment for this event.',
+      'Are you sure to move this user to completed tab?',
     onCancelClick: onCancelClick,
     onConfirmClick: onConfirmMoveClick,
   };
@@ -301,7 +357,7 @@ const EventJoinersScreen = ({
         ) : peopleState.statuses.getPeopleAPICall === 'failed' ? (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
             <TextComponent weight="bold">
-            'Failed to fetch users. Please try again after some time'
+              'Failed to fetch users. Please try again after some time'
             </TextComponent>
           </View>
         ) : (
@@ -332,6 +388,22 @@ const EventJoinersScreen = ({
         isModalVisible={isDeletePopupVisible}
         setIsModalVisible={setIsDeletePopupVisible}
       />
+      <CenterPopupComponent
+        popupData={choosePaymentModePopupData}
+        isModalVisible={isPaymentModePopupVisible}
+        setIsModalVisible={setIsPaymentModePopupVisible}
+        >
+        <View style={styles.paymentModes}>
+          {paymentModes.map(item => (
+            <RadioButtonComponent
+              onPress={() => onRadioBtnClick(item)}
+              selected={item.selected}
+              key={item.id}>
+              {item.name}
+            </RadioButtonComponent>
+          ))}
+        </View>
+      </CenterPopupComponent>
       <CenterPopupComponent
         popupData={moveToCompletedPopupData}
         isModalVisible={isMoveToCompletedPopupVisible}
@@ -405,5 +477,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 60,
     right: 30,
+  },
+  paymentModes: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
   },
 });

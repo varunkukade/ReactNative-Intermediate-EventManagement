@@ -16,7 +16,7 @@ import {RootStackParamList} from '../navigation/rootStackNavigator';
 import {logoutAPICall, resetUserState} from '../reduxConfig/slices/userSlice';
 import CenterPopupComponent, {
   popupData,
-} from '../reusables/centerPopupComponent';
+} from '../reusables/centerPopup';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import { updateTheAsyncStorage} from '../utils/commonFunctions';
 import { resetEventState } from '../reduxConfig/slices/eventsSlice';

@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ImageComponent from '../reusables/imageComponent';
-import TextComponent from '../reusables/textComponent';
+import ImageComponent from '../reusables/image';
+import TextComponent from '../reusables/text';
 import {colors} from '../utils/appStyles';
 import * as ImagePicker from 'react-native-image-picker';
 import auth from '@react-native-firebase/auth';
