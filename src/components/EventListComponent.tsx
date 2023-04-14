@@ -134,8 +134,8 @@ const EventListComponent = (): ReactElement => {
   };
 
   const onCancelClick = React.useCallback(() => {
-    if (isDeletePopupVisible) setIsDeletePopupVisible(false);
-  }, [isDeletePopupVisible]);
+    setIsDeletePopupVisible(false);
+  }, [setIsDeletePopupVisible]);
 
   const onConfirmDeleteClick = React.useCallback(() => {
     //call delete API and delete the user from list.
@@ -152,7 +152,7 @@ const EventListComponent = (): ReactElement => {
         }
       },
     );
-  }, [longPressedEvent, dispatch, removeEventAPICall]);
+  }, [longPressedEvent, dispatch, removeEventAPICall, setIsDeletePopupVisible]);
 
   let actionsArray: EachAction[] = [
     {
