@@ -126,9 +126,7 @@ const AddPeopleScreen = (): ReactElement => {
       mobileNumbervalidation(userMobileNumber.value).isValid &&
       userName.value
     ) {
-      console.log('hey');
       if (selectedEventDetails) {
-        console.log('hii');
         setFormErrors('empty');
         let requestObj: Omit<EachPerson, 'userId'> = {
           userEmail: userEmail.value,

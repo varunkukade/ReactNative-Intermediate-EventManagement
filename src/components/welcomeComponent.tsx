@@ -107,7 +107,6 @@ const WelcomeComponent = (): ReactElement => {
             response.assets.length > 0 &&
             response.assets[0].uri
           ){
-            console.log("response.assets[0].uri",response.assets[0].uri)
             setUri(response.assets[0].uri);
           }
         } else {

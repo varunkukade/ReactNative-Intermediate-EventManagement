@@ -65,7 +65,6 @@ export const userSlice = createSlice({
         state.statuses.signinAPICall = 'succeedded';
       })
       .addCase(signinAPICall.rejected, (state, action) => {
-        console.log('action', action);
         state.statuses.signinAPICall = 'failed';
       })
       .addCase(logoutAPICall.pending, (state, action) => {

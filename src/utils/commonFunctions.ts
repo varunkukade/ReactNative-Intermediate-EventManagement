@@ -51,7 +51,6 @@ export const updateTheAsyncStorage = async (str: 'true' | 'false') => {
 export const getTheAsyncStorage = async (): Promise<boolean> => {
   try {
     const value = await AsyncStorage.getItem('isAuthenticated');
-    console.log('in getTheAsyncStorage', value);
     if (value !== null && value === 'true') {
       // value previously stored
       return true;
