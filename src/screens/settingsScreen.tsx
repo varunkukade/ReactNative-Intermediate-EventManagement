@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Platform,
   StyleSheet,
@@ -6,49 +6,57 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
-import {TextComponent} from '../reusables';
+import { colors, measureMents } from '../utils/appStyles';
+import { TextComponent } from '../reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {useAppDispatch} from '../reduxConfig/store';
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../navigation/rootStackNavigator';
-import {logoutAPICall, resetUserState} from '../reduxConfig/slices/userSlice';
+import { useAppDispatch } from '../reduxConfig/store';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/rootStackNavigator';
+import {
+  logoutAPICall,
+  resetUserState,
+} from '../reduxConfig/slices/userSlice';
 import CenterPopupComponent, {
   popupData,
 } from '../reusables/centerPopup';
-import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import { updateTheAsyncStorage} from '../utils/commonFunctions';
-import { resetEventState } from '../reduxConfig/slices/eventsSlice';
-import { resetPeopleState } from '../reduxConfig/slices/peopleSlice';
+import { HomeStackParamList } from '../navigation/homeStackNavigator';
+import { updateTheAsyncStorage } from '../utils/commonFunctions';
+import {
+  resetEventState,
+} from '../reduxConfig/slices/eventsSlice';
+import {
+  resetPeopleState,
+} from '../reduxConfig/slices/peopleSlice';
 
 const SettingsScreen = () => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
 
   //navigation state
-  const rootNavigation: NativeStackNavigationProp<
+  const rootNavigation = useNavigation<NativeStackNavigationProp<
     RootStackParamList,
     'HomeStack'
-  > = useNavigation();
-  const homeStackNavigation: NativeStackNavigationProp<
+  >>();
+  const homeStackNavigation = useNavigation<NativeStackNavigationProp<
     HomeStackParamList,
     'BottomTabNavigator'
-  > = useNavigation();
+  >>();
+
   //modal states
   const [isLogoutPopupVisible, setIsLogoutPopupVisible] = useState(false);
 
-  const onCancelClick = () => {
-    if (isLogoutPopupVisible) setIsLogoutPopupVisible(false);
-  };
+  const onCancelClick = useCallback(() => {
+    setIsLogoutPopupVisible(false);
+  }, []);
 
-  const resetReduxState = () => {
+  const resetReduxState = useCallback(() => {
     dispatch(resetEventState());
     dispatch(resetPeopleState());
     dispatch(resetUserState());
-  };
-  
-  const onLogoutpress = () => {
+  }, [dispatch]);
+
+  const onLogoutpress = useCallback(() => {
     setIsLogoutPopupVisible(false);
     dispatch(logoutAPICall()).then(res => {
       if (res.meta.requestStatus === 'fulfilled') {
@@ -64,7 +72,7 @@ const SettingsScreen = () => {
               name: 'AuthStack',
               state: {
                 index: 0,
-                routes: [{name: 'SigninScreen'}],
+                routes: [{ name: 'SigninScreen' }],
               },
             },
           ],
@@ -74,18 +82,21 @@ const SettingsScreen = () => {
           ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
       }
     });
-  };
+  }, [dispatch, resetReduxState, rootNavigation]);
 
-  let logoutPopupData: popupData = {
-    header: 'Logout',
-    description: 'Are you sure you want to logout?',
-    onCancelClick: onCancelClick,
-    onConfirmClick: onLogoutpress,
-  };
+  const logoutPopupData = useCallback(
+    (): popupData => ({
+      header: 'Logout',
+      description: 'Are you sure you want to logout?',
+      onCancelClick,
+      onConfirmClick: onLogoutpress,
+    }),
+    [onCancelClick, onLogoutpress],
+  );
 
-  const onUpdateProfilePress = () => {
+  const onUpdateProfilePress = useCallback(() => {
     homeStackNavigation.navigate('UpdateProfileScreen');
-  };
+  }, [homeStackNavigation])
 
   let actions = [
     {

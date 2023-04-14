@@ -18,7 +18,6 @@ type EventJoinerListProps = {
 }
 
 const EventJoinersListComponent = ({ onLongPressUser, type}: EventJoinerListProps): ReactElement => {
-    console.log("EventJoinersListComponent rendered")
   let dataProvider = new DataProvider((r1, r2) => {
     return r1 !== r2;
   });

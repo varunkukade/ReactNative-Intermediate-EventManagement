@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from 'react';
+import React, {ReactElement, useCallback, useEffect, useState} from 'react';
 import {
   Platform,
   StyleSheet,
@@ -103,22 +103,23 @@ const EventJoinersScreen = ({
     setIsDeletePopupVisible(!isDeletePopupVisible);
   };
 
-  //create new instance of this function only when dependencies change
-  const onCancelClick = React.useCallback(() => {
-    if (isDeletePopupVisible) setIsDeletePopupVisible(false);
-    if (isMoveToCompletedPopupVisible) setIsMoveToCompletedPopupVisible(false);
-    if (isMoveToPendingPopupVisible) setIsMoveToPendingPopupVisible(false);
-    if (isPaymentModePopupVisible) setIsPaymentModePopupVisible(false);
+  const onDeleteCancelClick = useCallback(() => {
+    setIsDeletePopupVisible(false);
+  }, [setIsDeletePopupVisible]);
+  
+  const onPaymentModeCancelClick = useCallback(() => {
+    setIsPaymentModePopupVisible(false);
     setPaymentModes(initialPaymentModes);
-  }, [
-    isDeletePopupVisible,
-    isMoveToCompletedPopupVisible,
-    isMoveToPendingPopupVisible,
-    isPaymentModePopupVisible,
-    initialPaymentModes,
-    setPaymentModes,
-  ]);
-
+  }, [setIsPaymentModePopupVisible, setPaymentModes, initialPaymentModes]);
+  
+  const onMoveToCompletedCancelClick = useCallback(() => {
+    setIsMoveToCompletedPopupVisible(false);
+  }, [setIsMoveToCompletedPopupVisible]);
+  
+  const onMoveToPendingCancelClick = useCallback(() => {
+    setIsMoveToPendingPopupVisible(false);
+  }, [setIsMoveToPendingPopupVisible]);
+  
   const onConfirmDeleteClick = React.useCallback(() => {
     //call delete API and delete the user from list.
     if (!selectedUser) return;
@@ -132,18 +133,28 @@ const EventJoinersScreen = ({
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
-  }, [
-    selectedUser,
-    setIsDeletePopupVisible,
-    dispatch,
-    removePeopleAPICall,
-    selectedUser?.userId,
-  ]);
+  }, [selectedUser, dispatch, setIsDeletePopupVisible]);
 
   const onConfirmPaymentModeClick = React.useCallback(() => {
     setIsPaymentModePopupVisible(false);
     setIsMoveToCompletedPopupVisible(true);
-  }, []);
+  }, [setIsPaymentModePopupVisible, setIsMoveToCompletedPopupVisible]);
+
+  const handleAPICall = useCallback((requestObj: updatePeopleAPICallRequest, isPending: boolean) => {
+    dispatch(updatePeopleAPICall(requestObj)).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        if (isPending) {
+          TopTabNavigation.navigate('Completed');
+          setPaymentModes(initialPaymentModes);
+        } else TopTabNavigation.navigate('Pending');
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      } else {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  },[dispatch, TopTabNavigation, setPaymentModes, initialPaymentModes])
 
   const onConfirmMoveClick = React.useCallback(() => {
     //update people list with updated value of isPending.
@@ -164,29 +175,23 @@ const EventJoinersScreen = ({
       //if admin is opting for payment pending, then pass payment mode as empty in request obj
       requestObj.newUpdate.paymentMode = '';
     }
-    dispatch(updatePeopleAPICall(requestObj)).then(resp => {
-      if (resp.meta.requestStatus === 'fulfilled') {
-        if (isPending) {
-          TopTabNavigation.navigate('Completed');
-          setPaymentModes(initialPaymentModes);
-        } else TopTabNavigation.navigate('Pending');
-        if (Platform.OS === 'android' && resp.payload)
-          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-      } else {
-        if (Platform.OS === 'android' && resp.payload)
-          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-      }
-    });
-  }, [selectedUser, paymentModes, dispatch, updatePeopleAPICall, initialPaymentModes, TopTabNavigation]);
+    handleAPICall(requestObj, isPending)
+  }, [
+    selectedUser,
+    paymentModes,
+    setIsMoveToCompletedPopupVisible,
+    setIsMoveToPendingPopupVisible,
+    handleAPICall
+  ]);
 
-  const onRadioBtnClick = (item: EachPaymentMethod) => {
+  const onRadioBtnClick = React.useCallback((item: EachPaymentMethod) => {
     let updatedState = paymentModes.map(eachMethod =>
       eachMethod.id === item.id
         ? {...eachMethod, selected: true}
         : {...eachMethod, selected: false},
     );
     setPaymentModes(updatedState);
-  };
+  },[paymentModes,setPaymentModes]) 
 
   const actionsArray: EachAction[] = [
     {
@@ -231,10 +236,10 @@ const EventJoinersScreen = ({
     return {
       header: 'Delete User',
       description: 'Are you sure to remove this user? This cannot be undone.',
-      onCancelClick: onCancelClick,
+      onCancelClick: onDeleteCancelClick,
       onConfirmClick: onConfirmDeleteClick,
     };
-  }, [onCancelClick, onConfirmDeleteClick]);
+  }, [onDeleteCancelClick, onConfirmDeleteClick]);
 
   //create new instance of this function only when dependencies change
   const choosePaymentModePopupData = React.useCallback((): popupData => {
@@ -242,20 +247,20 @@ const EventJoinersScreen = ({
       header: 'Choose Payment Mode',
       description:
         'Select the payment mode through which user has completed the payment.',
-      onCancelClick: onCancelClick,
+      onCancelClick: onPaymentModeCancelClick,
       onConfirmClick: onConfirmPaymentModeClick,
     };
-  }, [onCancelClick, onConfirmPaymentModeClick]);
+  }, [onPaymentModeCancelClick, onConfirmPaymentModeClick]);
 
   //create new instance of this function only when dependencies change
   const moveToCompletedPopupData = React.useCallback((): popupData => {
     return {
       header: 'Move to Completed',
       description: 'Are you sure to move this user to completed tab?',
-      onCancelClick: onCancelClick,
+      onCancelClick: onMoveToCompletedCancelClick,
       onConfirmClick: onConfirmMoveClick,
     };
-  }, [onCancelClick, onConfirmMoveClick]);
+  }, [onMoveToCompletedCancelClick, onConfirmMoveClick]);
 
   //create new instance of this function only when dependencies change
   const moveToPendingPopupData = React.useCallback((): popupData => {
@@ -263,10 +268,10 @@ const EventJoinersScreen = ({
       header: 'Move to Pending',
       description:
         'Are you sure to move this user to pending tab? Pending tab includes users who have not yet completed the payment for this event.',
-      onCancelClick: onCancelClick,
+      onCancelClick: onMoveToPendingCancelClick,
       onConfirmClick: onConfirmMoveClick,
     };
-  }, [onCancelClick, onConfirmMoveClick]);
+  }, [onMoveToPendingCancelClick, onConfirmMoveClick]);
 
   return (
     <>
