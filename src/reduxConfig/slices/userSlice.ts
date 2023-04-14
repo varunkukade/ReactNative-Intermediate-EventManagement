@@ -6,7 +6,7 @@ import apiUrls from '../apiUrls';
 
 export type MessageType = {
   message: string;
-  type?: 'failure'
+  type?: 'failure';
 };
 
 type status = 'idle' | 'succeedded' | 'failed' | 'loading';
@@ -65,7 +65,7 @@ export const userSlice = createSlice({
         state.statuses.signinAPICall = 'succeedded';
       })
       .addCase(signinAPICall.rejected, (state, action) => {
-        console.log("action",action)
+        console.log('action', action);
         state.statuses.signinAPICall = 'failed';
       })
       .addCase(logoutAPICall.pending, (state, action) => {
@@ -151,16 +151,15 @@ export const signupAPICall = createAsyncThunk<
   ) => {
     try {
       let message = '';
-      return await auth()
-        .createUserWithEmailAndPassword(
-          requestObject.email,
-          requestObject.password,
-        )
-        .then(resp => {
-          return firestore().collection(apiUrls.users).add({
-            authId: auth().currentUser?.uid,
-            mobileNumber: requestObject.mobileNumber,
-          });
+      await auth().createUserWithEmailAndPassword(
+        requestObject.email,
+        requestObject.password,
+      );
+      return await firestore()
+        .collection(apiUrls.users)
+        .add({
+          authId: auth().currentUser?.uid,
+          mobileNumber: requestObject.mobileNumber,
         })
         .then(res => {
           message = 'Account Created Successfully';
@@ -206,16 +205,16 @@ export const signinAPICall = createAsyncThunk<
   async (requestObj: {email: string; password: string}, thunkAPI) => {
     let message = '';
     try {
+      await auth().signInWithEmailAndPassword(
+        requestObj.email,
+        requestObj.password,
+      );
       return await auth()
-        .signInWithEmailAndPassword(requestObj.email, requestObj.password)
-        .then(async function (resp){
-          return await auth().currentUser?.updateProfile({
-            photoURL: '',
-          });
-        })
-        .then(res => {
+        .currentUser?.updateProfile({
+          photoURL: '',
+        }).then(res => {
           message = 'Logged In Successfully';
-          return {message: message};
+          return {message: message} as MessageType;
         })
         .catch(error => {
           if (error.code === 'auth/user-disabled') {
@@ -235,8 +234,7 @@ export const signinAPICall = createAsyncThunk<
             message =
               'Account blocked due to incorrect attempts. Reset password to unblock.';
           }
-          console.log("message",message)
-          return thunkAPI.rejectWithValue({message: message});
+          return thunkAPI.rejectWithValue({message: message} as MessageType);
         });
     } catch (err) {
       //return rejected promise
@@ -323,7 +321,7 @@ export type UpdateProfileRequest = {
   authCredential: FirebaseAuthTypes.AuthCredential;
   newEmail: string;
   newPassword: string;
-  newMobileNumberUpdate: { mobileNumber: string }
+  newMobileNumberUpdate: {mobileNumber: string};
   docIdInFireStore: string;
 };
 
@@ -339,25 +337,18 @@ export const updateProfileAPICall = createAsyncThunk<
 >('user/updateProfile', async (requestObj: UpdateProfileRequest, thunkAPI) => {
   try {
     let message = '';
-    return await auth()
-      .currentUser?.reauthenticateWithCredential(requestObj.authCredential)
-      .then(res => {
-        return auth().currentUser?.updateProfile({
-          displayName: requestObj.name,
-        });
-      })
-      .then(res => {
-        return auth().currentUser?.updateEmail(requestObj.newEmail);
-      })
-      .then(res => {
-        return auth().currentUser?.updatePassword(requestObj.newPassword);
-      })
-      .then(res => {
-        return firestore()
-        .collection(apiUrls.users)
-        .doc(requestObj.docIdInFireStore)
-        .update(requestObj.newMobileNumberUpdate)
-      })
+    await auth().currentUser?.reauthenticateWithCredential(
+      requestObj.authCredential,
+    );
+    await auth().currentUser?.updateProfile({
+      displayName: requestObj.name,
+    });
+    await auth().currentUser?.updateEmail(requestObj.newEmail);
+    await auth().currentUser?.updatePassword(requestObj.newPassword);
+    return await firestore()
+      .collection(apiUrls.users)
+      .doc(requestObj.docIdInFireStore)
+      .update(requestObj.newMobileNumberUpdate)
       .then(res => {
         message =
           'Profile Updated successfully.Login again with new credentials';
@@ -412,14 +403,21 @@ export const uploadProfilePictureAPICall = createAsyncThunk<
     try {
       let task = storage()
         .ref(`/user/${auth().currentUser?.uid}/` + requestObj.imageName)
-        .putFile(requestObj.uploadUri)
+        .putFile(requestObj.uploadUri);
 
-        task.on('state_changed', taskSnapshot => {
-          console.log(`upload completed ${(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100} %`)
-          console.log(`${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`);
-        });
+      task.on('state_changed', taskSnapshot => {
+        console.log(
+          `upload completed ${
+            (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100
+          } %`,
+        );
+        console.log(
+          `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
+        );
+      });
 
-        return task.then(resp => {
+      return task
+        .then(resp => {
           message = 'Profile Picture Uploaded Successfully!';
           return {message: message};
         })
@@ -439,7 +437,7 @@ export const uploadProfilePictureAPICall = createAsyncThunk<
 type SuccessType = {
   message: string;
   uri: string;
-  type: "success"
+  type: 'success';
 };
 
 //get profile picture from the google cloud storage using firebase storage
@@ -469,12 +467,12 @@ export const getProfilePictureAPICall = createAsyncThunk<
         .getDownloadURL()
         .then(resp => {
           message = 'Profile Picture Fetched Successfully!';
-          return {message: message, uri: resp, type: "success"} as SuccessType;
+          return {message: message, uri: resp, type: 'success'} as SuccessType;
         })
         .catch(error => {
           return thunkAPI.rejectWithValue({
             message: error.message,
-            type: "failure"
+            type: 'failure',
           } as MessageType);
         });
     } catch (err) {
@@ -490,13 +488,13 @@ export const getProfilePictureAPICall = createAsyncThunk<
 export type EachUser = {
   mobileNumber: string;
   authId: string;
-  docIdInFireStore: string
+  docIdInFireStore: string;
 };
 
 type ProfileResponse = {
   responseData: EachUser;
   message: string;
-  type: 'success'
+  type: 'success';
 };
 //get additional profile data stored in Users Collection
 export const getProfileDataAPICall = createAsyncThunk<
@@ -521,20 +519,20 @@ export const getProfileDataAPICall = createAsyncThunk<
           );
           if (updatedObj.authId === auth().currentUser?.uid) {
             profileData = JSON.parse(JSON.stringify(updatedObj));
-            profileData.docIdInFireStore = documentSnapshot.id
+            profileData.docIdInFireStore = documentSnapshot.id;
           }
         });
         //return the resolved promise with data.
         return {
           responseData: profileData,
           message: 'Profile data fetched successfully',
-          type: 'success'
+          type: 'success',
         } as ProfileResponse;
       })
       .catch(error => {
         return thunkAPI.rejectWithValue({
           message: error.message,
-          type : 'failure'
+          type: 'failure',
         } as MessageType);
       });
   } catch (err) {
