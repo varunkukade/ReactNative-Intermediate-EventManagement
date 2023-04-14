@@ -7,11 +7,8 @@ import {
   View,
 } from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
-import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
-import TextComponent from '../reusables/text';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
-import {generateArray} from '../utils/commonFunctions';
+import {useAppDispatch} from '../reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
@@ -30,6 +27,7 @@ import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
 import {TopTabParamList} from '../navigation/topTabsNavigator';
 import {RadioButtonComponent} from '../reusables';
 import {EachPaymentMethod} from './addPeopleScreen';
+import {MemoizedEventJoinerListComponent} from '../components/eventJoinersListComponent';
 
 type EventJoinersScreenProps = {
   type: 'all' | 'pending' | 'completed';
@@ -39,11 +37,6 @@ const EventJoinersScreen = ({
   type,
   ...props
 }: EventJoinersScreenProps): ReactElement => {
-  const skelatons = generateArray(5);
-  let dataProvider = new DataProvider((r1, r2) => {
-    return r1 !== r2;
-  });
-
   //navigation
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
@@ -70,38 +63,12 @@ const EventJoinersScreen = ({
   let initialPaymentModes: EachPaymentMethod[] = [
     {id: 1, value: true, name: 'Cash', selected: true},
     {id: 2, value: false, name: 'Online', selected: false},
-  ]
-  const [paymentModes, setPaymentModes] = useState<EachPaymentMethod[]>(initialPaymentModes);
-
-  const currentSelectedEvent = useAppSelector(
-    state => state.events.currentSelectedEvent,
-  );
-
-  const getPeopleArray = (peopleState: EachPerson[]) => {
-    if (type === 'all')
-      return peopleState.filter(
-        eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
-      );
-    else if (type === 'pending')
-      return peopleState.filter(
-        eachPerson =>
-          eachPerson.isPaymentPending &&
-          eachPerson.eventId === currentSelectedEvent?.eventId,
-      );
-    else
-      return peopleState.filter(
-        eachPerson =>
-          !eachPerson.isPaymentPending &&
-          eachPerson.eventId === currentSelectedEvent?.eventId,
-      );
-  };
+  ];
+  const [paymentModes, setPaymentModes] =
+    useState<EachPaymentMethod[]>(initialPaymentModes);
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const peopleState = useAppSelector(state => state.people);
-  const peopleData = dataProvider.cloneWithRows(
-    getPeopleArray(peopleState.people),
-  );
 
   useEffect(() => {
     dispatch(getPeopleAPICall()).then(res => {
@@ -112,64 +79,14 @@ const EventJoinersScreen = ({
     });
   }, []);
 
-  //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
-  let layoutProvider = new LayoutProvider(
-    index => {
-      return 0;
+  const onLongPressUser = React.useCallback(
+    (user: EachPerson) => {
+      //when user click long press on any user show then buttons to mark user as complete or pending.
+      setSelectedUser(user);
+      setIsModalVisible(!isModalVisible);
     },
-    (type, dim) => {
-      dim.width = measureMents.windowWidth - 2 * measureMents.leftPadding;
-      dim.height = 100;
-    },
+    [isModalVisible],
   );
-
-  const onLongPressUser = (user: EachPerson) => {
-    //when user click long press on any user show then buttons to mark user as complete or pending.
-    setSelectedUser(user);
-    setIsModalVisible(!isModalVisible);
-  };
-
-  //Given type and data return the View component
-  const rowRenderer = (
-    type: number,
-    data: EachPerson,
-    index: number,
-  ): ReactElement => {
-    return (
-      <TouchableOpacity
-        activeOpacity={0.7}
-        key={index}
-        onLongPress={() => onLongPressUser(data)}
-        style={styles.eachEventComponent}>
-        <View style={styles.secondSection}>
-          <TextComponent
-            numberOfLines={2}
-            weight="normal"
-            style={{
-              color: colors.primaryColor,
-              fontSize: 14,
-            }}>
-            {data.userName}
-          </TextComponent>
-          <TextComponent
-            weight="bold"
-            style={{
-              color: colors.primaryColor,
-              fontSize: 15,
-            }}>
-            +91 {data.userMobileNumber}
-          </TextComponent>
-        </View>
-        <View style={styles.thirdSection}>
-          <EntypoIcons
-            name="chevron-right"
-            color={colors.primaryColor}
-            size={27}
-          />
-        </View>
-      </TouchableOpacity>
-    );
-  };
 
   const onMoveToCompletedClick = () => {
     setIsModalVisible(!isModalVisible);
@@ -186,15 +103,23 @@ const EventJoinersScreen = ({
     setIsDeletePopupVisible(!isDeletePopupVisible);
   };
 
-  const onCancelClick = () => {
+  //create new instance of this function only when dependencies change
+  const onCancelClick = React.useCallback(() => {
     if (isDeletePopupVisible) setIsDeletePopupVisible(false);
     if (isMoveToCompletedPopupVisible) setIsMoveToCompletedPopupVisible(false);
     if (isMoveToPendingPopupVisible) setIsMoveToPendingPopupVisible(false);
     if (isPaymentModePopupVisible) setIsPaymentModePopupVisible(false);
-    setPaymentModes(initialPaymentModes)
-  };
+    setPaymentModes(initialPaymentModes);
+  }, [
+    isDeletePopupVisible,
+    isMoveToCompletedPopupVisible,
+    isMoveToPendingPopupVisible,
+    isPaymentModePopupVisible,
+    initialPaymentModes,
+    setPaymentModes,
+  ]);
 
-  const onConfirmDeleteClick = () => {
+  const onConfirmDeleteClick = React.useCallback(() => {
     //call delete API and delete the user from list.
     if (!selectedUser) return;
     setIsDeletePopupVisible(false);
@@ -207,14 +132,20 @@ const EventJoinersScreen = ({
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
-  };
+  }, [
+    selectedUser,
+    setIsDeletePopupVisible,
+    dispatch,
+    removePeopleAPICall,
+    selectedUser?.userId,
+  ]);
 
-  const onConfirmPaymentModeClick = () => {
+  const onConfirmPaymentModeClick = React.useCallback(() => {
     setIsPaymentModePopupVisible(false);
-    setIsMoveToCompletedPopupVisible(true)
-  };
+    setIsMoveToCompletedPopupVisible(true);
+  }, []);
 
-  const onConfirmMoveClick = () => {
+  const onConfirmMoveClick = React.useCallback(() => {
     //update people list with updated value of isPending.
     if (!selectedUser) return;
     let isPending = selectedUser.isPaymentPending;
@@ -222,26 +153,23 @@ const EventJoinersScreen = ({
     setIsMoveToPendingPopupVisible(false);
     let requestObj: updatePeopleAPICallRequest = {
       userId: selectedUser.userId,
-      newUpdate: {isPaymentPending: !selectedUser.isPaymentPending },
-    }
-    if(isPending){
+      newUpdate: {isPaymentPending: !selectedUser.isPaymentPending},
+    };
+    if (isPending) {
       //if admin is opting for payment completed right now, then pass payment mode in request obj
       paymentModes.forEach(eachMode => {
         if (eachMode.selected) requestObj.newUpdate.paymentMode = eachMode.name;
       });
-    }else {
+    } else {
       //if admin is opting for payment pending, then pass payment mode as empty in request obj
-      requestObj.newUpdate.paymentMode = ""
+      requestObj.newUpdate.paymentMode = '';
     }
-    dispatch(
-      updatePeopleAPICall(requestObj),
-    ).then(resp => {
+    dispatch(updatePeopleAPICall(requestObj)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         if (isPending) {
           TopTabNavigation.navigate('Completed');
-          setPaymentModes(initialPaymentModes)
-        }
-        else TopTabNavigation.navigate('Pending');
+          setPaymentModes(initialPaymentModes);
+        } else TopTabNavigation.navigate('Pending');
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
@@ -249,7 +177,7 @@ const EventJoinersScreen = ({
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
-  };
+  }, [selectedUser, paymentModes, dispatch, updatePeopleAPICall, initialPaymentModes, TopTabNavigation]);
 
   const onRadioBtnClick = (item: EachPaymentMethod) => {
     let updatedState = paymentModes.map(eachMethod =>
@@ -260,7 +188,7 @@ const EventJoinersScreen = ({
     setPaymentModes(updatedState);
   };
 
-  let actionsArray: EachAction[] = [
+  const actionsArray: EachAction[] = [
     {
       label: 'Move to Completed',
       icon: () => (
@@ -299,74 +227,54 @@ const EventJoinersScreen = ({
     },
   ];
 
-  let deletePopupData: popupData = {
-    header: 'Delete User',
-    description: 'Are you sure to remove this user? This cannot be undone.',
-    onCancelClick: onCancelClick,
-    onConfirmClick: onConfirmDeleteClick,
-  };
+  const deletePopupData = React.useCallback((): popupData => {
+    return {
+      header: 'Delete User',
+      description: 'Are you sure to remove this user? This cannot be undone.',
+      onCancelClick: onCancelClick,
+      onConfirmClick: onConfirmDeleteClick,
+    };
+  }, [onCancelClick, onConfirmDeleteClick]);
 
-  let choosePaymentModePopupData: popupData = {
-    header: 'Choose Payment Mode',
-    description:
-      'Select the payment mode through which user has completed the payment.',
-    onCancelClick: onCancelClick,
-    onConfirmClick: onConfirmPaymentModeClick,
-  };
+  //create new instance of this function only when dependencies change
+  const choosePaymentModePopupData = React.useCallback((): popupData => {
+    return {
+      header: 'Choose Payment Mode',
+      description:
+        'Select the payment mode through which user has completed the payment.',
+      onCancelClick: onCancelClick,
+      onConfirmClick: onConfirmPaymentModeClick,
+    };
+  }, [onCancelClick, onConfirmPaymentModeClick]);
 
-  let moveToCompletedPopupData: popupData = {
-    header: 'Move to Completed',
-    description:
-      'Are you sure to move this user to completed tab?',
-    onCancelClick: onCancelClick,
-    onConfirmClick: onConfirmMoveClick,
-  };
+  //create new instance of this function only when dependencies change
+  const moveToCompletedPopupData = React.useCallback((): popupData => {
+    return {
+      header: 'Move to Completed',
+      description: 'Are you sure to move this user to completed tab?',
+      onCancelClick: onCancelClick,
+      onConfirmClick: onConfirmMoveClick,
+    };
+  }, [onCancelClick, onConfirmMoveClick]);
 
-  let moveToPendingPopupData: popupData = {
-    header: 'Move to Pending',
-    description:
-      'Are you sure to move this user to pending tab? Pending tab includes users who have not yet completed the payment for this event.',
-    onCancelClick: onCancelClick,
-    onConfirmClick: onConfirmMoveClick,
-  };
+  //create new instance of this function only when dependencies change
+  const moveToPendingPopupData = React.useCallback((): popupData => {
+    return {
+      header: 'Move to Pending',
+      description:
+        'Are you sure to move this user to pending tab? Pending tab includes users who have not yet completed the payment for this event.',
+      onCancelClick: onCancelClick,
+      onConfirmClick: onConfirmMoveClick,
+    };
+  }, [onCancelClick, onConfirmMoveClick]);
 
   return (
     <>
       <View style={styles.eventListContainer}>
-        <TextComponent
-          weight="bold"
-          style={{color: colors.blackColor, fontSize: 15, marginBottom: 10}}>
-          Total People:{' '}
-          {peopleData?.getSize() && peopleData?.getSize() > 0
-            ? peopleData?.getSize()
-            : 0}
-        </TextComponent>
-        {peopleState.statuses.getPeopleAPICall === 'succeedded' &&
-        peopleData?.getSize() > 0 ? (
-          <RecyclerListView
-            rowRenderer={rowRenderer}
-            dataProvider={peopleData}
-            layoutProvider={layoutProvider}
-            initialRenderIndex={0}
-            scrollViewProps={{showsVerticalScrollIndicator: false}}
-          />
-        ) : peopleState.statuses.getPeopleAPICall === 'loading' ? (
-          skelatons.map((eachItem, index) => (
-            <View key={index} style={styles.eventLoadingSkelaton} />
-          ))
-        ) : peopleState.statuses.getPeopleAPICall === 'failed' ? (
-          <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-            <TextComponent weight="bold">
-              'Failed to fetch users. Please try again after some time'
-            </TextComponent>
-          </View>
-        ) : (
-          <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-            <TextComponent style={{color: colors.greyColor}} weight="bold">
-              No Records Found!
-            </TextComponent>
-          </View>
-        )}
+        <MemoizedEventJoinerListComponent
+          onLongPressUser={onLongPressUser}
+          type={type}
+        />
       </View>
       {type === 'all' ? (
         <TouchableOpacity
@@ -391,8 +299,7 @@ const EventJoinersScreen = ({
       <CenterPopupComponent
         popupData={choosePaymentModePopupData}
         isModalVisible={isPaymentModePopupVisible}
-        setIsModalVisible={setIsPaymentModePopupVisible}
-        >
+        setIsModalVisible={setIsPaymentModePopupVisible}>
         <View style={styles.paymentModes}>
           {paymentModes.map(item => (
             <RadioButtonComponent
@@ -425,39 +332,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 30,
     paddingHorizontal: measureMents.leftPadding,
-  },
-  eachEventComponent: {
-    backgroundColor: colors.whiteColor,
-    height: 90,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: measureMents.leftPadding,
-  },
-  eventLoadingSkelaton: {
-    backgroundColor: colors.lavenderColor,
-    height: 90,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    marginBottom: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  secondSection: {
-    width: '80%',
-    height: '100%',
-    justifyContent: 'space-evenly',
-  },
-  thirdSection: {
-    width: '20%',
-    height: '100%',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
   },
   navigateButton: {
     width: 50,

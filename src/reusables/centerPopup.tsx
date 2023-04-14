@@ -1,7 +1,7 @@
 import React, {ReactElement, ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Modal, {ModalProps} from 'react-native-modal';
-import {colors, measureMents} from '../utils/appStyles';
+import {colors} from '../utils/appStyles';
 import TextComponent from './text';
 import ButtonComponent from './buttonComponent';
 
@@ -26,7 +26,7 @@ interface CenterPopupComponentProps
   children: ReactNode;
   isModalVisible: boolean;
   setIsModalVisible: (value: boolean) => void;
-  popupData: popupData;
+  popupData: () => popupData;
 }
 
 const CenterPopupComponent = ({
@@ -36,6 +36,7 @@ const CenterPopupComponent = ({
   popupData,
   ...props
 }: CenterPopupComponentProps): ReactElement => {
+  //console.log("in CenterPopupComponent rendered", popupData())
   return (
     <Modal
       animationIn="bounceIn"
@@ -49,24 +50,24 @@ const CenterPopupComponent = ({
           numberOfLines={1}
           style={styles.header}
           weight="extraBold">
-          {popupData.header}
+          {popupData().header}
         </TextComponent>
         <TextComponent
           numberOfLines={4}
           style={styles.description}
           weight="normal">
-          {popupData.description}
+          {popupData().description}
         </TextComponent>
         {children}
         <View style={styles.buttonContainer}>
-          <ButtonComponent onPress={popupData.onCancelClick} containerStyle={styles.button} textStyle={{color: colors.blackColor}} bgColor={colors.lavenderColor}>
-            {popupData.confirmButtonText
-              ? popupData.cancelButtonText
+          <ButtonComponent onPress={popupData().onCancelClick} containerStyle={styles.button} textStyle={{color: colors.blackColor}} bgColor={colors.lavenderColor}>
+            {popupData().confirmButtonText
+              ? popupData().cancelButtonText
               : 'Cancel'}
           </ButtonComponent>
-          <ButtonComponent onPress={popupData.onConfirmClick} containerStyle={styles.button}>
-            {popupData.confirmButtonText
-              ? popupData.confirmButtonText
+          <ButtonComponent onPress={popupData().onConfirmClick} containerStyle={styles.button}>
+            {popupData().confirmButtonText
+              ? popupData().confirmButtonText
               : 'Confirm'}
           </ButtonComponent>
         </View>
@@ -75,7 +76,7 @@ const CenterPopupComponent = ({
   );
 };
 
-export default CenterPopupComponent;
+export default React.memo(CenterPopupComponent);
 
 const styles = StyleSheet.create({
   modalContainer: {

@@ -26,7 +26,6 @@ const PROFILE_PICTURE_SIZE = 60;
 const WelcomeComponent = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const userApiCallStatuses = useAppSelector(state => state.user.statuses);
 
   const [uri, setUri] = useState('');
 

@@ -1,5 +1,11 @@
 import React, {ReactElement, useEffect, useState} from 'react';
-import {StyleSheet, TouchableOpacity, View, ToastAndroid, Platform} from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  ToastAndroid,
+  Platform,
+} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/text';
@@ -19,9 +25,7 @@ import {useNavigation} from '@react-navigation/native';
 import BottomHalfPopupComponent, {
   EachAction,
 } from '../reusables/bottomHalfPopup';
-import CenterPopupComponent, {
-  popupData,
-} from '../reusables/centerPopup';
+import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const EventListComponent = (): ReactElement => {
@@ -51,12 +55,12 @@ const EventListComponent = (): ReactElement => {
   const [isDeletePopupVisible, setIsDeletePopupVisible] = useState(false);
 
   useEffect(() => {
-    dispatch(getEventsAPICall())
-    .then((resp)=> {
-      if (resp.payload && resp.meta.requestStatus === "rejected") {
-        if(Platform.OS === "android") ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
+    dispatch(getEventsAPICall()).then(resp => {
+      if (resp.payload && resp.meta.requestStatus === 'rejected') {
+        if (Platform.OS === 'android')
+          ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
       }
-    })
+    });
   }, []);
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
@@ -129,22 +133,26 @@ const EventListComponent = (): ReactElement => {
     setIsDeletePopupVisible(!isDeletePopupVisible);
   };
 
-  const onCancelClick = () => {
+  const onCancelClick = React.useCallback(() => {
     if (isDeletePopupVisible) setIsDeletePopupVisible(false);
-  };
+  }, [isDeletePopupVisible]);
 
-  const onConfirmDeleteClick = () => {
+  const onConfirmDeleteClick = React.useCallback(() => {
     //call delete API and delete the user from list.
     if (!longPressedEvent) return;
-    dispatch(removeEventAPICall({eventId: longPressedEvent.eventId})).then(resp => {
-      if (resp.meta.requestStatus === 'fulfilled') {
-        setIsDeletePopupVisible(false);
-        if(Platform.OS === "android" && resp.payload ) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-      } else {
-        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-      }
-    });
-  };
+    dispatch(removeEventAPICall({eventId: longPressedEvent.eventId})).then(
+      resp => {
+        if (resp.meta.requestStatus === 'fulfilled') {
+          setIsDeletePopupVisible(false);
+          if (Platform.OS === 'android' && resp.payload)
+            ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        } else {
+          if (Platform.OS === 'android' && resp.payload)
+            ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        }
+      },
+    );
+  }, [longPressedEvent, dispatch, removeEventAPICall]);
 
   let actionsArray: EachAction[] = [
     {
@@ -161,12 +169,14 @@ const EventListComponent = (): ReactElement => {
     },
   ];
 
-  let deletePopupData: popupData = {
-    header: 'Delete Event',
-    description: 'Are you sure to remove this event? This cannot be undone.',
-    onCancelClick: onCancelClick,
-    onConfirmClick: onConfirmDeleteClick,
-  };
+  const deletePopupData = React.useCallback(() => {
+    return {
+      header: 'Delete Event',
+      description: 'Are you sure to remove this event? This cannot be undone.',
+      onCancelClick: onCancelClick,
+      onConfirmClick: onConfirmDeleteClick,
+    };
+  }, [onCancelClick, onConfirmDeleteClick]);
 
   return (
     <>
@@ -195,7 +205,7 @@ const EventListComponent = (): ReactElement => {
         ) : eventsState.statuses.getEventAPICall === 'failed' ? (
           <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
             <TextComponent weight="bold">
-            Failed to fetch events. Please try again after some time
+              Failed to fetch events. Please try again after some time
             </TextComponent>
           </View>
         ) : (
