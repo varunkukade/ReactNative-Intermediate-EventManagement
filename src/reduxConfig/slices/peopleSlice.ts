@@ -110,11 +110,15 @@ export const peopleSlice = createSlice({
         state.statuses.updatePeopleAPICall = 'loading';
       })
       .addCase(updatePeopleAPICall.fulfilled, (state, action) => {
-        const {isPaymentPending} = action.meta.arg.newUpdate;
+        const {isPaymentPending,userName, userEmail, userMobileNumber, paymentMode } = action.meta.arg.newUpdate;
         state.people = state.people.map(eachPerson => {
           if (eachPerson.userId === action.meta.arg.userId) {
             if (isPaymentPending !== undefined)
               eachPerson.isPaymentPending = isPaymentPending;
+            if(userName) eachPerson.userName = userName;
+            if(userEmail) eachPerson.userEmail = userEmail;
+            if(userMobileNumber) eachPerson.userMobileNumber = userMobileNumber;
+            if(paymentMode) eachPerson.paymentMode = paymentMode 
             return eachPerson;
           } else return eachPerson;
         });

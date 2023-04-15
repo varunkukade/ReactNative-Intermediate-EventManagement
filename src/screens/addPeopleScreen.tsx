@@ -9,7 +9,7 @@ import {
 import {colors, measureMents} from '../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {
   ButtonComponent,
@@ -22,6 +22,8 @@ import {
   EachPerson,
   addPeopleAPICall,
   getPeopleAPICall,
+  updatePeopleAPICall,
+  updatePeopleAPICallRequest,
 } from '../reduxConfig/slices/peopleSlice';
 
 type ConstantsType = {
@@ -57,31 +59,34 @@ export type EachPaymentMethod = {
 };
 
 const AddPeopleScreen = (): ReactElement => {
-  //navigation state
+  //navigation and route state
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
     'AddPeopleScreen'
   > = useNavigation();
+
+  const route: RouteProp<HomeStackParamList, 'AddPeopleScreen'> = useRoute();
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const selectedEventDetails = useAppSelector(
     state => state.events.currentSelectedEvent,
   );
+  let longPressedUser = route.params?.longPressedUser
 
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddPeopleFormData = {
-    userName: {value: '', errorMessage: ''},
-    userMobileNumber: {value: '', errorMessage: ''},
-    userEmail: {value: '', errorMessage: ''},
-    isPaymentCompleted: {value: false, errorMessage: ''},
+    userName: {value: longPressedUser ? longPressedUser.userName : '', errorMessage: ''},
+    userMobileNumber: {value: longPressedUser ? longPressedUser.userMobileNumber : '', errorMessage: ''},
+    userEmail: {value: longPressedUser ? longPressedUser.userEmail : '', errorMessage: ''},
+    isPaymentCompleted: {value: longPressedUser ? !longPressedUser.isPaymentPending : false, errorMessage: ''},
   };
   const [eventForm, setEventForm] =
     useState<AddPeopleFormData>(initialEventForm);
 
   const [paymentModes, setPaymentModes] = useState<EachPaymentMethod[]>([
-    {id: 1, value: true, name: 'Cash', selected: true},
-    {id: 2, value: false, name: 'Online', selected: false},
+    {id: 1, value: true, name: 'Cash', selected: longPressedUser ? longPressedUser.paymentMode === "Cash": true },
+    {id: 2, value: false, name: 'Online', selected: longPressedUser ? longPressedUser.paymentMode === "Online" : false},
   ]);
 
   const onChangeForm = (
@@ -119,6 +124,73 @@ const AddPeopleScreen = (): ReactElement => {
     }
   };
 
+  const updateTheUser = () => {
+    if(!selectedEventDetails || !longPressedUser) return null;
+    const {userEmail, userMobileNumber, userName, isPaymentCompleted} =
+      eventForm;
+    let requestObj: updatePeopleAPICallRequest  = {
+      userId: longPressedUser?.userId,
+      newUpdate: {
+        userEmail: userEmail.value,
+        userMobileNumber: userMobileNumber.value,
+        userName: userName.value,
+        isPaymentPending: !isPaymentCompleted.value,
+        eventId: selectedEventDetails.eventId,
+      }
+    };
+    if (isPaymentCompleted.value) {
+      paymentModes.forEach(eachMode => {
+        if (eachMode.selected) requestObj.newUpdate.paymentMode = eachMode.name;
+      });
+    } else {
+      requestObj.newUpdate.paymentMode = '';
+    }
+    dispatch(updatePeopleAPICall(requestObj)).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        setEventForm(initialEventForm);
+        navigation.pop();
+      } else {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  }
+
+  const createNewUser = () => {
+    if(!selectedEventDetails) return null;
+    const {userEmail, userMobileNumber, userName, isPaymentCompleted} =
+      eventForm;
+    let requestObj: Omit<EachPerson, 'userId'> = {
+      userEmail: userEmail.value,
+      userMobileNumber: userMobileNumber.value,
+      userName: userName.value,
+      isPaymentPending: !isPaymentCompleted.value,
+      eventId: selectedEventDetails.eventId,
+      createdAt: new Date().toString()
+    };
+    if (isPaymentCompleted.value) {
+      paymentModes.forEach(eachMode => {
+        if (eachMode.selected) requestObj.paymentMode = eachMode.name;
+      });
+    } else {
+      requestObj.paymentMode = '';
+    }
+    dispatch(addPeopleAPICall(requestObj)).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        setEventForm(initialEventForm);
+        dispatch(getPeopleAPICall());
+        navigation.navigate('EventJoinersTopTab');
+      } else {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  }
+
   const onFormSubmit = (): void => {
     const {userEmail, userMobileNumber, userName, isPaymentCompleted} =
       eventForm;
@@ -128,33 +200,11 @@ const AddPeopleScreen = (): ReactElement => {
     ) {
       if (selectedEventDetails) {
         setFormErrors('empty');
-        let requestObj: Omit<EachPerson, 'userId'> = {
-          userEmail: userEmail.value,
-          userMobileNumber: userMobileNumber.value,
-          userName: userName.value,
-          isPaymentPending: !isPaymentCompleted.value,
-          eventId: selectedEventDetails.eventId,
-          createdAt: new Date().toString()
-        };
-        if (isPaymentCompleted.value) {
-          paymentModes.forEach(eachMode => {
-            if (eachMode.selected) requestObj.paymentMode = eachMode.name;
-          });
-        } else {
-          requestObj.paymentMode = '';
+        if(longPressedUser) {
+          updateTheUser()
+        }else {
+          createNewUser()
         }
-        dispatch(addPeopleAPICall(requestObj)).then(resp => {
-          if (resp.meta.requestStatus === 'fulfilled') {
-            if (Platform.OS === 'android' && resp.payload)
-              ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-            setEventForm(initialEventForm);
-            dispatch(getPeopleAPICall());
-            navigation.navigate('EventJoinersTopTab');
-          } else {
-            if (Platform.OS === 'android' && resp.payload)
-              ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-          }
-        });
       }
     } else {
       //set the errors if exist

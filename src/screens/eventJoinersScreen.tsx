@@ -28,6 +28,7 @@ import {TopTabParamList} from '../navigation/topTabsNavigator';
 import {RadioButtonComponent} from '../reusables';
 import {EachPaymentMethod} from './addPeopleScreen';
 import {MemoizedEventJoinerListComponent} from '../components/eventJoinersListComponent';
+import FeatherIcons from 'react-native-vector-icons/Feather';
 
 type EventJoinersScreenProps = {
   type: 'all' | 'pending' | 'completed';
@@ -47,7 +48,7 @@ const EventJoinersScreen = ({
     useNavigation();
 
   //useStates
-  const [selectedUser, setSelectedUser] = useState<EachPerson | null>(null);
+  const [longPressedUser, setLongPressedUser] = useState<EachPerson | null>(null);
 
   //modal states
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -73,7 +74,7 @@ const EventJoinersScreen = ({
   const onLongPressUser = React.useCallback(
     (user: EachPerson) => {
       //when user click long press on any user show then buttons to mark user as complete or pending.
-      setSelectedUser(user);
+      setLongPressedUser(user);
       setIsModalVisible(!isModalVisible);
     },
     [isModalVisible],
@@ -83,6 +84,13 @@ const EventJoinersScreen = ({
     setIsModalVisible(!isModalVisible);
     setIsPaymentModePopupVisible(!isPaymentModePopupVisible);
   };
+
+  const onEditUserClick = () => {
+    setIsModalVisible(!isModalVisible)
+    setTimeout(()=> {
+      if(longPressedUser) navigation.navigate("AddPeopleScreen", { longPressedUser });
+    }, 400)
+  }
 
   const onMoveToPendingClick = () => {
     setIsModalVisible(!isModalVisible);
@@ -113,9 +121,9 @@ const EventJoinersScreen = ({
   
   const onConfirmDeleteClick = React.useCallback(() => {
     //call delete API and delete the user from list.
-    if (!selectedUser) return;
+    if (!longPressedUser) return;
     setIsDeletePopupVisible(false);
-    dispatch(removePeopleAPICall({userId: selectedUser?.userId})).then(resp => {
+    dispatch(removePeopleAPICall({userId: longPressedUser?.userId})).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -124,7 +132,7 @@ const EventJoinersScreen = ({
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
-  }, [selectedUser, dispatch, setIsDeletePopupVisible]);
+  }, [longPressedUser, dispatch, setIsDeletePopupVisible]);
 
   const onConfirmPaymentModeClick = React.useCallback(() => {
     setIsPaymentModePopupVisible(false);
@@ -149,13 +157,13 @@ const EventJoinersScreen = ({
 
   const onConfirmMoveClick = React.useCallback(() => {
     //update people list with updated value of isPending.
-    if (!selectedUser) return;
-    let isPending = selectedUser.isPaymentPending;
+    if (!longPressedUser) return;
+    let isPending = longPressedUser.isPaymentPending;
     setIsMoveToCompletedPopupVisible(false);
     setIsMoveToPendingPopupVisible(false);
     let requestObj: updatePeopleAPICallRequest = {
-      userId: selectedUser.userId,
-      newUpdate: {isPaymentPending: !selectedUser.isPaymentPending},
+      userId: longPressedUser.userId,
+      newUpdate: {isPaymentPending: !longPressedUser.isPaymentPending},
     };
     if (isPending) {
       //if admin is opting for payment completed right now, then pass payment mode in request obj
@@ -168,7 +176,7 @@ const EventJoinersScreen = ({
     }
     handleAPICall(requestObj, isPending)
   }, [
-    selectedUser,
+    longPressedUser,
     paymentModes,
     setIsMoveToCompletedPopupVisible,
     setIsMoveToPendingPopupVisible,
@@ -186,6 +194,18 @@ const EventJoinersScreen = ({
 
   const actionsArray: EachAction[] = [
     {
+      label: 'Edit User',
+      icon: () => (
+        <FeatherIcons
+          size={22}
+          color={colors.blackColor}
+          name="edit-2"
+        />
+      ),
+      onClick: () => onEditUserClick(),
+      isVisible: true,
+    },
+    {
       label: 'Move to Completed',
       icon: () => (
         <EntypoIcons
@@ -195,7 +215,7 @@ const EventJoinersScreen = ({
         />
       ),
       onClick: () => onMoveToCompletedClick(),
-      isVisible: selectedUser?.isPaymentPending ? true : false,
+      isVisible: longPressedUser?.isPaymentPending ? true : false,
     },
     {
       label: 'Move to Pending',
@@ -207,7 +227,7 @@ const EventJoinersScreen = ({
         />
       ),
       onClick: () => onMoveToPendingClick(),
-      isVisible: !selectedUser?.isPaymentPending ? true : false,
+      isVisible: !longPressedUser?.isPaymentPending ? true : false,
     },
     {
       label: 'Delete User',

@@ -12,13 +12,14 @@ import {BottomTabNavigator} from '.';
 import {NavigatorScreenParams} from '@react-navigation/native';
 import {BottomTabParamList} from './bottomTabNavigator';
 import { EachEvent } from '../reduxConfig/slices/eventsSlice';
+import { EachPerson } from '../reduxConfig/slices/peopleSlice';
 
 export type HomeStackParamList = {
   BottomTabNavigator: undefined | NavigatorScreenParams<BottomTabParamList>;
   AddEventScreen: undefined | { longPressedEvent: EachEvent};
   EventDetailsScreen: undefined;
   EventJoinersTopTab: undefined;
-  AddPeopleScreen: undefined;
+  AddPeopleScreen: undefined | { longPressedUser: EachPerson};
   UpdateProfileScreen: undefined;
 };
 
