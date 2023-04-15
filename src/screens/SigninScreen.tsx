@@ -1,13 +1,19 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  Platform,
+  Alert,
+  ScrollView,
   StyleSheet,
   ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
-import {ButtonComponent, InputComponent, TextComponent} from '../reusables';
+import {
+  ButtonComponent,
+  ImageComponent,
+  InputComponent,
+  TextComponent,
+} from '../reusables';
 import {useAppDispatch} from '../reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
@@ -18,8 +24,13 @@ import {
   updateTheAsyncStorage,
 } from '../utils/commonFunctions';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {signinAPICall} from '../reduxConfig/slices/userSlice';
+import {googleSigninAPICall, signinAPICall} from '../reduxConfig/slices/userSlice';
 import {AuthStackParamList} from '../navigation/authStackNavigator';
+import {
+  GoogleSignin,
+  statusCodes,
+} from 'react-native-google-signin';
+import auth from '@react-native-firebase/auth';
 
 const constants = {
   email: 'email',
@@ -44,6 +55,67 @@ const SigninScreen = () => {
     useState<SigninFormData>(initialSigninForm);
 
   const [showPassword, setShowPassword] = useState(false);
+  const [loggedIn, setloggedIn] = useState(false);
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '906379393078-52aspsq8ijp3nru2rmu7ph6cria20i48.apps.googleusercontent.com',
+    });
+  });
+
+  const signIn = async () => {
+    try {
+      // Check if device supports Google Play
+      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+      // Get the users ID token
+      const {idToken} = await GoogleSignin.signIn();
+
+      // Create a Google credential with the token
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+      // Sign-in the user with the credential
+      dispatch(googleSigninAPICall({authCredentials : googleCredential}))
+      .then((res)=> {
+        if (res.meta.requestStatus === 'fulfilled') {
+          if (res.payload)
+            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+          setSigninForm(initialSigninForm);
+          updateTheAsyncStorage('true').then(res => {
+            navigation.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'HomeStack',
+                  state: {
+                    index: 0,
+                    routes: [{name: 'Home'}],
+                  },
+                },
+              ],
+            });
+          });
+        } else {
+          if (res.payload)
+            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+        }
+      })
+
+    } catch (error: any) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // user cancelled the login flow
+        //Alert.alert('Cancel');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Alert.alert('Signin in progress');
+        // operation (f.e. sign in) is in progress already
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Alert.alert('PLAY_SERVICES_NOT_AVAILABLE');
+        // play services not available or outdated
+      } else {
+        // some other error happened
+      }
+    }
+  };
 
   const onChangeForm = (
     value: string | Date | boolean,
@@ -139,7 +211,7 @@ const SigninScreen = () => {
     }
   };
   return (
-    <View style={styles.wrapperComponent}>
+    <ScrollView style={styles.wrapperComponent}>
       <View style={styles.welcomeMessage}>
         <TextComponent
           style={{
@@ -201,6 +273,22 @@ const SigninScreen = () => {
           containerStyle={{marginTop: 30}}>
           Sign-in
         </ButtonComponent>
+        <TextComponent
+          weight="bold"
+          style={{textAlign: 'center', fontSize: 18, marginTop: 30}}>
+          Or
+        </TextComponent>
+        <TouchableOpacity onPress={signIn} style={styles.googleButton}>
+          <ImageComponent
+            style={styles.googleIcon}
+            source={{
+              uri: 'https://i.ibb.co/j82DCcR/search.png',
+            }}
+          />
+          <TextComponent weight="bold" style={styles.googleButtonText}>
+            Sign in with Google
+          </TextComponent>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => authStackNavigation.navigate('SignupScreen')}
           style={{marginTop: 15}}>
@@ -215,7 +303,7 @@ const SigninScreen = () => {
           </TextComponent>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -239,5 +327,33 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: 30,
     paddingHorizontal: measureMents.leftPadding,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+  },
+  googleButton: {
+    backgroundColor: colors.whiteColor,
+    borderRadius: 8,
+    width: 240,
+    height: 50,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: colors.blackColor,
+    borderWidth: 1,
+    alignSelf: 'center',
+    marginTop: 30,
+  },
+  googleButtonText: {
+    marginLeft: 16,
+    fontSize: 18,
+  },
+  googleIcon: {
+    height: 24,
+    width: 24,
+  },
+  bottomContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -3,6 +3,7 @@ import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
+import { Platform } from 'react-native';
 
 export type MessageType = {
   message: string;
@@ -21,6 +22,7 @@ type userState = {
     uploadProfilePictureAPICall: status;
     getProfilePictureAPICall: status;
     getProfileDataAPICall: status;
+    googleSigninAPICall: status;
   };
   loadingMessage: string;
 };
@@ -35,6 +37,7 @@ const initialState: userState = {
     uploadProfilePictureAPICall: 'idle',
     getProfilePictureAPICall: 'idle',
     getProfileDataAPICall: 'idle',
+    googleSigninAPICall: 'idle'
   },
   loadingMessage: '',
 };
@@ -48,7 +51,7 @@ export const userSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(signupAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Creating Your Account';
+        state.loadingMessage = 'Creating Your Account...';
         state.statuses.signupAPICall = 'loading';
       })
       .addCase(signupAPICall.fulfilled, (state, action) => {
@@ -58,7 +61,7 @@ export const userSlice = createSlice({
         state.statuses.signupAPICall = 'failed';
       })
       .addCase(signinAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Logging You In';
+        state.loadingMessage = 'Logging You In...';
         state.statuses.signinAPICall = 'loading';
       })
       .addCase(signinAPICall.fulfilled, (state, action) => {
@@ -68,7 +71,7 @@ export const userSlice = createSlice({
         state.statuses.signinAPICall = 'failed';
       })
       .addCase(logoutAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Logging You Out';
+        state.loadingMessage = 'Logging You Out...';
         state.statuses.logoutAPICall = 'loading';
       })
       .addCase(logoutAPICall.fulfilled, (state, action) => {
@@ -78,7 +81,7 @@ export const userSlice = createSlice({
         state.statuses.logoutAPICall = 'failed';
       })
       .addCase(forgotPasswordAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Sending You Email';
+        state.loadingMessage = 'Sending You Email...';
         state.statuses.forgotPasswordAPICall = 'loading';
       })
       .addCase(forgotPasswordAPICall.fulfilled, (state, action) => {
@@ -88,7 +91,7 @@ export const userSlice = createSlice({
         state.statuses.forgotPasswordAPICall = 'failed';
       })
       .addCase(updateProfileAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Updating the profile';
+        state.loadingMessage = 'Updating the profile...';
         state.statuses.updateProfileAPICall = 'loading';
       })
       .addCase(updateProfileAPICall.fulfilled, (state, action) => {
@@ -98,7 +101,7 @@ export const userSlice = createSlice({
         state.statuses.updateProfileAPICall = 'failed';
       })
       .addCase(uploadProfilePictureAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Updating Profile Picture';
+        state.loadingMessage = 'Updating Profile Picture...';
         state.statuses.uploadProfilePictureAPICall = 'loading';
       })
       .addCase(uploadProfilePictureAPICall.fulfilled, (state, action) => {
@@ -117,7 +120,7 @@ export const userSlice = createSlice({
         state.statuses.getProfilePictureAPICall = 'failed';
       })
       .addCase(getProfileDataAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Fetching Profile Data';
+        state.loadingMessage = 'Fetching Profile Data...';
         state.statuses.getProfileDataAPICall = 'loading';
       })
       .addCase(getProfileDataAPICall.fulfilled, (state, action) => {
@@ -125,6 +128,16 @@ export const userSlice = createSlice({
       })
       .addCase(getProfileDataAPICall.rejected, (state, action) => {
         state.statuses.getProfileDataAPICall = 'failed';
+      })
+      .addCase(googleSigninAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Logging You In...';
+        state.statuses.googleSigninAPICall = 'loading';
+      })
+      .addCase(googleSigninAPICall.fulfilled, (state, action) => {
+        state.statuses.googleSigninAPICall = 'succeedded';
+      })
+      .addCase(googleSigninAPICall.rejected, (state, action) => {
+        state.statuses.googleSigninAPICall = 'failed';
       });
   },
 });
@@ -538,6 +551,77 @@ export const getProfileDataAPICall = createAsyncThunk<
     //return rejected promise
     return thunkAPI.rejectWithValue({
       message: 'Failed to fetch profile data. Please try again after some time',
+    } as MessageType);
+  }
+});
+
+export const googleSigninAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  {
+    authCredentials: FirebaseAuthTypes.AuthCredential;
+  },
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('user/googleSignin', async (requestObj, thunkAPI) => {
+  try {
+    let message = '';
+    let result = await auth().signInWithCredential(requestObj.authCredentials);
+    console.log(result)
+    //everytime if there is a new profile picture associated with user's google acc, store it in our storage
+    if (result.user.photoURL) {
+      let stat;
+      if(Platform.OS === "android"){
+        stat = await RNFetchBlob.fs.stat(result.user.photoURL)
+      }
+      await storage()
+        .ref(
+          `/user/${auth().currentUser?.uid}/` +
+            'profile-' +
+            auth().currentUser?.email,
+        )
+        .putFile(Platform.OS === "android" ? stat.path : result.user.photoURL);
+    }
+    return await firestore()
+      .collection(apiUrls.users)
+      .add({
+        authId: auth().currentUser?.uid,
+        mobileNumber: result.user.phoneNumber || "",
+      })
+      .then(res => {
+        message = 'Logged in successfully';
+        return {message: message};
+      })
+      .catch(error => {
+        if (error.code === 'auth/user-disabled') {
+          message = 'Email address is disabled!';
+        }
+        if (error.code === 'auth/invalid-email') {
+          message = 'Email address is invalid!';
+        }
+        if (error.code === 'auth/user-not-found') {
+          message =
+            'Account doesnt exist with this email. Create new account with this email.';
+        }
+        if (error.code === 'auth/wrong-password') {
+          message = 'Wrong password for email.';
+        }
+        if (error.code === 'auth/too-many-requests') {
+          message =
+            'Account blocked due to incorrect attempts. Reset password to unblock.';
+        }
+        return thunkAPI.rejectWithValue({message: message});
+      });
+  } catch (err: any) {
+    console.log(err)
+    //return rejected promise.
+    return thunkAPI.rejectWithValue({
+      message: 'Failed to login. Please try again after some time',
     } as MessageType);
   }
 });
