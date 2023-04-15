@@ -1,23 +1,49 @@
-import React, {ReactElement} from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, {ReactElement, useEffect} from 'react';
+import {ActivityIndicator, Platform, StyleSheet, ToastAndroid, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/text';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {useAppSelector} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {generateArray} from '../utils/commonFunctions';
-import { EachPerson } from '../reduxConfig/slices/peopleSlice';
+import {EachPerson, getNextEventJoinersAPICall, getPeopleAPICall} from '../reduxConfig/slices/peopleSlice';
 
 type EventJoinerListProps = {
-    onLongPressUser: (data: EachPerson) => void;
-    type: string;
-}
+  onLongPressUser: (data: EachPerson) => void;
+  type: string;
+};
 
-const EventJoinersListComponent = ({ onLongPressUser, type}: EventJoinerListProps): ReactElement => {
+const EventJoinersListComponent = ({
+  onLongPressUser,
+  type,
+}: EventJoinerListProps): ReactElement => {
+
+    //dispatch and selectors
+  const dispatch = useAppDispatch();
+  
+  useEffect(() => {
+    dispatch(getPeopleAPICall()).then(res => {
+      if (res.meta.requestStatus === 'rejected' && res.payload) {
+        if (Platform.OS === 'android')
+          ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  }, []);
+
+  const fetchMoreEventJoiners = () => {
+    if(peopleState.statuses.getNextEventJoinersAPICall === "loading") return;
+    dispatch(getNextEventJoinersAPICall()).then(resp => {
+      if (resp.payload && resp.meta.requestStatus === 'rejected') {
+        if (Platform.OS === 'android')
+          ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
+      }
+      if (resp.payload && resp.meta.requestStatus === 'fulfilled' && resp.payload.successMessagetype === 'noMoreUsers') {
+        if (Platform.OS === 'android')
+          ToastAndroid.showWithGravity(resp.payload?.message, ToastAndroid.SHORT, ToastAndroid.CENTER);
+      }
+    })
+  }
+
   let dataProvider = new DataProvider((r1, r2) => {
     return r1 !== r2;
   });
@@ -62,7 +88,20 @@ const EventJoinersListComponent = ({ onLongPressUser, type}: EventJoinerListProp
       dim.height = 100;
     },
   );
-  
+
+  //show fotter while loading more people
+  const getFooter = () => {
+    if(peopleState.statuses.getNextEventJoinersAPICall === "loading")
+    return (
+      <View style={styles.footerContainer}>
+        <ActivityIndicator color={colors.primaryColor}/>
+        <TextComponent style={{color: colors.primaryColor, fontSize: 16, marginTop: 5, marginBottom: 10}} weight="bold">Fetching More Event Joiners...</TextComponent>
+      </View>
+    )
+    else return null;
+  }
+
+
   //Given type and data return the View component
   const rowRenderer = (
     type: number,
@@ -107,14 +146,14 @@ const EventJoinersListComponent = ({ onLongPressUser, type}: EventJoinerListProp
 
   return (
     <>
-    <TextComponent
-          weight="bold"
-          style={{color: colors.blackColor, fontSize: 15, marginBottom: 10}}>
-          Total People:{' '}
-          {peopleData?.getSize() && peopleData?.getSize() > 0
-            ? peopleData?.getSize()
-            : 0}
-        </TextComponent>
+      <TextComponent
+        weight="bold"
+        style={{color: colors.blackColor, fontSize: 15, marginBottom: 10}}>
+        Total People:{' '}
+        {peopleData?.getSize() && peopleData?.getSize() > 0
+          ? peopleData?.getSize()
+          : 0}
+      </TextComponent>
       {peopleState.statuses.getPeopleAPICall === 'succeedded' &&
       peopleData?.getSize() > 0 ? (
         <RecyclerListView
@@ -123,6 +162,9 @@ const EventJoinersListComponent = ({ onLongPressUser, type}: EventJoinerListProp
           layoutProvider={layoutProvider}
           initialRenderIndex={0}
           scrollViewProps={{showsVerticalScrollIndicator: false}}
+          onEndReachedThresholdRelative={0.8}
+          onEndReached={fetchMoreEventJoiners}
+          renderFooter={() => getFooter()}
         />
       ) : peopleState.statuses.getPeopleAPICall === 'loading' ? (
         skelatons.map((eachItem, index) => (
@@ -150,37 +192,41 @@ export const MemoizedEventJoinerListComponent = React.memo(
 );
 
 const styles = StyleSheet.create({
-    eventLoadingSkelaton: {
-        backgroundColor: colors.lavenderColor,
-        height: 90,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        marginBottom: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      eachEventComponent: {
-        backgroundColor: colors.whiteColor,
-        height: 90,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: measureMents.leftPadding,
-      },
-      secondSection: {
-        width: '80%',
-        height: '100%',
-        justifyContent: 'space-evenly',
-      },
-      thirdSection: {
-        width: '20%',
-        height: '100%',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      },
+  eventLoadingSkelaton: {
+    backgroundColor: colors.lavenderColor,
+    height: 90,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  eachEventComponent: {
+    backgroundColor: colors.whiteColor,
+    height: 90,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: measureMents.leftPadding,
+  },
+  secondSection: {
+    width: '80%',
+    height: '100%',
+    justifyContent: 'space-evenly',
+  },
+  thirdSection: {
+    width: '20%',
+    height: '100%',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  footerContainer: {
+    alignItems:"center",
+    justifyContent:"center"
+  }
 });

@@ -1,10 +1,15 @@
 import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import firestore from '@react-native-firebase/firestore';
+import firestore, {
+  FirebaseFirestoreTypes,
+} from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
 import auth from '@react-native-firebase/auth';
+import {PAGINATION_CONSTANT} from '../../utils/constants';
+import {RootState, store} from '../store';
 
 export type MessageType = {
   message: string;
+  failureType?: "failure"
 };
 
 type status = 'idle' | 'succeedded' | 'failed' | 'loading';
@@ -19,29 +24,33 @@ export type EachEvent = {
   eventFees: string;
   mealProvided: boolean;
   accomodationProvided: boolean;
-  createdBy: string
+  createdBy: string;
 };
 
 type EventsState = {
   events: EachEvent[];
+  lastFetchedEventId: string;
   currentSelectedEvent: EachEvent | null;
   statuses: {
     addEventAPICall: status;
     getEventAPICall: status;
     removeEventAPICall: status;
+    getNextEventsAPICall: status;
   };
   loadingMessage: string;
 };
 
 const initialState: EventsState = {
   events: [],
+  lastFetchedEventId: 'null',
   currentSelectedEvent: null,
   statuses: {
     addEventAPICall: 'idle',
     getEventAPICall: 'idle',
     removeEventAPICall: 'idle',
+    getNextEventsAPICall: 'idle',
   },
-  loadingMessage: ''
+  loadingMessage: '',
 };
 
 export const eventsSlice = createSlice({
@@ -52,11 +61,14 @@ export const eventsSlice = createSlice({
     setSelectedEvent: (state, action: PayloadAction<EachEvent>) => {
       state.currentSelectedEvent = JSON.parse(JSON.stringify(action.payload));
     },
+    setLastFetchedEventId: (state, action: PayloadAction<string>) => {
+      state.lastFetchedEventId = JSON.parse(JSON.stringify(action.payload));
+    },
   },
   extraReducers(builder) {
     builder
       .addCase(addEventAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Creating New Event'
+        state.loadingMessage = 'Creating New Event';
         state.statuses.addEventAPICall = 'loading';
       })
       .addCase(addEventAPICall.fulfilled, (state, action) => {
@@ -69,11 +81,15 @@ export const eventsSlice = createSlice({
         state.statuses.getEventAPICall = 'loading';
       })
       .addCase(getEventsAPICall.fulfilled, (state, action) => {
-        const currentUser = auth().currentUser
+        const currentUser = auth().currentUser;
         state.events.length = 0;
-        if (action.payload.responseData) {
+        if (action.payload.responseData.length > 0) {
           state.events = JSON.parse(
-            JSON.stringify(action.payload.responseData.filter((eachEvent) => eachEvent.createdBy === currentUser?.uid)),
+            JSON.stringify(
+              action.payload.responseData.filter(
+                eachEvent => eachEvent.createdBy === currentUser?.uid,
+              ),
+            ),
           );
         }
         state.statuses.getEventAPICall = 'succeedded';
@@ -81,8 +97,22 @@ export const eventsSlice = createSlice({
       .addCase(getEventsAPICall.rejected, (state, action) => {
         state.statuses.getEventAPICall = 'failed';
       })
+      .addCase(getNextEventsAPICall.pending, (state, action) => {
+        state.statuses.getNextEventsAPICall = 'loading';
+      })
+      .addCase(getNextEventsAPICall.fulfilled, (state, action) => {
+        if (action.payload.responseData.length > 0) {
+          state.events = state.events.concat(action.payload.responseData.filter(
+            eachEvent => eachEvent.createdBy === auth().currentUser?.uid,
+          ));
+        }
+        state.statuses.getNextEventsAPICall = 'succeedded';
+      })
+      .addCase(getNextEventsAPICall.rejected, (state, action) => {
+        state.statuses.getNextEventsAPICall = 'failed';
+      })
       .addCase(removeEventAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Deleting the Event'
+        state.loadingMessage = 'Deleting the Event';
         state.statuses.removeEventAPICall = 'loading';
       })
       .addCase(removeEventAPICall.fulfilled, (state, action) => {
@@ -98,8 +128,11 @@ export const eventsSlice = createSlice({
 });
 
 export default eventsSlice.reducer;
-export const {setSelectedEvent, reset: resetEventState} =
-  eventsSlice.actions;
+export const {
+  setSelectedEvent,
+  reset: resetEventState,
+  setLastFetchedEventId,
+} = eventsSlice.actions;
 
 export const addEventAPICall = createAsyncThunk<
   //type of successfull returned obj
@@ -179,6 +212,8 @@ export const getEventsAPICall = createAsyncThunk<
   try {
     return await firestore()
       .collection(apiUrls.events)
+      .orderBy('eventDate', 'desc')
+      .limit(PAGINATION_CONSTANT)
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(documentSnapshot => {
@@ -186,6 +221,9 @@ export const getEventsAPICall = createAsyncThunk<
           updatedObj.eventId = documentSnapshot.id;
           responseArr.push(updatedObj);
         });
+        thunkAPI.dispatch(
+          setLastFetchedEventId(responseArr[responseArr.length - 1].eventId),
+        );
         //return the resolved promise with data.
         return {
           responseData: responseArr,
@@ -196,6 +234,71 @@ export const getEventsAPICall = createAsyncThunk<
     //return rejected promise from payload creator
     return thunkAPI.rejectWithValue({
       message: 'Failed to fetch events. Please try again after some time',
+    } as MessageType);
+  }
+});
+
+
+export type SuccessType = {
+  responseData: EachEvent[];
+  message: string;
+  successMessagetype: 'moreEventsExist' | 'noMoreEvents'
+}
+export const getNextEventsAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  SuccessType,
+  //type of request obj passed to payload creator
+  undefined,
+  //type of thunkAPI
+  {
+    rejectValue: MessageType;
+    dispatch: typeof store.dispatch;
+    state: RootState;
+  }
+>('events/getNextEvents', async (_, {dispatch, getState, rejectWithValue}) => {
+  //this callback is called as payload creator callback.
+  let responseArr: EachEvent[] = [];
+  try {
+    let lastDocFetched = await firestore()
+      .collection(apiUrls.events)
+      .doc(getState().events.lastFetchedEventId)
+      .get()
+    return await firestore()
+      .collection(apiUrls.events)
+      .orderBy('eventDate', 'desc')
+      .startAfter(lastDocFetched)
+      .limit(PAGINATION_CONSTANT)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(documentSnapshot => {
+          let updatedObj = JSON.parse(JSON.stringify(documentSnapshot.data()));
+          updatedObj.eventId = documentSnapshot.id;
+          responseArr.push(updatedObj);
+        });
+        if(responseArr.length > 0){
+          dispatch(
+            setLastFetchedEventId(responseArr[responseArr.length - 1].eventId),
+          );
+          //return the resolved promise with data.
+          return {
+            responseData: responseArr,
+            message: 'Event fetched successfully',
+            successMessagetype: 'moreEventsExist'
+          } as SuccessType
+        }else {
+          //return the resolved promise with data.
+          return {
+            responseData: [],
+            message: 'No More Events',
+            successMessagetype: 'noMoreEvents'
+          } as SuccessType
+        }
+      });
+  } catch (err) {
+    //return rejected promise from payload creator
+    return rejectWithValue({
+      message: 'Failed to fetch more events. Please try again after some time',
+      failureType: "failure"
     } as MessageType);
   }
 });

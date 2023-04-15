@@ -36,7 +36,6 @@ const CenterPopupComponent = ({
   popupData,
   ...props
 }: CenterPopupComponentProps): ReactElement => {
-  console.log("in CenterPopupComponent rendered", popupData().header)
   return (
     <Modal
       animationIn="bounceIn"

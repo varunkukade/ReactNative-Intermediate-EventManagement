@@ -15,6 +15,7 @@ import {generateArray} from '../utils/commonFunctions';
 import {
   EachEvent,
   getEventsAPICall,
+  getNextEventsAPICall,
   removeEventAPICall,
   setSelectedEvent,
 } from '../reduxConfig/slices/eventsSlice';
@@ -25,8 +26,9 @@ import {useNavigation} from '@react-navigation/native';
 import BottomHalfPopupComponent, {
   EachAction,
 } from '../reusables/bottomHalfPopup';
-import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
+import CenterPopupComponent from '../reusables/centerPopup';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { ActivityIndicator } from 'react-native-paper';
 
 const EventListComponent = (): ReactElement => {
   const skelatons = generateArray(5);
@@ -62,6 +64,20 @@ const EventListComponent = (): ReactElement => {
       }
     });
   }, []);
+
+  const fetchMoreEvents = () => {
+    if(eventsState.statuses.getNextEventsAPICall === "loading") return;
+    dispatch(getNextEventsAPICall()).then(resp => {
+      if (resp.payload && resp.meta.requestStatus === 'rejected') {
+        if (Platform.OS === 'android')
+          ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
+      }
+      if (resp.payload && resp.meta.requestStatus === 'fulfilled' && resp.payload.successMessagetype === 'noMoreEvents') {
+        if (Platform.OS === 'android')
+          ToastAndroid.showWithGravity(resp.payload?.message, ToastAndroid.SHORT, ToastAndroid.CENTER);
+      }
+    })
+  }
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(
@@ -178,6 +194,17 @@ const EventListComponent = (): ReactElement => {
     };
   }, [onCancelClick, onConfirmDeleteClick]);
 
+  const getFooter = () => {
+    if(eventsState.statuses.getNextEventsAPICall === "loading")
+    return (
+      <View style={styles.footerContainer}>
+        <ActivityIndicator/>
+        <TextComponent style={{color: colors.primaryColor, fontSize: 16, marginTop: 5}} weight="bold">Fetching More Events...</TextComponent>
+      </View>
+    )
+    else return null;
+  }
+
   return (
     <>
       <View style={styles.eventListContainer}>
@@ -197,6 +224,9 @@ const EventListComponent = (): ReactElement => {
             layoutProvider={layoutProvider}
             initialRenderIndex={0}
             scrollViewProps={{showsVerticalScrollIndicator: false}}
+            onEndReachedThresholdRelative={0.8}
+            onEndReached={fetchMoreEvents}
+            renderFooter={() => getFooter()}
           />
         ) : eventsState.statuses.getEventAPICall === 'loading' ? (
           skelatons.map((eachItem, index) => (
@@ -278,4 +308,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  footerContainer: {
+    alignItems:"center",
+    justifyContent:"center"
+  }
 });

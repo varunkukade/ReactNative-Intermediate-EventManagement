@@ -134,13 +134,14 @@ const AddPeopleScreen = (): ReactElement => {
           userName: userName.value,
           isPaymentPending: !isPaymentCompleted.value,
           eventId: selectedEventDetails.eventId,
+          createdAt: new Date().toString()
         };
         if (isPaymentCompleted.value) {
           paymentModes.forEach(eachMode => {
             if (eachMode.selected) requestObj.paymentMode = eachMode.name;
           });
-        }else {
-          requestObj.paymentMode = ""
+        } else {
+          requestObj.paymentMode = '';
         }
         dispatch(addPeopleAPICall(requestObj)).then(resp => {
           if (resp.meta.requestStatus === 'fulfilled') {
@@ -182,56 +183,52 @@ const AddPeopleScreen = (): ReactElement => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={styles.wrapperComponent}>
-        <InputComponent
-          value={eventForm.userName.value}
-          onChangeText={value => onChangeForm(value, constants.userName)}
-          label="Enter Name"
-          errorMessage={eventForm.userName.errorMessage}
-          placeholder="Varun Kukade"
-        />
-        <InputComponent
-          value={eventForm.userMobileNumber.value}
-          onChangeText={value =>
-            onChangeForm(value, constants.userMobileNumber)
-          }
-          label="Enter Mobile Number"
-          keyboardType="numeric"
-          errorMessage={eventForm.userMobileNumber.errorMessage}
-          placeholder="9028476756"
-        />
-        <InputComponent
-          value={eventForm.userEmail.value}
-          onChangeText={value => onChangeForm(value, constants.userEmail)}
-          label="Enter Email"
-          placeholder="varun.k@gmail.com"
-        />
-        <CheckboxComponent
-          label="Check this if User has completed the payment"
-          value={eventForm.isPaymentCompleted.value}
-          onValueChange={value =>
-            onChangeForm(value, constants.isPaymentCompleted)
-          }
-        />
-        {eventForm.isPaymentCompleted.value ? (
-          <View style={styles.paymentModes}>
-            {paymentModes.map(item => (
-              <RadioButtonComponent
-                onPress={() => onRadioBtnClick(item)}
-                selected={item.selected}
-                key={item.id}>
-                {item.name}
-              </RadioButtonComponent>
-            ))}
-          </View>
-        ) : null}
-        <ButtonComponent
-          onPress={onFormSubmit}
-          containerStyle={{marginTop: 30}}>
-          Submit
-        </ButtonComponent>
-      </View>
+    <ScrollView
+      style={styles.wrapperComponent}
+      showsVerticalScrollIndicator={false}>
+      <InputComponent
+        value={eventForm.userName.value}
+        onChangeText={value => onChangeForm(value, constants.userName)}
+        label="Enter Name"
+        errorMessage={eventForm.userName.errorMessage}
+        placeholder="Varun Kukade"
+      />
+      <InputComponent
+        value={eventForm.userMobileNumber.value}
+        onChangeText={value => onChangeForm(value, constants.userMobileNumber)}
+        label="Enter Mobile Number"
+        keyboardType="numeric"
+        errorMessage={eventForm.userMobileNumber.errorMessage}
+        placeholder="9028476756"
+      />
+      <InputComponent
+        value={eventForm.userEmail.value}
+        onChangeText={value => onChangeForm(value, constants.userEmail)}
+        label="Enter Email"
+        placeholder="varun.k@gmail.com"
+      />
+      <CheckboxComponent
+        label="Check this if User has completed the payment"
+        value={eventForm.isPaymentCompleted.value}
+        onValueChange={value =>
+          onChangeForm(value, constants.isPaymentCompleted)
+        }
+      />
+      {eventForm.isPaymentCompleted.value ? (
+        <View style={styles.paymentModes}>
+          {paymentModes.map(item => (
+            <RadioButtonComponent
+              onPress={() => onRadioBtnClick(item)}
+              selected={item.selected}
+              key={item.id}>
+              {item.name}
+            </RadioButtonComponent>
+          ))}
+        </View>
+      ) : null}
+      <ButtonComponent onPress={onFormSubmit} containerStyle={{marginTop: 30}}>
+        Submit
+      </ButtonComponent>
     </ScrollView>
   );
 };

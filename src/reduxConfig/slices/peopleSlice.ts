@@ -1,7 +1,9 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import apiUrls from '../apiUrls';
 import firestore from '@react-native-firebase/firestore';
 import {MessageType} from './eventsSlice';
+import { RootState, store } from '../store';
+import { PAGINATION_CONSTANT } from '../../utils/constants';
 
 type status = 'idle' | 'succeedded' | 'failed' | 'loading';
 
@@ -12,27 +14,32 @@ export type EachPerson = {
   userName: string;
   eventId: string | number[];
   isPaymentPending: boolean;
-  paymentMode?: string
+  paymentMode?: string;
+  createdAt: string;
 };
 
 type PeopleState = {
   people: EachPerson[];
+  lastFetchedUserId: string;
   statuses: {
     addPeopleAPICall: status;
     getPeopleAPICall: status;
     removePeopleAPICall: status;
     updatePeopleAPICall: status;
+    getNextEventJoinersAPICall: status;
   };
   loadingMessage: string;
 };
 
 const initialState: PeopleState = {
   people: [],
+  lastFetchedUserId: "",
   statuses: {
     addPeopleAPICall: 'idle',
     getPeopleAPICall: 'idle',
     removePeopleAPICall: 'idle',
     updatePeopleAPICall: 'idle',
+    getNextEventJoinersAPICall: 'idle'
   },
   loadingMessage: ''
 };
@@ -42,6 +49,9 @@ export const peopleSlice = createSlice({
   initialState,
   reducers: {
     reset: () => initialState,
+    setlastFetchedUserId: (state, action: PayloadAction<string>) => {
+      state.lastFetchedUserId = JSON.parse(JSON.stringify(action.payload));
+    },
   },
   extraReducers(builder) {
     builder
@@ -69,6 +79,18 @@ export const peopleSlice = createSlice({
       })
       .addCase(getPeopleAPICall.rejected, (state, action) => {
         state.statuses.getPeopleAPICall = 'failed';
+      })
+      .addCase(getNextEventJoinersAPICall.pending, (state, action) => {
+        state.statuses.getNextEventJoinersAPICall = 'loading';
+      })
+      .addCase(getNextEventJoinersAPICall.fulfilled, (state, action) => {
+        if (action.payload.responseData.length > 0) {
+          state.people = state.people.concat(action.payload.responseData);
+        }
+        state.statuses.getNextEventJoinersAPICall = 'succeedded';
+      })
+      .addCase(getNextEventJoinersAPICall.rejected, (state, action) => {
+        state.statuses.getNextEventJoinersAPICall = 'failed';
       })
       .addCase(removePeopleAPICall.pending, (state, action) => {
         state.loadingMessage = 'Deleting the user'
@@ -104,7 +126,7 @@ export const peopleSlice = createSlice({
   },
 });
 
-export const {reset: resetPeopleState} =
+export const {reset: resetPeopleState, setlastFetchedUserId} =
   peopleSlice.actions;
 export default peopleSlice.reducer;
 
@@ -181,6 +203,7 @@ export const getPeopleAPICall = createAsyncThunk<
   try {
     return await firestore()
       .collection(apiUrls.people)
+      .orderBy("createdAt", "desc")
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(documentSnapshot => {
@@ -188,6 +211,11 @@ export const getPeopleAPICall = createAsyncThunk<
           updatedObj.userId = documentSnapshot.id;
           responseArr.push(updatedObj);
         });
+        if(responseArr.length > 0){
+          thunkAPI.dispatch(
+            setlastFetchedUserId(responseArr[responseArr.length - 1].userId),
+          );
+        }
         //return the resolved promise with data.
         return {
           responseData: responseArr,
@@ -237,3 +265,67 @@ export const updatePeopleAPICall = createAsyncThunk<
     }
   },
 );
+
+export type SuccessType = {
+  responseData: EachPerson[];
+  message: string;
+  successMessagetype: 'moreUsersExist' | 'noMoreUsers'
+}
+export const getNextEventJoinersAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  SuccessType,
+  //type of request obj passed to payload creator
+  undefined,
+  //type of thunkAPI
+  {
+    rejectValue: MessageType;
+    dispatch: typeof store.dispatch;
+    state: RootState;
+  }
+>('events/getNextEventJoiners', async (_, {dispatch, getState, rejectWithValue}) => {
+  //this callback is called as payload creator callback.
+  let responseArr: EachPerson[] = [];
+  try {
+    let lastDocFetched = await firestore()
+      .collection(apiUrls.people)
+      .doc(getState().people.lastFetchedUserId)
+      .get()
+    return await firestore()
+      .collection(apiUrls.people)
+      .orderBy("createdAt", "desc")
+      .startAfter(lastDocFetched)
+      .limit(PAGINATION_CONSTANT)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(documentSnapshot => {
+          let updatedObj = JSON.parse(JSON.stringify(documentSnapshot.data()));
+          updatedObj.userId = documentSnapshot.id;
+          responseArr.push(updatedObj);
+        });
+        if(responseArr.length > 0){
+          dispatch(
+            setlastFetchedUserId(responseArr[responseArr.length - 1].userId),
+          );
+          //return the resolved promise with data.
+          return {
+            responseData: responseArr,
+            message: 'Users fetched successfully',
+            successMessagetype: 'moreUsersExist'
+          } as SuccessType
+        }else {
+          //return the resolved promise with data.
+          return {
+            responseData: [],
+            message: 'No More Event Joiners',
+            successMessagetype: 'noMoreUsers'
+          } as SuccessType
+        }
+      });
+  } catch (err) {
+    //return rejected promise from payload creator
+    return rejectWithValue({
+      message: 'Failed to fetch more users. Please try again after some time',
+      failureType: "failure"
+    } as MessageType);
+  }
+});

@@ -70,15 +70,6 @@ const EventJoinersScreen = ({
   //dispatch and selectors
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    dispatch(getPeopleAPICall()).then(res => {
-      if (res.meta.requestStatus === 'rejected' && res.payload) {
-        if (Platform.OS === 'android')
-          ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-      }
-    });
-  }, []);
-
   const onLongPressUser = React.useCallback(
     (user: EachPerson) => {
       //when user click long press on any user show then buttons to mark user as complete or pending.
