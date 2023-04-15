@@ -224,7 +224,7 @@ const EventListComponent = (): ReactElement => {
             layoutProvider={layoutProvider}
             initialRenderIndex={0}
             scrollViewProps={{showsVerticalScrollIndicator: false}}
-            onEndReachedThresholdRelative={0.8}
+            onEndReachedThresholdRelative={0.1}
             onEndReached={fetchMoreEvents}
             renderFooter={() => getFooter()}
           />

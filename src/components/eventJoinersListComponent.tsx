@@ -31,6 +31,7 @@ const EventJoinersListComponent = ({
   }, []);
 
   const fetchMoreEventJoiners = () => {
+    //onEndReachedThresholdRelative = 0.1 means if user has scrolled and if end of visible content is within the 10% from end of list, then load more items.
     if(peopleState.statuses.getNextEventJoinersAPICall === "loading") return;
     dispatch(getNextEventJoinersAPICall()).then(resp => {
       if (resp.payload && resp.meta.requestStatus === 'rejected') {
@@ -162,7 +163,7 @@ const EventJoinersListComponent = ({
           layoutProvider={layoutProvider}
           initialRenderIndex={0}
           scrollViewProps={{showsVerticalScrollIndicator: false}}
-          onEndReachedThresholdRelative={0.8}
+          onEndReachedThresholdRelative={0.1}
           onEndReached={fetchMoreEventJoiners}
           renderFooter={() => getFooter()}
         />
