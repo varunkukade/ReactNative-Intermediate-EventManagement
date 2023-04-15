@@ -11,10 +11,11 @@ import EventJoinersTopTabs from './topTabsNavigator';
 import {BottomTabNavigator} from '.';
 import {NavigatorScreenParams} from '@react-navigation/native';
 import {BottomTabParamList} from './bottomTabNavigator';
+import { EachEvent } from '../reduxConfig/slices/eventsSlice';
 
 export type HomeStackParamList = {
   BottomTabNavigator: undefined | NavigatorScreenParams<BottomTabParamList>;
-  AddEventScreen: undefined;
+  AddEventScreen: undefined | { longPressedEvent: EachEvent};
   EventDetailsScreen: undefined;
   EventJoinersTopTab: undefined;
   AddPeopleScreen: undefined;

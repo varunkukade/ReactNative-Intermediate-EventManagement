@@ -9,7 +9,7 @@ import {RootState, store} from '../store';
 
 export type MessageType = {
   message: string;
-  failureType?: "failure"
+  failureType?: 'failure';
 };
 
 type status = 'idle' | 'succeedded' | 'failed' | 'loading';
@@ -36,6 +36,7 @@ type EventsState = {
     getEventAPICall: status;
     removeEventAPICall: status;
     getNextEventsAPICall: status;
+    updateEventAPICall: status;
   };
   loadingMessage: string;
 };
@@ -49,6 +50,7 @@ const initialState: EventsState = {
     getEventAPICall: 'idle',
     removeEventAPICall: 'idle',
     getNextEventsAPICall: 'idle',
+    updateEventAPICall: 'idle'
   },
   loadingMessage: '',
 };
@@ -102,9 +104,11 @@ export const eventsSlice = createSlice({
       })
       .addCase(getNextEventsAPICall.fulfilled, (state, action) => {
         if (action.payload.responseData.length > 0) {
-          state.events = state.events.concat(action.payload.responseData.filter(
-            eachEvent => eachEvent.createdBy === auth().currentUser?.uid,
-          ));
+          state.events = state.events.concat(
+            action.payload.responseData.filter(
+              eachEvent => eachEvent.createdBy === auth().currentUser?.uid,
+            ),
+          );
         }
         state.statuses.getNextEventsAPICall = 'succeedded';
       })
@@ -123,6 +127,28 @@ export const eventsSlice = createSlice({
       })
       .addCase(removeEventAPICall.rejected, (state, action) => {
         state.statuses.removeEventAPICall = 'failed';
+      })
+      .addCase(updateEventAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Updating the Event';
+        state.statuses.updateEventAPICall = 'loading';
+      })
+      .addCase(updateEventAPICall.fulfilled, (state, action) => {
+        const {eventTitle, eventDesc, eventDate, eventFees, eventLocation, eventTime } = action.meta.arg.newUpdate;
+        state.events = state.events.map(eachEvent => {
+          if (eachEvent.eventId === action.meta.arg.eventId) {
+              eachEvent.eventTitle = eventTitle;
+              eachEvent.eventDesc = eventDesc;
+              eachEvent.eventDate = eventDate;
+              eachEvent.eventFees = eventFees;
+              eachEvent.eventLocation = eventLocation;
+              eachEvent.eventTime = eventTime;
+            return eachEvent;
+          } else return eachEvent;
+        });
+        state.statuses.updateEventAPICall = 'succeedded';
+      })
+      .addCase(updateEventAPICall.rejected, (state, action) => {
+        state.statuses.updateEventAPICall = 'failed';
       });
   },
 });
@@ -238,12 +264,11 @@ export const getEventsAPICall = createAsyncThunk<
   }
 });
 
-
 export type SuccessType = {
   responseData: EachEvent[];
   message: string;
-  successMessagetype: 'moreEventsExist' | 'noMoreEvents'
-}
+  successMessagetype: 'moreEventsExist' | 'noMoreEvents';
+};
 export const getNextEventsAPICall = createAsyncThunk<
   //type of successfull returned obj
   SuccessType,
@@ -262,7 +287,7 @@ export const getNextEventsAPICall = createAsyncThunk<
     let lastDocFetched = await firestore()
       .collection(apiUrls.events)
       .doc(getState().events.lastFetchedEventId)
-      .get()
+      .get();
     return await firestore()
       .collection(apiUrls.events)
       .orderBy('eventDate', 'desc')
@@ -275,7 +300,7 @@ export const getNextEventsAPICall = createAsyncThunk<
           updatedObj.eventId = documentSnapshot.id;
           responseArr.push(updatedObj);
         });
-        if(responseArr.length > 0){
+        if (responseArr.length > 0) {
           dispatch(
             setLastFetchedEventId(responseArr[responseArr.length - 1].eventId),
           );
@@ -283,22 +308,57 @@ export const getNextEventsAPICall = createAsyncThunk<
           return {
             responseData: responseArr,
             message: 'Event fetched successfully',
-            successMessagetype: 'moreEventsExist'
-          } as SuccessType
-        }else {
+            successMessagetype: 'moreEventsExist',
+          } as SuccessType;
+        } else {
           //return the resolved promise with data.
           return {
             responseData: [],
             message: 'No More Events',
-            successMessagetype: 'noMoreEvents'
-          } as SuccessType
+            successMessagetype: 'noMoreEvents',
+          } as SuccessType;
         }
       });
   } catch (err) {
     //return rejected promise from payload creator
     return rejectWithValue({
       message: 'Failed to fetch more events. Please try again after some time',
-      failureType: "failure"
+      failureType: 'failure',
     } as MessageType);
   }
 });
+
+export const updateEventAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  {newUpdate: Omit<EachEvent, 'eventId'>; eventId: string},
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>(
+  'events/updateEvent',
+  async (
+    requestObject: {newUpdate: Omit< EachEvent, 'eventId'> ; eventId: string},
+    thunkAPI,
+  ) => {
+    try {
+      return await firestore()
+        .collection(apiUrls.events)
+        .doc(requestObject.eventId)
+        .update(requestObject.newUpdate)
+        .then(res => {
+          return {message: 'Event updated successfully'};
+        });
+    } catch (err) {
+      console.log(err)
+      //return rejected promise.
+      return thunkAPI.rejectWithValue({
+        message: 'Failed to update event. Please try again after some time',
+      } as MessageType);
+    }
+  },
+);

@@ -39,7 +39,8 @@ const LoadingAnimation = () => {
   function getLoadingMessage() {
     if (
       eventSliceStatuses.addEventAPICall === LOADING ||
-      eventSliceStatuses.removeEventAPICall === LOADING
+      eventSliceStatuses.removeEventAPICall === LOADING ||
+      eventSliceStatuses.updateEventAPICall === LOADING
     )
       return eventSlice.loadingMessage;
     else if (
@@ -62,6 +63,7 @@ const LoadingAnimation = () => {
     return (
       eventSliceStatuses.addEventAPICall === LOADING ||
       eventSliceStatuses.removeEventAPICall === LOADING ||
+      eventSliceStatuses.updateEventAPICall === LOADING || 
       userSliceStatuses.signinAPICall === LOADING ||
       userSliceStatuses.signupAPICall === LOADING ||
       userSliceStatuses.forgotPasswordAPICall === LOADING ||

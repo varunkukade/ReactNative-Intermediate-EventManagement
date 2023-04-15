@@ -12,9 +12,9 @@ import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
-import {addEventAPICall, EachEvent} from '../reduxConfig/slices/eventsSlice';
+import {addEventAPICall, EachEvent, updateEventAPICall} from '../reduxConfig/slices/eventsSlice';
 import {
   ButtonComponent,
   CheckboxComponent,
@@ -22,7 +22,7 @@ import {
   InputComponent,
 } from '../reusables';
 import {getDate, getTime} from '../utils/commonFunctions';
-import auth from '@react-native-firebase/auth';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 const constants = {
   eventTitle: 'eventTitle',
@@ -52,34 +52,34 @@ type AddEventFormData = {
 };
 
 const AddEventScreen = (): ReactElement => {
-  //navigation state
+  //navigation and route state
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
     'AddEventScreen'
   > = useNavigation();
 
+  const route: RouteProp<HomeStackParamList, 'AddEventScreen'> = useRoute()
+
   //dispatch and selectors
   const dispatch = useAppDispatch();
+  const selectedEventDetails = route.params?.longPressedEvent
 
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddEventFormData = {
-    eventTitle: {value: '', errorMessage: ''},
-    eventDesc: {value: '', errorMessage: ''},
-    eventDate: {value: new Date(), errorMessage: ''},
-    eventTime: {value: new Date(), errorMessage: ''},
-    eventLocation: {value: '', errorMessage: ''},
-    eventFees: {value: '', errorMessage: ''},
-    mealProvided: {value: true, errorMessage: ''},
-    accomodationProvided: {value: false, errorMessage: ''},
+    eventTitle: {value: selectedEventDetails ? selectedEventDetails.eventTitle : '', errorMessage: ''},
+    eventDesc: {value: selectedEventDetails ? selectedEventDetails.eventDesc : '', errorMessage: ''},
+    eventDate: {value: selectedEventDetails ? new Date(selectedEventDetails.eventDate) : new Date(), errorMessage: ''},
+    eventTime: {value: selectedEventDetails ? new Date(selectedEventDetails.eventTime) : new Date(), errorMessage: ''},
+    eventLocation: {value: selectedEventDetails ? selectedEventDetails.eventLocation : '', errorMessage: ''},
+    eventFees: {value: selectedEventDetails ? selectedEventDetails.eventFees : '', errorMessage: ''},
+    mealProvided: {value: selectedEventDetails ? selectedEventDetails.mealProvided : true, errorMessage: ''},
+    accomodationProvided: {value: selectedEventDetails ? selectedEventDetails.accomodationProvided : false, errorMessage: ''},
   };
   const [eventForm, setEventForm] =
     useState<AddEventFormData>(initialEventForm);
 
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
-
-  //useSelectors
-  const eventState = useAppSelector(state => state.events);
 
   const onChangeForm = (
     value: string | Date | boolean,
@@ -90,8 +90,7 @@ const AddEventScreen = (): ReactElement => {
 
   const currentUser = auth().currentUser
 
-  const onFormSubmit = (): void => {
-    if(!currentUser) return;
+  const getRequestObj = (user: FirebaseAuthTypes.User) => {
     const {
       eventTitle,
       eventDate,
@@ -102,6 +101,72 @@ const AddEventScreen = (): ReactElement => {
       mealProvided,
       accomodationProvided,
     } = eventForm;
+    return {
+      eventTitle: eventTitle.value,
+      eventDate: eventDate.value.toString(),
+      eventTime: eventTime.value.toString(),
+      eventDesc: eventDesc.value,
+      eventLocation: eventLocation.value,
+      eventFees: eventFees.value,
+      mealProvided: mealProvided.value,
+      accomodationProvided: accomodationProvided.value,
+      createdBy: user?.uid
+    }
+  }
+
+  const addNewEvent = () => {
+    if(!currentUser) return;
+    dispatch(addEventAPICall(getRequestObj(currentUser))).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        setEventForm(initialEventForm);
+        //Navigation state object - https://reactnavigation.org/docs/navigation-state/
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'BottomTabNavigator',
+              state: {
+                index: 0,
+                routes: [{name: 'Home'}],
+              },
+            },
+          ],
+        });
+      } else {
+        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  }
+
+  const updateExistingEvent = () => {
+    if(!currentUser || !selectedEventDetails) return;
+    let requestObj: { newUpdate: Omit<EachEvent,"eventId">, eventId: string} = {
+      newUpdate: getRequestObj(currentUser),
+      eventId: selectedEventDetails?.eventId
+    };
+    dispatch(updateEventAPICall(requestObj)).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        setEventForm(initialEventForm);
+        //difference in navigation.pop and navigation.reset - pop removes current component from list but preserves the previous component in stack and navigate (focus) to that component
+        //reset removes all the previous history of stacks and navigate (mount) to new component.
+        navigation.pop();
+      } else {
+        if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  }
+
+  const onFormSubmit = (): void => {
+    if(!currentUser) return;
+    const {
+      eventTitle,
+      eventDate,
+      eventTime,
+      eventDesc,
+      eventLocation,
+    } = eventForm;
     if (
       eventTitle.value &&
       eventDate.value &&
@@ -109,38 +174,12 @@ const AddEventScreen = (): ReactElement => {
       eventDesc.value &&
       eventLocation.value
     ) {
-      let requestObj: Omit<EachEvent, 'eventId'> = {
-        eventTitle: eventTitle.value,
-        eventDate: eventDate.value.toString(),
-        eventTime: eventTime.value.toString(),
-        eventDesc: eventDesc.value,
-        eventLocation: eventLocation.value,
-        eventFees: eventFees.value,
-        mealProvided: mealProvided.value,
-        accomodationProvided: accomodationProvided.value,
-        createdBy: currentUser?.uid
-      };
-      dispatch(addEventAPICall(requestObj)).then(resp => {
-        if (resp.meta.requestStatus === 'fulfilled') {
-          if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-          setEventForm(initialEventForm);
-          //Navigation state object - https://reactnavigation.org/docs/navigation-state/
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: 'BottomTabNavigator',
-                state: {
-                  index: 0,
-                  routes: [{name: 'Home'}],
-                },
-              },
-            ],
-          });
-        } else {
-          if(Platform.OS === "android" && resp.payload) ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-        }
-      });
+      if(selectedEventDetails){
+        updateExistingEvent()
+      }else {
+        addNewEvent()
+      }
+      
     } else {
       //set the errors if exist
       setEventForm({

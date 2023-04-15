@@ -28,6 +28,7 @@ import BottomHalfPopupComponent, {
 } from '../reusables/bottomHalfPopup';
 import CenterPopupComponent from '../reusables/centerPopup';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FeatherIcons from 'react-native-vector-icons/Feather';
 import { ActivityIndicator } from 'react-native-paper';
 
 const EventListComponent = (): ReactElement => {
@@ -149,6 +150,13 @@ const EventListComponent = (): ReactElement => {
     setIsDeletePopupVisible(!isDeletePopupVisible);
   };
 
+  const onEditEventClick = () => {
+    setIsModalVisible(!isModalVisible)
+    setTimeout(()=> {
+      if(longPressedEvent) navigation.navigate("AddEventScreen", { longPressedEvent });
+    }, 400)
+  }
+
   const onCancelClick = React.useCallback(() => {
     setIsDeletePopupVisible(false);
   }, [setIsDeletePopupVisible]);
@@ -171,6 +179,18 @@ const EventListComponent = (): ReactElement => {
   }, [longPressedEvent, dispatch, removeEventAPICall, setIsDeletePopupVisible]);
 
   let actionsArray: EachAction[] = [
+    {
+      label: 'Edit     Event',
+      icon: () => (
+        <FeatherIcons
+          size={22}
+          color={colors.blackColor}
+          name="edit-2"
+        />
+      ),
+      onClick: () => onEditEventClick(),
+      isVisible: true,
+    },
     {
       label: 'Delete Event',
       icon: () => (
