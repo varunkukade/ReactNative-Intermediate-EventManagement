@@ -29,7 +29,7 @@ Motive of this app is to have one stop solution for all the event management for
    6. View all people added in event at one place using pagination. People are divided into 3 tabs (All people, people who have payment pending, people who have payement completed). 
    7. You can move users in tab from pending to completed and viceversa. You can also remove the people from that event.
 
-App Screenshots: (If any color design mismatches in UI please ignore. I am Not very good at designing the ui😅)
+App Screenshots:
 
 Demo Videos link as of 14th april = 
 Prelogin - https://drive.google.com/file/d/1FlNpAaVBOzX8EZfqhWTinHW7aCw0koFe/view?usp=share_link
