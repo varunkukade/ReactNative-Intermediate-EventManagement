@@ -17,17 +17,18 @@ Motive of this app is to have one stop solution for all the event management for
    10. React-native-image picker and React native permissions - To access the media storage of device.
    11. React-native-reanimated - This is a animated library by React Native. It has better performance than Animated API of React native as Animated API involves constant to and fro communication between UI and JS thread. Reanimated completely works on UI thread by utilizing the concept of worklets.
    12. React-native-image-resizer - Use to create different image sizes for different purposes. Also size of image can be reduced.
+   13. React-native-google-signin - Used to integrate Google signin method.
 
 
   Current features in the app: 
 
-   1. Create an new account, Sign-in to existing account, Forgot password, Logout.
-   2. After logged in - Update email, password, Name, mobile number, profile picture. 
+   1. Create an new account, Sign-in to your account either using email and password, Logout.You can also directly use "Google Signin" And your account will be created for that email selected.
+   2. After logged in - You can update email, password, Name, mobile number, profile picture. 
    3. Organise new event with event name, desc, date, time, location, fees(if any)
-   4. View all the events at one place using pagination. View event details by clicking on each event. You can also delete the event.
-   5. Add people to the event. Delete added people from the event.
-   6. View all people added in event at one place using pagination. People are divided into 3 tabs (All people, people who have payment pending, people who have payement completed). 
-   7. You can move users in tab from pending to completed and viceversa. You can also remove the people from that event.
+   4. View all the events at one place. We have used pagination here so that as user scroll down the list , next events will be loaded automatically. View event details by clicking on each event. You can also edit or delete the event.
+   5. Add people to the event. You can edit them .You can also remove people from the event. 
+   6. View all people added in event at one place. We have used pagination here so that as user scroll down the list, further list will be loaded automatically. People are divided into 3 tabs (All, people who have payment pending, people who have completed the payment). 
+   7. You can move users pending to completed and viceversa.
 
 App Screenshots:
 
