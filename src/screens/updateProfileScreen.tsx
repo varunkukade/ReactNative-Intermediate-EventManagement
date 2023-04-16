@@ -17,7 +17,7 @@ import {
   passwordValidation,
   updateTheAsyncStorage,
 } from '../utils/commonFunctions';
-import {useAppDispatch} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
@@ -32,6 +32,7 @@ import {
 } from '../reduxConfig/slices/userSlice';
 import { resetEventState } from '../reduxConfig/slices/eventsSlice';
 import { resetPeopleState } from '../reduxConfig/slices/peopleSlice';
+import { GOOGLE_CONST } from '../utils/constants';
 
 const constants = {
   name: 'name',
@@ -74,6 +75,7 @@ const UpdateProfileScreen = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  let isGoogleUser = useAppSelector(state => state.user.currentUser.signinMethod === GOOGLE_CONST);
 
   let profileData = useRef<null | EachUser>(null)
 
@@ -286,8 +288,9 @@ const UpdateProfileScreen = () => {
             textAlign: 'center',
           }}
           weight="semibold">
-          Here you can change your profile data. You will need to relogin once
-          you update email and password.
+            {
+              isGoogleUser ? `If you haven't created your password yet, you can create password through "Reset Password"`  : "You will need to relogin once you update email and password."
+            }
         </TextComponent>
       </View>
       <View style={styles.mainContainer}>
@@ -351,7 +354,7 @@ const UpdateProfileScreen = () => {
           label="Confirm new Password"
           secureTextEntry={!showConfirmPassword}
           errorMessage={updateProfileForm.confirmPasssword.errorMessage}
-          placeholder="Confirm the new entered password..."
+          placeholder="Confirm new password..."
           rightIconComponent={
             <TouchableOpacity
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}

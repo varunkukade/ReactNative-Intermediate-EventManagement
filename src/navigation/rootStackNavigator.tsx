@@ -1,11 +1,12 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {HomeStackNavigator } from '.';
-import AuthStackNavigator from './authStackNavigator';
+import AuthStackNavigator, { AuthStackParamList } from './authStackNavigator';
+import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type RootStackParamList = {
   HomeStack: undefined;
-  AuthStack: undefined;
+  AuthStack: undefined | NavigatorScreenParams<AuthStackParamList>;
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();

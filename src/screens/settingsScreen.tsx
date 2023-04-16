@@ -98,7 +98,29 @@ const SettingsScreen = () => {
     homeStackNavigation.navigate('UpdateProfileScreen');
   }, [homeStackNavigation])
 
+  const onResetPasswordPress = useCallback(() => {
+   rootNavigation.navigate("AuthStack",{ screen: "ForgotPasswordScreen", params: {isResetPassword: true}} )
+  }, [])
+
   let actions = [
+    {
+      label: 'Reset Password',
+      icon: () => (
+        <EntypoIcons
+          size={30}
+          color={colors.primaryColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      rightIcon: () => (
+        <EntypoIcons
+          size={35}
+          color={colors.iconLightPinkColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      onPress: onResetPasswordPress,
+    },
     {
       label: 'Update Profile',
       icon: () => (

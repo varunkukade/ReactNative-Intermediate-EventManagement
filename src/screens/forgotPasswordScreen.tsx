@@ -6,8 +6,9 @@ import { emailValidation } from '../utils/commonFunctions';
 import { useAppDispatch } from '../reduxConfig/store';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/authStackNavigator';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { forgotPasswordAPICall } from '../reduxConfig/slices/userSlice';
+import { HomeStackParamList } from '../navigation/homeStackNavigator';
 
 const constants = {
   email: 'email',
@@ -23,7 +24,7 @@ type ForgotPasswordFormData = {
 };
 const ForgotPasswordScreen = () => {
   let initialForgotPasswordForm: ForgotPasswordFormData = {
-    email: {value: 'varunkukade999@gmail.com', errorMessage: ''},
+    email: {value: '', errorMessage: ''},
   };
   const [forgotPasswordForm, setSignupForm] =
     useState<ForgotPasswordFormData>(initialForgotPasswordForm);
@@ -41,11 +42,13 @@ const ForgotPasswordScreen = () => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
 
-  //navigation state
+  //navigation and route state
+  const homeStackNavigator: NativeStackNavigationProp<HomeStackParamList, 'BottomTabNavigator'> = useNavigation()
   const authStackNavigation: NativeStackNavigationProp<
     AuthStackParamList,
     'SigninScreen'
   > = useNavigation();
+  const route: RouteProp<AuthStackParamList,'ForgotPasswordScreen'> = useRoute()
 
   const setFormErrors = (
     type?: '' | 'empty',
@@ -77,7 +80,8 @@ const ForgotPasswordScreen = () => {
         if (res.meta.requestStatus === 'fulfilled') {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-          authStackNavigation.navigate("SigninScreen")
+          if(route.params?.isResetPassword)  homeStackNavigator.pop(); 
+          else authStackNavigation.navigate("SigninScreen")
         } else {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);

@@ -1,9 +1,15 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
-import firestore from '@react-native-firebase/firestore';
+import firestore, {
+  FirebaseFirestoreTypes,
+} from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
-import { Platform } from 'react-native';
+import {
+  GoogleSignin,
+} from '@react-native-google-signin/google-signin';
+import { RootState } from '../store';
+import { GOOGLE_CONST } from '../../utils/constants';
 
 export type MessageType = {
   message: string;
@@ -24,6 +30,9 @@ type userState = {
     getProfileDataAPICall: status;
     googleSigninAPICall: status;
   };
+  currentUser: {
+    signinMethod : string;
+  },
   loadingMessage: string;
 };
 
@@ -37,7 +46,10 @@ const initialState: userState = {
     uploadProfilePictureAPICall: 'idle',
     getProfilePictureAPICall: 'idle',
     getProfileDataAPICall: 'idle',
-    googleSigninAPICall: 'idle'
+    googleSigninAPICall: 'idle',
+  },
+  currentUser: {
+    signinMethod : ""
   },
   loadingMessage: '',
 };
@@ -47,6 +59,9 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     reset: () => initialState,
+    setCurrentUser: (state, action: PayloadAction<string>) => {
+      state.currentUser.signinMethod = action.payload;
+    },
   },
   extraReducers(builder) {
     builder
@@ -141,7 +156,7 @@ export const userSlice = createSlice({
       });
   },
 });
-export const {reset: resetUserState} = userSlice.actions;
+export const {reset: resetUserState, setCurrentUser} = userSlice.actions;
 export default userSlice.reducer;
 
 export const signupAPICall = createAsyncThunk<
@@ -161,8 +176,8 @@ export const signupAPICall = createAsyncThunk<
     requestObject: {email: string; password: string; mobileNumber: string},
     thunkAPI,
   ) => {
+    let message = '';
     try {
-      let message = '';
       await auth().createUserWithEmailAndPassword(
         requestObject.email,
         requestObject.password,
@@ -178,21 +193,23 @@ export const signupAPICall = createAsyncThunk<
           return {message: message};
         })
         .catch(error => {
-          if (error.code === 'auth/email-already-in-use') {
-            message = 'Email address is already in use!';
-          }
-          if (error.code === 'auth/invalid-email') {
-            message = 'Email address is invalid!';
-          }
-          if (error.code === 'auth/weak-password') {
-            message = 'Password should be atleast 6 characters long.';
-          }
-          return thunkAPI.rejectWithValue({message: message});
+          return thunkAPI.rejectWithValue({message: error.message});
         });
-    } catch (err: any) {
+    } catch (error: any) {
       //return rejected promise.
+      if (error?.code === 'auth/email-already-in-use') {
+        message = 'Email address is already in use!';
+      }
+      if (error?.code === 'auth/invalid-email') {
+        message = 'Email address is invalid!';
+      }
+      if (error?.code === 'auth/weak-password') {
+        message = 'Password should be atleast 6 characters long.';
+      }
       return thunkAPI.rejectWithValue({
-        message: 'Failed to create account. Please try again after some time',
+        message:
+          message ||
+          'Failed to create account. Please try again after some time',
       } as MessageType);
     }
   },
@@ -224,34 +241,37 @@ export const signinAPICall = createAsyncThunk<
       return await auth()
         .currentUser?.updateProfile({
           photoURL: '',
-        }).then(res => {
+        })
+        .then(res => {
           message = 'Logged In Successfully';
           return {message: message} as MessageType;
         })
         .catch(error => {
-          if (error.code === 'auth/user-disabled') {
-            message = 'Email address is disabled!';
-          }
-          if (error.code === 'auth/invalid-email') {
-            message = 'Email address is invalid!';
-          }
-          if (error.code === 'auth/user-not-found') {
-            message =
-              'Account doesnt exist with this email. Create new account with this email.';
-          }
-          if (error.code === 'auth/wrong-password') {
-            message = 'Wrong password for email.';
-          }
-          if (error.code === 'auth/too-many-requests') {
-            message =
-              'Account blocked due to incorrect attempts. Reset password to unblock.';
-          }
-          return thunkAPI.rejectWithValue({message: message} as MessageType);
+          return thunkAPI.rejectWithValue({
+            message: error.message,
+          } as MessageType);
         });
-    } catch (err) {
+    } catch (error: any) {
       //return rejected promise
+      if (error?.code === 'auth/user-disabled') {
+        message = 'Email address is disabled!';
+      }
+      if (error?.code === 'auth/invalid-email') {
+        message = 'Email address is invalid!';
+      }
+      if (error?.code === 'auth/user-not-found') {
+        message =
+          'Account doesnt exist with this email. Create new account with this email.';
+      }
+      if (error?.code === 'auth/wrong-password') {
+        message = 'Wrong password for email.';
+      }
+      if (error?.code === 'auth/too-many-requests') {
+        message =
+          'Account blocked due to incorrect attempts. Reset password to unblock.';
+      }
       return thunkAPI.rejectWithValue({
-        message: 'Failed to login. Please try again after some time',
+        message: message || 'Failed to login. Please try again after some time',
       } as MessageType);
     }
   },
@@ -267,10 +287,16 @@ export const logoutAPICall = createAsyncThunk<
   //type of returned error obj from rejectWithValue
   {
     rejectValue: MessageType;
+    state: RootState
   }
 >('user/logout', async (_, thunkAPI) => {
   let message = '';
   try {
+    if(thunkAPI.getState().user.currentUser.signinMethod === GOOGLE_CONST){
+      //if signin was through google signin then first signout from google to clear active token.
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+    }
     return await auth()
       .signOut()
       .then(resp => {
@@ -279,12 +305,13 @@ export const logoutAPICall = createAsyncThunk<
       })
       .catch(error => {
         message = 'Failed to logout. Please try again after some time';
-        return thunkAPI.rejectWithValue({message: message});
+        return thunkAPI.rejectWithValue({message: error.message || message});
       });
-  } catch (err) {
+  } catch (err: any) {
     //return rejected promise
     return thunkAPI.rejectWithValue({
-      message: 'Failed to logout. Please try again after some time',
+      message:
+        err?.message || 'Failed to logout. Please try again after some time',
     } as MessageType);
   }
 });
@@ -312,18 +339,21 @@ export const forgotPasswordAPICall = createAsyncThunk<
         return {message: message};
       })
       .catch(error => {
-        if (error.code === 'auth/invalid-email') {
+        message = 'Failed to send email. Please try again after some time';
+        if (error?.code === 'auth/invalid-email') {
           message = 'Email address is invalid!';
         }
-        if (error.code === 'auth/user-not-found') {
+        if (error?.code === 'auth/user-not-found') {
           message = `Account doesn't exist with this email. Create new account with this email.`;
         }
         return thunkAPI.rejectWithValue({message: message});
       });
-  } catch (err) {
+  } catch (err: any) {
     //return rejected promise
     return thunkAPI.rejectWithValue({
-      message: 'Failed to send email. Please try again after some time',
+      message:
+        err?.message ||
+        'Failed to send email. Please try again after some time',
     } as MessageType);
   }
 });
@@ -347,8 +377,8 @@ export const updateProfileAPICall = createAsyncThunk<
     rejectValue: MessageType;
   }
 >('user/updateProfile', async (requestObj: UpdateProfileRequest, thunkAPI) => {
+  let message = '';
   try {
-    let message = '';
     await auth().currentUser?.reauthenticateWithCredential(
       requestObj.authCredential,
     );
@@ -367,22 +397,23 @@ export const updateProfileAPICall = createAsyncThunk<
         return {message} as MessageType;
       })
       .catch(err => {
-        if (err.code === 'auth/no-current-user') {
-          message = 'No user currently signed in.';
-        }
-        if (err.code === 'auth/user-token-expired') {
-          message = 'No user currently signed in.';
-        }
-        if (err.code === 'auth/wrong-password') {
-          message =
-            'Current password is invalid. Reset the password and then update the profile';
-        }
-        return thunkAPI.rejectWithValue({message} as MessageType);
+        return thunkAPI.rejectWithValue({message: err.message} as MessageType);
       });
-  } catch (err) {
+  } catch (err: any) {
+    if (err?.code === 'auth/no-current-user') {
+      message = 'No user currently signed in.';
+    }
+    if (err?.code === 'auth/user-token-expired') {
+      message = 'No user currently signed in.';
+    }
+    if (err?.code === 'auth/wrong-password') {
+      message =
+        'Current password is invalid. Reset the password and then update the profile';
+    }
     //return rejected promise
     return thunkAPI.rejectWithValue({
-      message: 'Failed to update profile. Please try again after some time',
+      message:
+        message || 'Failed to update profile. Please try again after some time',
     } as MessageType);
   }
 });
@@ -434,12 +465,13 @@ export const uploadProfilePictureAPICall = createAsyncThunk<
           return {message: message};
         })
         .catch(error => {
-          return thunkAPI.rejectWithValue({message: error.message});
+          return thunkAPI.rejectWithValue({message: error?.message});
         });
-    } catch (err) {
+    } catch (err: any) {
       //return rejected promise
       return thunkAPI.rejectWithValue({
         message:
+          err?.message ||
           'Failed to upload profile picture. Please try again after some time',
       } as MessageType);
     }
@@ -483,14 +515,15 @@ export const getProfilePictureAPICall = createAsyncThunk<
         })
         .catch(error => {
           return thunkAPI.rejectWithValue({
-            message: error.message,
+            message: error?.message,
             type: 'failure',
           } as MessageType);
         });
-    } catch (err) {
+    } catch (err: any) {
       //return rejected promise
       return thunkAPI.rejectWithValue({
         message:
+          err?.message ||
           'Failed to fetch profile picture. Please try again after some time',
       } as MessageType);
     }
@@ -543,14 +576,16 @@ export const getProfileDataAPICall = createAsyncThunk<
       })
       .catch(error => {
         return thunkAPI.rejectWithValue({
-          message: error.message,
+          message: error?.message,
           type: 'failure',
         } as MessageType);
       });
-  } catch (err) {
+  } catch (err: any) {
     //return rejected promise
     return thunkAPI.rejectWithValue({
-      message: 'Failed to fetch profile data. Please try again after some time',
+      message:
+        err?.message ||
+        'Failed to fetch profile data. Please try again after some time',
     } as MessageType);
   }
 });
@@ -569,59 +604,80 @@ export const googleSigninAPICall = createAsyncThunk<
     rejectValue: MessageType;
   }
 >('user/googleSignin', async (requestObj, thunkAPI) => {
+  let message = '';
   try {
-    let message = '';
-    let result = await auth().signInWithCredential(requestObj.authCredentials);
-    console.log(result)
-    //everytime if there is a new profile picture associated with user's google acc, store it in our storage
-    if (result.user.photoURL) {
-      let stat;
-      if(Platform.OS === "android"){
-        stat = await RNFetchBlob.fs.stat(result.user.photoURL)
-      }
-      await storage()
-        .ref(
-          `/user/${auth().currentUser?.uid}/` +
-            'profile-' +
-            auth().currentUser?.email,
-        )
-        .putFile(Platform.OS === "android" ? stat.path : result.user.photoURL);
-    }
-    return await firestore()
+    let resultAfterSignin = await auth().signInWithCredential(
+      requestObj.authCredentials,
+    );
+
+    //set the state of signin method as google signin
+    if(resultAfterSignin?.additionalUserInfo?.providerId)
+    thunkAPI.dispatch(setCurrentUser(resultAfterSignin.additionalUserInfo?.providerId))
+    //here first check if same user exist in the Users database
+    let isAlreadyExist = false;
+    let document: FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>;
+    let resultObj = await firestore()
       .collection(apiUrls.users)
-      .add({
-        authId: auth().currentUser?.uid,
-        mobileNumber: result.user.phoneNumber || "",
-      })
-      .then(res => {
-        message = 'Logged in successfully';
-        return {message: message};
-      })
-      .catch(error => {
-        if (error.code === 'auth/user-disabled') {
-          message = 'Email address is disabled!';
-        }
-        if (error.code === 'auth/invalid-email') {
-          message = 'Email address is invalid!';
-        }
-        if (error.code === 'auth/user-not-found') {
-          message =
-            'Account doesnt exist with this email. Create new account with this email.';
-        }
-        if (error.code === 'auth/wrong-password') {
-          message = 'Wrong password for email.';
-        }
-        if (error.code === 'auth/too-many-requests') {
-          message =
-            'Account blocked due to incorrect attempts. Reset password to unblock.';
-        }
-        return thunkAPI.rejectWithValue({message: message});
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(documentSnapshot => {
+          if (documentSnapshot.data()?.authId === auth().currentUser?.uid) {
+            isAlreadyExist = true;
+            document = documentSnapshot;
+          }
+        });
+        return {document, isAlreadyExist};
       });
-  } catch (err: any) {
-    console.log(err)
+
+    //if already exist and data is not same just update the data
+    if (resultObj.isAlreadyExist) {
+      if (
+        resultAfterSignin?.user?.phoneNumber &&
+        resultAfterSignin?.user?.phoneNumber !==
+        resultObj.document.data().mobileNumber
+      ) {
+        await firestore()
+          .collection(apiUrls.users)
+          .doc(resultObj.document.id)
+          .update({
+            mobileNumber: resultAfterSignin?.user?.phoneNumber || '',
+          });
+      }
+    } else {
+      await firestore()
+        .collection(apiUrls.users)
+        .add({
+          authId: auth().currentUser?.uid,
+          mobileNumber: resultAfterSignin?.user?.phoneNumber || '',
+          email: resultAfterSignin.user.email,
+        });
+    }
+    message = 'Logged in successfully';
+    return {message: message};
+  } catch (error: any) {
     //return rejected promise.
+    if (error?.code === 'auth/user-disabled') {
+      message = 'Email address is disabled!';
+    }
+    if (error?.code === 'auth/invalid-email') {
+      message = 'Email address is invalid!';
+    }
+    if (error?.code === 'auth/user-not-found') {
+      message =
+        'Account doesnt exist with this email. Create new account with this email.';
+    }
+    if (error?.code === 'auth/wrong-password') {
+      message = 'Wrong password for email.';
+    }
+    if (error?.code === 'auth/too-many-requests') {
+      message =
+        'Account blocked due to incorrect attempts. Reset password to unblock.';
+    }
     return thunkAPI.rejectWithValue({
-      message: 'Failed to login. Please try again after some time',
+      message:
+        message ||
+        error?.message ||
+        'Failed to login. Please try again after some time',
     } as MessageType);
   }
 });

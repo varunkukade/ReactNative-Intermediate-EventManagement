@@ -153,9 +153,9 @@ export const addPeopleAPICall = createAsyncThunk<
         .then(res => {
           return {message: 'User added successfully'};
         });
-    } catch (err) {
+    } catch (err: any) {
       return thunkAPI.rejectWithValue({
-        message: 'Failed to add user. Please try again after some time',
+        message: err?.message || 'Failed to add user. Please try again after some time',
       });
     }
   },
@@ -183,9 +183,9 @@ export const removePeopleAPICall = createAsyncThunk<
       .then(res => {
         return {message: 'User removed successfully'};
       });
-  } catch (err) {
+  } catch (err: any) {
     return thunkAPI.rejectWithValue({
-      message: 'Failed to remove user. Please try again after some time',
+      message: err?.message || 'Failed to remove user. Please try again after some time',
     });
   }
 });
@@ -226,9 +226,9 @@ export const getPeopleAPICall = createAsyncThunk<
           message: 'Users fetched successfully',
         };
       });
-  } catch (err) {
+  } catch (err: any) {
     return thunkAPI.rejectWithValue({
-      message: 'Failed to fetch users. Please try again after some time',
+      message: err?.message || 'Failed to fetch users. Please try again after some time',
     });
   }
 });
@@ -262,9 +262,9 @@ export const updatePeopleAPICall = createAsyncThunk<
             message: 'User updated successfully!',
           };
         });
-    } catch (err) {
+    } catch (err: any) {
       return thunkAPI.rejectWithValue({
-        message: 'Failed to update user. Please try again after some time',
+        message: err?.message || 'Failed to update user. Please try again after some time',
       });
     }
   },
@@ -325,10 +325,10 @@ export const getNextEventJoinersAPICall = createAsyncThunk<
           } as SuccessType
         }
       });
-  } catch (err) {
+  } catch (err: any) {
     //return rejected promise from payload creator
     return rejectWithValue({
-      message: 'Failed to fetch more users. Please try again after some time',
+      message: err?.message || 'Failed to fetch more users. Please try again after some time',
       failureType: "failure"
     } as MessageType);
   }

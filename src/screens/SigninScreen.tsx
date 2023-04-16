@@ -24,12 +24,17 @@ import {
   updateTheAsyncStorage,
 } from '../utils/commonFunctions';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {googleSigninAPICall, signinAPICall} from '../reduxConfig/slices/userSlice';
+import {
+  googleSigninAPICall,
+  signinAPICall,
+} from '../reduxConfig/slices/userSlice';
 import {AuthStackParamList} from '../navigation/authStackNavigator';
+
 import {
   GoogleSignin,
+  GoogleSigninButton,
   statusCodes,
-} from 'react-native-google-signin';
+} from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 
 const constants = {
@@ -55,7 +60,6 @@ const SigninScreen = () => {
     useState<SigninFormData>(initialSigninForm);
 
   const [showPassword, setShowPassword] = useState(false);
-  const [loggedIn, setloggedIn] = useState(false);
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -75,32 +79,32 @@ const SigninScreen = () => {
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
       // Sign-in the user with the credential
-      dispatch(googleSigninAPICall({authCredentials : googleCredential}))
-      .then((res)=> {
-        if (res.meta.requestStatus === 'fulfilled') {
-          if (res.payload)
-            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-          setSigninForm(initialSigninForm);
-          updateTheAsyncStorage('true').then(res => {
-            navigation.reset({
-              index: 0,
-              routes: [
-                {
-                  name: 'HomeStack',
-                  state: {
-                    index: 0,
-                    routes: [{name: 'Home'}],
+      dispatch(googleSigninAPICall({authCredentials: googleCredential})).then(
+        res => {
+          if (res.meta.requestStatus === 'fulfilled') {
+            if (res.payload)
+              ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+            setSigninForm(initialSigninForm);
+            updateTheAsyncStorage('true').then(res => {
+              navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'HomeStack',
+                    state: {
+                      index: 0,
+                      routes: [{name: 'Home'}],
+                    },
                   },
-                },
-              ],
+                ],
+              });
             });
-          });
-        } else {
-          if (res.payload)
-            ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-        }
-      })
-
+          } else {
+            if (res.payload)
+              ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+          }
+        },
+      );
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
@@ -278,17 +282,18 @@ const SigninScreen = () => {
           style={{textAlign: 'center', fontSize: 18, marginTop: 30}}>
           Or
         </TextComponent>
-        <TouchableOpacity onPress={signIn} style={styles.googleButton}>
-          <ImageComponent
-            style={styles.googleIcon}
-            source={{
-              uri: 'https://i.ibb.co/j82DCcR/search.png',
-            }}
-          />
-          <TextComponent weight="bold" style={styles.googleButtonText}>
-            Sign in with Google
-          </TextComponent>
-        </TouchableOpacity>
+        <GoogleSigninButton
+          style={{
+            width: "80%",
+            height: 60,
+            alignSelf: 'center',
+            marginTop: 20,
+            marginBottom: 20,
+          }}
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Light}
+          onPress={signIn}
+        />
         <TouchableOpacity
           onPress={() => authStackNavigation.navigate('SignupScreen')}
           style={{marginTop: 15}}>
@@ -329,31 +334,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: measureMents.leftPadding,
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
-  },
-  googleButton: {
-    backgroundColor: colors.whiteColor,
-    borderRadius: 8,
-    width: 240,
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: colors.blackColor,
-    borderWidth: 1,
-    alignSelf: 'center',
-    marginTop: 30,
-  },
-  googleButtonText: {
-    marginLeft: 16,
-    fontSize: 18,
-  },
-  googleIcon: {
-    height: 24,
-    width: 24,
-  },
-  bottomContent: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

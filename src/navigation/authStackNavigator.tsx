@@ -12,7 +12,7 @@ import {useNavigation} from '@react-navigation/native';
 export type AuthStackParamList = {
   SignupScreen: undefined;
   SigninScreen: undefined;
-  ForgotPasswordScreen: undefined;
+  ForgotPasswordScreen: undefined | {isResetPassword : boolean};
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -68,7 +68,7 @@ function AuthStackNavigator() {
       />
       <AuthStack.Screen
         options={({route, navigation}) => ({
-            headerTitle: 'Forgot Password',
+            headerTitle: route.params?.isResetPassword ? 'Reset Password' : 'Forgot Password',
             headerShadowVisible: false,
             headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
             headerTitleAlign: 'center',

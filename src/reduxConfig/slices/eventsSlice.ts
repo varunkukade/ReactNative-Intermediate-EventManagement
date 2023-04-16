@@ -1,7 +1,5 @@
 import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import firestore, {
-  FirebaseFirestoreTypes,
-} from '@react-native-firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
 import auth from '@react-native-firebase/auth';
 import {PAGINATION_CONSTANT} from '../../utils/constants';
@@ -181,10 +179,10 @@ export const addEventAPICall = createAsyncThunk<
         .then(res => {
           return {message: 'Event added successfully'};
         });
-    } catch (err) {
+    } catch (err: any) {
       //return rejected promise.
       return thunkAPI.rejectWithValue({
-        message: 'Failed to add event. Please try again after some time',
+        message: err?.message || 'Failed to add event. Please try again after some time',
       } as MessageType);
     }
   },
@@ -212,10 +210,10 @@ export const removeEventAPICall = createAsyncThunk<
       .then(res => {
         return {message: 'Event removed successfully'};
       });
-  } catch (err) {
+  } catch (err: any) {
     //return rejected promise
     return thunkAPI.rejectWithValue({
-      message: 'Failed to remove events. Please try again after some time',
+      message: err?.message || 'Failed to remove events. Please try again after some time',
     } as MessageType);
   }
 });
@@ -247,6 +245,7 @@ export const getEventsAPICall = createAsyncThunk<
           updatedObj.eventId = documentSnapshot.id;
           responseArr.push(updatedObj);
         });
+        if(responseArr.length > 1)
         thunkAPI.dispatch(
           setLastFetchedEventId(responseArr[responseArr.length - 1].eventId),
         );
@@ -256,10 +255,10 @@ export const getEventsAPICall = createAsyncThunk<
           message: 'Event fetched successfully',
         };
       });
-  } catch (err) {
+  } catch (err: any) {
     //return rejected promise from payload creator
     return thunkAPI.rejectWithValue({
-      message: 'Failed to fetch events. Please try again after some time',
+      message: err?.message || 'Failed to fetch events. Please try again after some time',
     } as MessageType);
   }
 });
@@ -319,10 +318,10 @@ export const getNextEventsAPICall = createAsyncThunk<
           } as SuccessType;
         }
       });
-  } catch (err) {
+  } catch (err: any) {
     //return rejected promise from payload creator
     return rejectWithValue({
-      message: 'Failed to fetch more events. Please try again after some time',
+      message: err?.message || 'Failed to fetch more events. Please try again after some time',
       failureType: 'failure',
     } as MessageType);
   }
@@ -353,11 +352,10 @@ export const updateEventAPICall = createAsyncThunk<
         .then(res => {
           return {message: 'Event updated successfully'};
         });
-    } catch (err) {
-      console.log(err)
+    } catch (err: any) {
       //return rejected promise.
       return thunkAPI.rejectWithValue({
-        message: 'Failed to update event. Please try again after some time',
+        message: err?.message || 'Failed to update event. Please try again after some time',
       } as MessageType);
     }
   },
