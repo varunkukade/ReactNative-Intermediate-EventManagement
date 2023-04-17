@@ -50,7 +50,6 @@ function AuthStackNavigator() {
       screenOptions={{
         animation: 'slide_from_right',
         headerTintColor: colors.primaryColor,
-        headerShown: false
       }}
       initialRouteName="SignupScreen">
       <AuthStack.Screen

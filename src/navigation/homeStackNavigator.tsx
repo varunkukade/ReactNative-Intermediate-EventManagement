@@ -31,7 +31,6 @@ function HomeStackNavigator() {
       screenOptions={{
         animation: 'slide_from_right',
         headerTintColor: colors.primaryColor,
-        headerShown: false,
       }}
       initialRouteName="BottomTabNavigator">
       <HomeStack.Screen
@@ -57,6 +56,7 @@ function HomeStackNavigator() {
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
+          headerStyle: {backgroundColor: colors.lightLavenderColor}
         })}
         name="EventDetailsScreen"
         component={EventDetailsScreen}

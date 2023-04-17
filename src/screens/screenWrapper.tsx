@@ -1,12 +1,7 @@
-import {
-  NavigationProp,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 import React, {ReactNode} from 'react';
-import {StatusBar, View} from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
-import {BottomTabParamList} from '../navigation/bottomTabNavigator';
+import {StatusBar, StyleSheet, View} from 'react-native';
+import {colors} from '../utils/appStyles';
 
 type ScreenWrapperProps = {
   children: ReactNode;
@@ -16,7 +11,6 @@ type ScreenWrapperProps = {
 const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
   // we obtain the object that contains info about the current route
   const route = useRoute();
-  console.log(route.name);
 
   // for simplicity we will only modify the background color
   const getBackgroundColorBasedOnRoute = () => {
@@ -57,7 +51,7 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       case 'All':
       case 'Pending':
       case 'Completed':
-      case 'AddPeopleScreen': 
+      case 'AddPeopleScreen':
         return 'dark-content';
 
       default:
@@ -80,5 +74,9 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  customHeader: {},
+});
 
 export default ScreenWrapper;
