@@ -33,11 +33,11 @@ function AuthStackNavigator() {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 15,
-          paddingHorizontal: 15,
-          paddingVertical: 10,
+          paddingHorizontal: 13,
+          paddingVertical: 8,
         }}>
         <TextComponent
-          style={{fontSize: 16, color: colors.primaryColor}}
+          style={{fontSize: 14, color: colors.primaryColor}}
           weight="bold">
           {' '}
           Sign-In
@@ -50,13 +50,14 @@ function AuthStackNavigator() {
       screenOptions={{
         animation: 'slide_from_right',
         headerTintColor: colors.primaryColor,
+        headerShown: false
       }}
       initialRouteName="SignupScreen">
       <AuthStack.Screen
         options={{
           headerTitle: 'Setup Your Profile ✍🏻',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 17},
           headerTitleAlign: 'left',
           headerBackVisible: true,
           headerRight: () => getSigninNavigator(),

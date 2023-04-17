@@ -27,6 +27,8 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
 import auth from '@react-native-firebase/auth';
+import {AuthStackParamList} from '../navigation/authStackNavigator';
+import {ScreenWrapper} from '.';
 
 const constants = {
   name: 'name',
@@ -82,6 +84,11 @@ const SignupScreen = () => {
   //navigation state
   const navigation: NativeStackNavigationProp<RootStackParamList, 'HomeStack'> =
     useNavigation();
+  //navigation state
+  const authStackNavigation: NativeStackNavigationProp<
+    AuthStackParamList,
+    'SignupScreen'
+  > = useNavigation();
 
   const setFormErrors = (
     type?: '' | 'empty',
@@ -195,107 +202,117 @@ const SignupScreen = () => {
   };
 
   return (
-    <ScrollView
-      style={styles.wrapperComponent}
-      showsVerticalScrollIndicator={false}>
-      <View style={styles.welcomeMessage}>
-        <TextComponent
-          style={{
-            fontSize: 15,
-            marginBottom: 10,
-            color: colors.whiteColor,
-            textAlign: 'center',
-          }}
-          weight="semibold">
-          Create an account so you can create and manage all your events at once
-          place.
-        </TextComponent>
-      </View>
-      <View style={styles.mainContainer}>
-        <InputComponent
-          value={signupForm.name.value}
-          onChangeText={value => onChangeForm(value, constants.name)}
-          label="Name"
-          errorMessage={signupForm.name.errorMessage}
-          placeholder="Varun Kukade"
-        />
-        <InputComponent
-          value={signupForm.email.value}
-          onChangeText={value => onChangeForm(value, constants.email)}
-          label="Email"
-          errorMessage={signupForm.email.errorMessage}
-          placeholder="abc@gmail.com"
-        />
-        <InputComponent
-          value={signupForm.password.value}
-          onChangeText={value => onChangeForm(value, constants.password)}
-          label="Password"
-          errorMessage={signupForm.password.errorMessage}
-          placeholder="Enter a password..."
-          secureTextEntry={!showPassword}
-          rightIconComponent={
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={{position: 'absolute', right: 15}}>
-              <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                color={colors.iconLightPinkColor}
-                size={22}
-              />
-            </TouchableOpacity>
-          }
-        />
-        <InputComponent
-          value={signupForm.confirmPasssword.value}
-          onChangeText={value =>
-            onChangeForm(value, constants.confirmPasssword)
-          }
-          label="Confirm Password"
-          secureTextEntry={!showConfirmPassword}
-          errorMessage={signupForm.confirmPasssword.errorMessage}
-          placeholder="Confirm the entered password..."
-          rightIconComponent={
-            <TouchableOpacity
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={{position: 'absolute', right: 15}}>
-              <Ionicons
-                name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                color={colors.iconLightPinkColor}
-                size={22}
-              />
-            </TouchableOpacity>
-          }
-        />
-        <InputComponent
-          value={signupForm.mobileNumber.value}
-          onChangeText={value => onChangeForm(value, constants.mobileNumber)}
-          label="Mobile Number"
-          keyboardType="numeric"
-          errorMessage={signupForm.mobileNumber.errorMessage}
-          placeholder="Enter the mobile number..."
-        />
-        <CheckboxComponent
-          label="Check this if you are an admin."
-          value={signupForm.isAdmin.value}
-          onValueChange={value => onChangeForm(value, constants.isAdmin)}
-        />
-        <ButtonComponent
-          onPress={onFormSubmit}
-          containerStyle={{marginTop: 30}}>
-          Register
-        </ButtonComponent>
-      </View>
-    </ScrollView>
+    <ScreenWrapper>
+      <ScrollView
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.welcomeMessage}>
+          <TextComponent
+            style={{
+              fontSize: 15,
+              marginBottom: 10,
+              color: colors.whiteColor,
+              textAlign: 'center',
+            }}
+            weight="semibold">
+            Create an account so you can create and manage all your events at
+            once place.
+          </TextComponent>
+        </View>
+        <View style={styles.mainContainer}>
+          <InputComponent
+            value={signupForm.name.value}
+            onChangeText={value => onChangeForm(value, constants.name)}
+            label="Name"
+            errorMessage={signupForm.name.errorMessage}
+            placeholder="Varun Kukade"
+          />
+          <InputComponent
+            value={signupForm.email.value}
+            onChangeText={value => onChangeForm(value, constants.email)}
+            label="Email"
+            errorMessage={signupForm.email.errorMessage}
+            placeholder="abc@gmail.com"
+          />
+          <InputComponent
+            value={signupForm.password.value}
+            onChangeText={value => onChangeForm(value, constants.password)}
+            label="Password"
+            errorMessage={signupForm.password.errorMessage}
+            placeholder="Enter a password..."
+            secureTextEntry={!showPassword}
+            rightIconComponent={
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={{position: 'absolute', right: 15}}>
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  color={colors.iconLightPinkColor}
+                  size={22}
+                />
+              </TouchableOpacity>
+            }
+          />
+          <InputComponent
+            value={signupForm.confirmPasssword.value}
+            onChangeText={value =>
+              onChangeForm(value, constants.confirmPasssword)
+            }
+            label="Confirm Password"
+            secureTextEntry={!showConfirmPassword}
+            errorMessage={signupForm.confirmPasssword.errorMessage}
+            placeholder="Confirm the entered password..."
+            rightIconComponent={
+              <TouchableOpacity
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={{position: 'absolute', right: 15}}>
+                <Ionicons
+                  name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                  color={colors.iconLightPinkColor}
+                  size={22}
+                />
+              </TouchableOpacity>
+            }
+          />
+          <InputComponent
+            value={signupForm.mobileNumber.value}
+            onChangeText={value => onChangeForm(value, constants.mobileNumber)}
+            label="Mobile Number"
+            keyboardType="numeric"
+            errorMessage={signupForm.mobileNumber.errorMessage}
+            placeholder="Enter the mobile number..."
+          />
+          <CheckboxComponent
+            label="Check this if you are an admin."
+            value={signupForm.isAdmin.value}
+            onValueChange={value => onChangeForm(value, constants.isAdmin)}
+          />
+          <ButtonComponent
+            onPress={onFormSubmit}
+            containerStyle={{marginTop: 30}}>
+            Register
+          </ButtonComponent>
+          <TouchableOpacity
+            onPress={() => authStackNavigation.navigate('SigninScreen')}
+            style={{marginTop: 15}}>
+            <TextComponent
+              style={{
+                fontSize: 14,
+                color: colors.primaryColor,
+                textAlign: 'center',
+              }}
+              weight="bold">
+              Already have an account ? Sign In
+            </TextComponent>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </ScreenWrapper>
   );
 };
 
 export default SignupScreen;
 
 const styles = StyleSheet.create({
-  wrapperComponent: {
-    flex: 1,
-    backgroundColor: colors.primaryColor,
-  },
   welcomeMessage: {
     paddingTop: 30,
     paddingHorizontal: measureMents.leftPadding,

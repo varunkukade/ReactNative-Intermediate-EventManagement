@@ -30,9 +30,10 @@ import {
   resetUserState,
   updateProfileAPICall,
 } from '../reduxConfig/slices/userSlice';
-import { resetEventState } from '../reduxConfig/slices/eventsSlice';
-import { resetPeopleState } from '../reduxConfig/slices/peopleSlice';
-import { GOOGLE_CONST } from '../utils/constants';
+import {resetEventState} from '../reduxConfig/slices/eventsSlice';
+import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
+import {GOOGLE_CONST} from '../utils/constants';
+import ScreenWrapper from './screenWrapper';
 
 const constants = {
   name: 'name',
@@ -75,9 +76,11 @@ const UpdateProfileScreen = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  let isGoogleUser = useAppSelector(state => state.user.currentUser.signinMethod === GOOGLE_CONST);
+  let isGoogleUser = useAppSelector(
+    state => state.user.currentUser.signinMethod === GOOGLE_CONST,
+  );
 
-  let profileData = useRef<null | EachUser>(null)
+  let profileData = useRef<null | EachUser>(null);
 
   useEffect(() => {
     dispatch(getProfileDataAPICall()).then(resp => {
@@ -87,7 +90,7 @@ const UpdateProfileScreen = () => {
           resp.meta.requestStatus === 'fulfilled' &&
           resp.payload.type === 'success'
         ) {
-          profileData.current = resp.payload.responseData
+          profileData.current = resp.payload.responseData;
           setUpdateProfileForm({
             ...updateProfileForm,
             mobileNumber: {
@@ -167,8 +170,8 @@ const UpdateProfileScreen = () => {
       ToastAndroid.show(message, ToastAndroid.SHORT);
     }
     dispatch(logoutAPICall()).then(res => {
-      updateTheAsyncStorage("false");
-      resetReduxState()
+      updateTheAsyncStorage('false');
+      resetReduxState();
       rootNavigation.reset({
         index: 0,
         routes: [
@@ -253,8 +256,8 @@ const UpdateProfileScreen = () => {
         authCredential: authCredential,
         newEmail: email.value,
         newPassword: password.value,
-        newMobileNumberUpdate: {mobileNumber : mobileNumber.value} ,
-        docIdInFireStore: profileData.current?.docIdInFireStore || ""
+        newMobileNumberUpdate: {mobileNumber: mobileNumber.value},
+        docIdInFireStore: profileData.current?.docIdInFireStore || '',
       };
       dispatch(updateProfileAPICall(requestObj)).then(resp => {
         if (resp.meta.requestStatus === 'fulfilled') {
@@ -276,113 +279,117 @@ const UpdateProfileScreen = () => {
   };
 
   return (
-    <ScrollView
-      style={styles.wrapperComponent}
-      showsVerticalScrollIndicator={false}>
-      <View style={styles.welcomeMessage}>
-        <TextComponent
-          style={{
-            fontSize: 15,
-            marginBottom: 10,
-            color: colors.whiteColor,
-            textAlign: 'center',
-          }}
-          weight="semibold">
-            {
-              isGoogleUser ? `If you haven't created your password yet, you can create password through "Reset Password"`  : "You will need to relogin once you update email and password."
+    <ScreenWrapper>
+      <ScrollView
+        style={styles.wrapperComponent}
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.welcomeMessage}>
+          <TextComponent
+            style={{
+              fontSize: 15,
+              marginBottom: 10,
+              color: colors.whiteColor,
+              textAlign: 'center',
+            }}
+            weight="semibold">
+            {isGoogleUser
+              ? `If you haven't created your password yet, you can create password through "Reset Password"`
+              : 'You will need to relogin once you update email and password.'}
+          </TextComponent>
+        </View>
+        <View style={styles.mainContainer}>
+          <InputComponent
+            value={updateProfileForm.name.value}
+            onChangeText={value => onChangeForm(value, constants.name)}
+            label="Name"
+            errorMessage={updateProfileForm.name.errorMessage}
+            placeholder="Varun Kukade"
+          />
+          <InputComponent
+            value={updateProfileForm.email.value}
+            onChangeText={value => onChangeForm(value, constants.email)}
+            label="Email"
+            errorMessage={updateProfileForm.email.errorMessage}
+            placeholder="abc@gmail.com"
+          />
+          <InputComponent
+            value={updateProfileForm.currentPassword.value}
+            onChangeText={value =>
+              onChangeForm(value, constants.currentPassword)
             }
-        </TextComponent>
-      </View>
-      <View style={styles.mainContainer}>
-        <InputComponent
-          value={updateProfileForm.name.value}
-          onChangeText={value => onChangeForm(value, constants.name)}
-          label="Name"
-          errorMessage={updateProfileForm.name.errorMessage}
-          placeholder="Varun Kukade"
-        />
-        <InputComponent
-          value={updateProfileForm.email.value}
-          onChangeText={value => onChangeForm(value, constants.email)}
-          label="Email"
-          errorMessage={updateProfileForm.email.errorMessage}
-          placeholder="abc@gmail.com"
-        />
-        <InputComponent
-          value={updateProfileForm.currentPassword.value}
-          onChangeText={value => onChangeForm(value, constants.currentPassword)}
-          label="Current Password"
-          errorMessage={updateProfileForm.currentPassword.errorMessage}
-          placeholder="Enter a current password..."
-          secureTextEntry={!showCurrentPassword}
-          rightIconComponent={
-            <TouchableOpacity
-              onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-              style={{position: 'absolute', right: 15}}>
-              <Ionicons
-                name={showCurrentPassword ? 'eye-off-outline' : 'eye-outline'}
-                color={colors.iconLightPinkColor}
-                size={22}
-              />
-            </TouchableOpacity>
-          }
-        />
-        <InputComponent
-          value={updateProfileForm.password.value}
-          onChangeText={value => onChangeForm(value, constants.password)}
-          label="New Password"
-          errorMessage={updateProfileForm.password.errorMessage}
-          placeholder="Enter a New password..."
-          secureTextEntry={!showPassword}
-          rightIconComponent={
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={{position: 'absolute', right: 15}}>
-              <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                color={colors.iconLightPinkColor}
-                size={22}
-              />
-            </TouchableOpacity>
-          }
-        />
-        <InputComponent
-          value={updateProfileForm.confirmPasssword.value}
-          onChangeText={value =>
-            onChangeForm(value, constants.confirmPasssword)
-          }
-          label="Confirm new Password"
-          secureTextEntry={!showConfirmPassword}
-          errorMessage={updateProfileForm.confirmPasssword.errorMessage}
-          placeholder="Confirm new password..."
-          rightIconComponent={
-            <TouchableOpacity
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={{position: 'absolute', right: 15}}>
-              <Ionicons
-                name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                color={colors.iconLightPinkColor}
-                size={22}
-              />
-            </TouchableOpacity>
-          }
-        />
-        <InputComponent
-          value={updateProfileForm.mobileNumber.value}
-          onChangeText={value => onChangeForm(value, constants.mobileNumber)}
-          label="Mobile Number"
-          keyboardType="numeric"
-          errorMessage={updateProfileForm.mobileNumber.errorMessage}
-          placeholder="Enter the mobile number..."
-        />
+            label="Current Password"
+            errorMessage={updateProfileForm.currentPassword.errorMessage}
+            placeholder="Enter a current password..."
+            secureTextEntry={!showCurrentPassword}
+            rightIconComponent={
+              <TouchableOpacity
+                onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+                style={{position: 'absolute', right: 15}}>
+                <Ionicons
+                  name={showCurrentPassword ? 'eye-off-outline' : 'eye-outline'}
+                  color={colors.iconLightPinkColor}
+                  size={22}
+                />
+              </TouchableOpacity>
+            }
+          />
+          <InputComponent
+            value={updateProfileForm.password.value}
+            onChangeText={value => onChangeForm(value, constants.password)}
+            label="New Password"
+            errorMessage={updateProfileForm.password.errorMessage}
+            placeholder="Enter a New password..."
+            secureTextEntry={!showPassword}
+            rightIconComponent={
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={{position: 'absolute', right: 15}}>
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  color={colors.iconLightPinkColor}
+                  size={22}
+                />
+              </TouchableOpacity>
+            }
+          />
+          <InputComponent
+            value={updateProfileForm.confirmPasssword.value}
+            onChangeText={value =>
+              onChangeForm(value, constants.confirmPasssword)
+            }
+            label="Confirm new Password"
+            secureTextEntry={!showConfirmPassword}
+            errorMessage={updateProfileForm.confirmPasssword.errorMessage}
+            placeholder="Confirm new password..."
+            rightIconComponent={
+              <TouchableOpacity
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={{position: 'absolute', right: 15}}>
+                <Ionicons
+                  name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                  color={colors.iconLightPinkColor}
+                  size={22}
+                />
+              </TouchableOpacity>
+            }
+          />
+          <InputComponent
+            value={updateProfileForm.mobileNumber.value}
+            onChangeText={value => onChangeForm(value, constants.mobileNumber)}
+            label="Mobile Number"
+            keyboardType="numeric"
+            errorMessage={updateProfileForm.mobileNumber.errorMessage}
+            placeholder="Enter the mobile number..."
+          />
 
-        <ButtonComponent
-          onPress={onFormSubmit}
-          containerStyle={{marginTop: 30}}>
-          Update
-        </ButtonComponent>
-      </View>
-    </ScrollView>
+          <ButtonComponent
+            onPress={onFormSubmit}
+            containerStyle={{marginTop: 30}}>
+            Update
+          </ButtonComponent>
+        </View>
+      </ScrollView>
+    </ScreenWrapper>
   );
 };
 

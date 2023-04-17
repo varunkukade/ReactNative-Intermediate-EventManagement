@@ -14,10 +14,6 @@ const App = () => {
         <RootStackNavigator />
         <LoadingAnimation />
       </NavigationContainer>
-      <StatusBar
-        backgroundColor={colors.primaryColor}
-        barStyle="light-content"
-      />
     </Provider>
   );
 };

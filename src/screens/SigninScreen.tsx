@@ -36,6 +36,7 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
+import ScreenWrapper from './screenWrapper';
 
 const constants = {
   email: 'email',
@@ -53,7 +54,7 @@ type SigninFormData = {
 };
 const SigninScreen = () => {
   let initialSigninForm: SigninFormData = {
-    email: {value: 'varun.k@gmail.com', errorMessage: ''},
+    email: {value: 'varunkukade999@gmail.com', errorMessage: ''},
     password: {value: 'Vk@#$2211', errorMessage: ''},
   };
   const [signinForm, setSigninForm] =
@@ -215,110 +216,112 @@ const SigninScreen = () => {
     }
   };
   return (
-    <ScrollView style={styles.wrapperComponent}>
-      <View style={styles.welcomeMessage}>
-        <TextComponent
-          style={{
-            fontSize: 19,
-            color: colors.whiteColor,
-            marginBottom: 10,
-            textAlign: 'center',
-          }}
-          weight="bold">
-          Hi, Welcome Back 👋🏻
-        </TextComponent>
-        <TextComponent
-          style={{fontSize: 16, color: colors.whiteColor, textAlign: 'center'}}
-          weight="normal">
-          You can continue to login to manage your events.
-        </TextComponent>
-      </View>
-      <View style={styles.mainContainer}>
-        <InputComponent
-          value={signinForm.email.value}
-          onChangeText={value => onChangeForm(value, constants.email)}
-          label="Email"
-          errorMessage={signinForm.email.errorMessage}
-          placeholder="abc@gmail.com"
-        />
-        <InputComponent
-          value={signinForm.password.value}
-          onChangeText={value => onChangeForm(value, constants.password)}
-          label="Password"
-          errorMessage={signinForm.password.errorMessage}
-          placeholder="Enter a password..."
-          secureTextEntry={!showPassword}
-          rightIconComponent={
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={{position: 'absolute', right: 15}}>
-              <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                color={colors.iconLightPinkColor}
-                size={22}
-              />
-            </TouchableOpacity>
-          }
-        />
-        <TouchableOpacity
-          onPress={() => authStackNavigation.navigate('ForgotPasswordScreen')}
-          style={{marginTop: 10, alignSelf: 'flex-end'}}>
+    <ScreenWrapper>
+      <ScrollView>
+        <View style={styles.welcomeMessage}>
           <TextComponent
             style={{
-              fontSize: 14,
-              color: colors.primaryColor,
-            }}
-            weight="bold">
-            Forgot Password?
-          </TextComponent>
-        </TouchableOpacity>
-        <ButtonComponent
-          onPress={onFormSubmit}
-          containerStyle={{marginTop: 30}}>
-          Sign-in
-        </ButtonComponent>
-        <TextComponent
-          weight="bold"
-          style={{textAlign: 'center', fontSize: 18, marginTop: 30}}>
-          Or
-        </TextComponent>
-        <GoogleSigninButton
-          style={{
-            width: "80%",
-            height: 60,
-            alignSelf: 'center',
-            marginTop: 20,
-            marginBottom: 20,
-          }}
-          size={GoogleSigninButton.Size.Wide}
-          color={GoogleSigninButton.Color.Light}
-          onPress={signIn}
-        />
-        <TouchableOpacity
-          onPress={() => authStackNavigation.navigate('SignupScreen')}
-          style={{marginTop: 15}}>
-          <TextComponent
-            style={{
-              fontSize: 14,
-              color: colors.primaryColor,
+              fontSize: 19,
+              color: colors.whiteColor,
+              marginBottom: 10,
               textAlign: 'center',
             }}
             weight="bold">
-            Don't have an account ? Sign Up
+            Hi, Welcome Back 👋🏻
           </TextComponent>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <TextComponent
+            style={{
+              fontSize: 16,
+              color: colors.whiteColor,
+              textAlign: 'center',
+            }}
+            weight="normal">
+            You can continue to login to manage your events.
+          </TextComponent>
+        </View>
+        <View style={styles.mainContainer}>
+          <InputComponent
+            value={signinForm.email.value}
+            onChangeText={value => onChangeForm(value, constants.email)}
+            label="Email"
+            errorMessage={signinForm.email.errorMessage}
+            placeholder="abc@gmail.com"
+          />
+          <InputComponent
+            value={signinForm.password.value}
+            onChangeText={value => onChangeForm(value, constants.password)}
+            label="Password"
+            errorMessage={signinForm.password.errorMessage}
+            placeholder="Enter a password..."
+            secureTextEntry={!showPassword}
+            rightIconComponent={
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={{position: 'absolute', right: 15}}>
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  color={colors.iconLightPinkColor}
+                  size={22}
+                />
+              </TouchableOpacity>
+            }
+          />
+          <TouchableOpacity
+            onPress={() => authStackNavigation.navigate('ForgotPasswordScreen')}
+            style={{marginTop: 10, alignSelf: 'flex-end'}}>
+            <TextComponent
+              style={{
+                fontSize: 14,
+                color: colors.primaryColor,
+              }}
+              weight="bold">
+              Forgot Password?
+            </TextComponent>
+          </TouchableOpacity>
+          <ButtonComponent
+            onPress={onFormSubmit}
+            containerStyle={{marginTop: 30}}>
+            Sign-in
+          </ButtonComponent>
+          <TextComponent
+            weight="bold"
+            style={{textAlign: 'center', fontSize: 18, marginTop: 30}}>
+            Or
+          </TextComponent>
+          <GoogleSigninButton
+            style={{
+              width: '80%',
+              height: 60,
+              alignSelf: 'center',
+              marginTop: 20,
+              marginBottom: 20,
+            }}
+            size={GoogleSigninButton.Size.Wide}
+            color={GoogleSigninButton.Color.Light}
+            onPress={signIn}
+          />
+          <TouchableOpacity
+            onPress={() => authStackNavigation.navigate('SignupScreen')}
+            style={{marginTop: 15}}>
+            <TextComponent
+              style={{
+                fontSize: 14,
+                color: colors.primaryColor,
+                textAlign: 'center',
+              }}
+              weight="bold">
+              Don't have an account ? Sign Up
+            </TextComponent>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </ScreenWrapper>
   );
 };
 
 export default SigninScreen;
 
 const styles = StyleSheet.create({
-  wrapperComponent: {
-    flex: 1,
-    backgroundColor: colors.primaryColor,
-  },
   welcomeMessage: {
     paddingTop: 30,
     paddingHorizontal: measureMents.leftPadding,

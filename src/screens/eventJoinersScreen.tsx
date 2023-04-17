@@ -29,6 +29,7 @@ import {RadioButtonComponent} from '../reusables';
 import {EachPaymentMethod} from './addPeopleScreen';
 import {MemoizedEventJoinerListComponent} from '../components/eventJoinersListComponent';
 import FeatherIcons from 'react-native-vector-icons/Feather';
+import ScreenWrapper from './screenWrapper';
 
 type EventJoinersScreenProps = {
   type: 'all' | 'pending' | 'completed';
@@ -285,7 +286,7 @@ const EventJoinersScreen = ({
   }, [onMoveToPendingCancelClick, onConfirmMoveClick]);
 
   return (
-    <>
+    <ScreenWrapper>
       <View style={styles.eventListContainer}>
         <MemoizedEventJoinerListComponent
           onLongPressUser={onLongPressUser}
@@ -337,7 +338,7 @@ const EventJoinersScreen = ({
         isModalVisible={isMoveToPendingPopupVisible}
         setIsModalVisible={setIsMoveToPendingPopupVisible}
       />
-    </>
+    </ScreenWrapper>
   );
 };
 

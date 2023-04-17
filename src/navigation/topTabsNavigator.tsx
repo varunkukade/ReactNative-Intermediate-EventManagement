@@ -1,7 +1,7 @@
 import React from 'react';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {EventJoinersScreen} from '../screens';
-import {fontStyles} from '../utils/appStyles';
+import {colors, fontStyles} from '../utils/appStyles';
 
 
 export type TopTabParamList = {
@@ -18,6 +18,7 @@ const EventJoinersTopTabs = () => {
       screenOptions={{
         tabBarLabelStyle: {fontSize: 13, fontFamily: fontStyles.semibold},
         tabBarAndroidRipple: {borderless: false},
+        tabBarIndicatorStyle: { backgroundColor: colors.primaryColor},
         lazy: false,
       }}>
       <TopTab.Screen name="All">

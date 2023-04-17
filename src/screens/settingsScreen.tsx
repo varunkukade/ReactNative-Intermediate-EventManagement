@@ -28,6 +28,8 @@ import {
 import {
   resetPeopleState,
 } from '../reduxConfig/slices/peopleSlice';
+import { ScreenWrapper } from '.';
+import { BottomTabParamList } from '../navigation/bottomTabNavigator';
 
 const SettingsScreen = () => {
   //dispatch and selectors
@@ -159,7 +161,7 @@ const SettingsScreen = () => {
     },
   ];
   return (
-    <View style={styles.wrapperComponent}>
+    <ScreenWrapper>
       <View style={styles.welcomeMessage}>
         <TextComponent
           style={{fontSize: 20, color: colors.whiteColor}}
@@ -193,17 +195,13 @@ const SettingsScreen = () => {
         isModalVisible={isLogoutPopupVisible}
         setIsModalVisible={setIsLogoutPopupVisible}
       />
-    </View>
+    </ScreenWrapper>
   );
 };
 
 export default SettingsScreen;
 
 const styles = StyleSheet.create({
-  wrapperComponent: {
-    flex: 1,
-    backgroundColor: colors.primaryColor,
-  },
   welcomeMessage: {
     paddingTop: 30,
     paddingHorizontal: measureMents.leftPadding,

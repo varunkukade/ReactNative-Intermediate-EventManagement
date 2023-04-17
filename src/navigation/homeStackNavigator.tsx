@@ -11,15 +11,15 @@ import EventJoinersTopTabs from './topTabsNavigator';
 import {BottomTabNavigator} from '.';
 import {NavigatorScreenParams} from '@react-navigation/native';
 import {BottomTabParamList} from './bottomTabNavigator';
-import { EachEvent } from '../reduxConfig/slices/eventsSlice';
-import { EachPerson } from '../reduxConfig/slices/peopleSlice';
+import {EachEvent} from '../reduxConfig/slices/eventsSlice';
+import {EachPerson} from '../reduxConfig/slices/peopleSlice';
 
 export type HomeStackParamList = {
   BottomTabNavigator: undefined | NavigatorScreenParams<BottomTabParamList>;
-  AddEventScreen: undefined | { longPressedEvent: EachEvent};
+  AddEventScreen: undefined | {longPressedEvent: EachEvent};
   EventDetailsScreen: undefined;
   EventJoinersTopTab: undefined;
-  AddPeopleScreen: undefined | { longPressedUser: EachPerson};
+  AddPeopleScreen: undefined | {longPressedUser: EachPerson};
   UpdateProfileScreen: undefined;
 };
 
@@ -31,6 +31,7 @@ function HomeStackNavigator() {
       screenOptions={{
         animation: 'slide_from_right',
         headerTintColor: colors.primaryColor,
+        headerShown: false,
       }}
       initialRouteName="BottomTabNavigator">
       <HomeStack.Screen
@@ -89,8 +90,8 @@ function HomeStackNavigator() {
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle:{backgroundColor: colors.primaryColor},
-          headerTintColor: colors.whiteColor
+          headerStyle: {backgroundColor: colors.primaryColor},
+          headerTintColor: colors.whiteColor,
         })}
         name="UpdateProfileScreen"
         component={UpdateProfileScreen}

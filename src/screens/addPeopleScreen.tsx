@@ -25,6 +25,7 @@ import {
   updatePeopleAPICall,
   updatePeopleAPICallRequest,
 } from '../reduxConfig/slices/peopleSlice';
+import ScreenWrapper from './screenWrapper';
 
 type ConstantsType = {
   userName: 'userName';
@@ -233,6 +234,7 @@ const AddPeopleScreen = (): ReactElement => {
   };
 
   return (
+    <ScreenWrapper>
     <ScrollView
       style={styles.wrapperComponent}
       showsVerticalScrollIndicator={false}>
@@ -280,6 +282,7 @@ const AddPeopleScreen = (): ReactElement => {
         Submit
       </ButtonComponent>
     </ScrollView>
+    </ScreenWrapper>
   );
 };
 
@@ -291,7 +294,6 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: 30,
     paddingHorizontal: measureMents.leftPadding,
-    backgroundColor: colors.whiteColor,
   },
   dateTimePickerContainer: {
     marginBottom: 10,

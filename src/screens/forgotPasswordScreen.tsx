@@ -9,6 +9,7 @@ import { AuthStackParamList } from '../navigation/authStackNavigator';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { forgotPasswordAPICall } from '../reduxConfig/slices/userSlice';
 import { HomeStackParamList } from '../navigation/homeStackNavigator';
+import ScreenWrapper from './screenWrapper';
 
 const constants = {
   email: 'email',
@@ -100,7 +101,7 @@ const ForgotPasswordScreen = () => {
   };
 
   return (
-    <View style={styles.wrapperComponent}>
+    <ScreenWrapper>
       <View style={styles.welcomeMessage}>
         <TextComponent
           style={{fontSize: 16, color: colors.whiteColor, textAlign:"center"}}
@@ -122,17 +123,13 @@ const ForgotPasswordScreen = () => {
           Send
         </ButtonComponent>
       </View>
-    </View>
+    </ScreenWrapper>
   );
 };
 
 export default ForgotPasswordScreen;
 
 const styles = StyleSheet.create({
-  wrapperComponent: {
-    flex: 1,
-    backgroundColor: colors.primaryColor,
-  },
   welcomeMessage: {
     paddingTop: 30,
     paddingHorizontal: measureMents.leftPadding,
