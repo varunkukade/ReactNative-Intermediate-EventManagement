@@ -1,52 +1,44 @@
-import React, { useState, useCallback } from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   Platform,
   StyleSheet,
   ToastAndroid,
+  TouchableHighlight,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { colors, measureMents } from '../utils/appStyles';
-import { TextComponent } from '../reusables';
+import {colors, measureMents} from '../utils/appStyles';
+import {TextComponent} from '../reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import { useAppDispatch } from '../reduxConfig/store';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/rootStackNavigator';
-import {
-  logoutAPICall,
-  resetUserState,
-} from '../reduxConfig/slices/userSlice';
-import CenterPopupComponent, {
-  popupData,
-} from '../reusables/centerPopup';
-import { HomeStackParamList } from '../navigation/homeStackNavigator';
-import { updateTheAsyncStorage } from '../utils/commonFunctions';
-import {
-  resetEventState,
-} from '../reduxConfig/slices/eventsSlice';
-import {
-  resetPeopleState,
-} from '../reduxConfig/slices/peopleSlice';
-import { ScreenWrapper } from '.';
-import { BottomTabParamList } from '../navigation/bottomTabNavigator';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useAppDispatch} from '../reduxConfig/store';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/rootStackNavigator';
+import {logoutAPICall, resetUserState} from '../reduxConfig/slices/userSlice';
+import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
+import {HomeStackParamList} from '../navigation/homeStackNavigator';
+import {updateTheAsyncStorage} from '../utils/commonFunctions';
+import {resetEventState} from '../reduxConfig/slices/eventsSlice';
+import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
+import {ScreenWrapper} from '.';
 
 const SettingsScreen = () => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
 
   //navigation state
-  const rootNavigation = useNavigation<NativeStackNavigationProp<
-    RootStackParamList,
-    'HomeStack'
-  >>();
-  const homeStackNavigation = useNavigation<NativeStackNavigationProp<
-    HomeStackParamList,
-    'BottomTabNavigator'
-  >>();
+  const rootNavigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList, 'HomeStack'>>();
+  const homeStackNavigation =
+    useNavigation<
+      NativeStackNavigationProp<HomeStackParamList, 'BottomTabNavigator'>
+    >();
 
   //modal states
   const [isLogoutPopupVisible, setIsLogoutPopupVisible] = useState(false);
+
+  const [selectedMode, setSelectedMode] = useState('light');
 
   const onCancelClick = useCallback(() => {
     setIsLogoutPopupVisible(false);
@@ -74,7 +66,7 @@ const SettingsScreen = () => {
               name: 'AuthStack',
               state: {
                 index: 0,
-                routes: [{ name: 'SigninScreen' }],
+                routes: [{name: 'SigninScreen'}],
               },
             },
           ],
@@ -98,14 +90,23 @@ const SettingsScreen = () => {
 
   const onUpdateProfilePress = useCallback(() => {
     homeStackNavigation.navigate('UpdateProfileScreen');
-  }, [homeStackNavigation])
+  }, [homeStackNavigation]);
 
   const onResetPasswordPress = useCallback(() => {
-   rootNavigation.navigate("AuthStack",{ screen: "ForgotPasswordScreen", params: {isResetPassword: true}} )
-  }, [])
+    rootNavigation.navigate('AuthStack', {
+      screen: 'ForgotPasswordScreen',
+      params: {isResetPassword: true},
+    });
+  }, [rootNavigation]);
+
+  const changeTheme = useCallback(() => {
+    if (selectedMode === 'light') setSelectedMode('dark');
+    if (selectedMode === 'dark') setSelectedMode('light');
+  }, [selectedMode, setSelectedMode]);
 
   let actions = [
     {
+      id: 1,
       label: 'Reset Password',
       icon: () => (
         <EntypoIcons
@@ -124,6 +125,7 @@ const SettingsScreen = () => {
       onPress: onResetPasswordPress,
     },
     {
+      id: 2,
       label: 'Update Profile',
       icon: () => (
         <EntypoIcons
@@ -142,6 +144,30 @@ const SettingsScreen = () => {
       onPress: onUpdateProfilePress,
     },
     {
+      id: 3,
+      label: 'Dark Mode',
+      icon: () => (
+        <EntypoIcons
+          size={30}
+          color={colors.primaryColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      rightIcon: () => (
+        <MaterialCommunityIcons
+          size={40}
+          color={colors.iconLightPinkColor}
+          name={
+            selectedMode === 'light'
+              ? 'toggle-switch-off-outline'
+              : 'toggle-switch-outline'
+          }
+        />
+      ),
+      onPress: () => changeTheme(),
+    },
+    {
+      id: 4,
       label: 'Log-out',
       icon: () => (
         <EntypoIcons
@@ -160,6 +186,7 @@ const SettingsScreen = () => {
       onPress: () => setIsLogoutPopupVisible(true),
     },
   ];
+
   return (
     <ScreenWrapper>
       <View style={styles.welcomeMessage}>
@@ -171,24 +198,55 @@ const SettingsScreen = () => {
       </View>
       <View style={styles.mainContainer}>
         {actions.map((eachAction, index) => (
-          <TouchableOpacity
-            key={index}
-            activeOpacity={0.5}
-            onPress={eachAction.onPress}
-            style={styles.eachAction}>
-            <View style={styles.secondSection}>
-              <TextComponent
-                weight="semibold"
-                style={{
-                  color: colors.primaryColor,
-                  fontSize: 16,
-                }}>
-                {eachAction.label}
-              </TextComponent>
-            </View>
-            <View style={styles.thirdSection}>{eachAction.rightIcon()}</View>
-          </TouchableOpacity>
+          <View key={index}>
+            {eachAction.id === 3 ? (
+              <TouchableHighlight underlayColor='transparent' onPress={eachAction.onPress}>
+                <View style={styles.eachAction}>
+                  <View style={styles.secondSection}>
+                    <TextComponent
+                      weight="semibold"
+                      style={{
+                        color: colors.primaryColor,
+                        fontSize: 16,
+                      }}>
+                      {eachAction.label}
+                    </TextComponent>
+                  </View>
+                  <View style={styles.thirdSection}>
+                    <TextComponent
+                      style={{color: colors.primaryColor}}
+                      weight="bold">
+                      {selectedMode === 'light' ? 'Off' : 'On'}
+                    </TextComponent>
+                    {eachAction.rightIcon()}
+                  </View>
+                </View>
+              </TouchableHighlight>
+            ) : (
+              <TouchableOpacity
+                activeOpacity={0.5}
+                onPress={eachAction.onPress}
+                style={styles.eachAction}>
+                <View style={styles.secondSection}>
+                  <TextComponent
+                    weight="semibold"
+                    style={{
+                      color: colors.primaryColor,
+                      fontSize: 16,
+                    }}>
+                    {eachAction.label}
+                  </TextComponent>
+                </View>
+                <View style={styles.thirdSection}>
+                  {eachAction.rightIcon()}
+                </View>
+              </TouchableOpacity>
+            )}
+          </View>
         ))}
+        <TextComponent style={{textAlign: 'center'}} weight="bold">
+          Version 1.0.0
+        </TextComponent>
       </View>
       <CenterPopupComponent
         popupData={logoutPopupData}
@@ -238,5 +296,31 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: measureMents.leftPadding,
+  },
+  eachActionContainer: {
+    width: 75,
+    marginRight: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    alignSelf: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  eachActionStyle: {
+    backgroundColor: colors.lavenderColor,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 5,
   },
 });

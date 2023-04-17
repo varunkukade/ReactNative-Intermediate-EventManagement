@@ -14,7 +14,6 @@ import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import {
   EachPerson,
-  getPeopleAPICall,
   removePeopleAPICall,
   updatePeopleAPICall,
   updatePeopleAPICallRequest,
