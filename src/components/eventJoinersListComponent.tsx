@@ -1,12 +1,23 @@
 import React, {ReactElement, useEffect} from 'react';
-import {ActivityIndicator, Platform, StyleSheet, ToastAndroid, TouchableOpacity, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  StyleSheet,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../reusables/text';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {generateArray} from '../utils/commonFunctions';
-import {EachPerson, getNextEventJoinersAPICall, getPeopleAPICall} from '../reduxConfig/slices/peopleSlice';
+import {
+  EachPerson,
+  getNextEventJoinersAPICall,
+  getPeopleAPICall,
+} from '../reduxConfig/slices/peopleSlice';
 
 type EventJoinerListProps = {
   onLongPressUser: (data: EachPerson) => void;
@@ -17,11 +28,10 @@ const EventJoinersListComponent = ({
   onLongPressUser,
   type,
 }: EventJoinerListProps): ReactElement => {
-
-    //dispatch and selectors
+  //dispatch and selectors
   const dispatch = useAppDispatch();
-  const theme = useAppSelector(state => state.user.currentUser.theme)
-  
+  const theme = useAppSelector(state => state.user.currentUser.theme);
+
   useEffect(() => {
     dispatch(getPeopleAPICall()).then(res => {
       if (res.meta.requestStatus === 'rejected' && res.payload) {
@@ -33,18 +43,26 @@ const EventJoinersListComponent = ({
 
   const fetchMoreEventJoiners = () => {
     //onEndReachedThresholdRelative = 0.1 means if user has scrolled and if end of visible content is within the 10% from end of list, then load more items.
-    if(peopleState.statuses.getNextEventJoinersAPICall === "loading") return;
+    if (peopleState.statuses.getNextEventJoinersAPICall === 'loading') return;
     dispatch(getNextEventJoinersAPICall()).then(resp => {
       if (resp.payload && resp.meta.requestStatus === 'rejected') {
         if (Platform.OS === 'android')
           ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
       }
-      if (resp.payload && resp.meta.requestStatus === 'fulfilled' && resp.payload.successMessagetype === 'noMoreUsers') {
+      if (
+        resp.payload &&
+        resp.meta.requestStatus === 'fulfilled' &&
+        resp.payload.successMessagetype === 'noMoreUsers'
+      ) {
         if (Platform.OS === 'android')
-          ToastAndroid.showWithGravity(resp.payload?.message, ToastAndroid.SHORT, ToastAndroid.CENTER);
+          ToastAndroid.showWithGravity(
+            resp.payload?.message,
+            ToastAndroid.SHORT,
+            ToastAndroid.CENTER,
+          );
       }
-    })
-  }
+    });
+  };
 
   let dataProvider = new DataProvider((r1, r2) => {
     return r1 !== r2;
@@ -93,16 +111,33 @@ const EventJoinersListComponent = ({
 
   //show fotter while loading more people
   const getFooter = () => {
-    if(peopleState.statuses.getNextEventJoinersAPICall === "loading")
-    return (
-      <View style={styles.footerContainer}>
-        <ActivityIndicator color={theme === "light" ? colors.light.commonPrimaryColor : colors.dark.whiteColor}/>
-        <TextComponent style={{color: theme === "light" ? colors.light.commonPrimaryColor : colors.dark.whiteColor, fontSize: 16, marginTop: 5, marginBottom: 10}} weight="bold">Fetching More Event Joiners...</TextComponent>
-      </View>
-    )
+    if (peopleState.statuses.getNextEventJoinersAPICall === 'loading')
+      return (
+        <View style={styles.footerContainer}>
+          <ActivityIndicator
+            color={
+              theme === 'light'
+                ? colors.light.commonPrimaryColor
+                : colors.dark.whiteColor
+            }
+          />
+          <TextComponent
+            style={{
+              color:
+                theme === 'light'
+                  ? colors.light.commonPrimaryColor
+                  : colors.dark.whiteColor,
+              fontSize: 16,
+              marginTop: 5,
+              marginBottom: 10,
+            }}
+            weight="bold">
+            Fetching More Event Joiners...
+          </TextComponent>
+        </View>
+      );
     else return null;
-  }
-
+  };
 
   //Given type and data return the View component
   const rowRenderer = (
@@ -115,7 +150,10 @@ const EventJoinersListComponent = ({
         activeOpacity={0.7}
         key={index}
         onLongPress={() => onLongPressUser(data)}
-        style={[styles.eachEventComponent, {  backgroundColor: colors[theme].cardColor}]}>
+        style={[
+          styles.eachEventComponent,
+          {backgroundColor: colors[theme].cardColor},
+        ]}>
         <View style={styles.secondSection}>
           <TextComponent
             numberOfLines={2}
@@ -150,11 +188,24 @@ const EventJoinersListComponent = ({
     <>
       <TextComponent
         weight="bold"
-        style={{color: colors[theme].textColor, fontSize: 15, marginBottom: 10}}>
+        style={{
+          color: colors[theme].textColor,
+          fontSize: 15,
+          marginBottom: 10,
+        }}>
         Total People:{' '}
         {peopleData?.getSize() && peopleData?.getSize() > 0
           ? peopleData?.getSize()
           : 0}
+      </TextComponent>
+      <TextComponent
+        weight="bold"
+        style={{
+          color: colors[theme].greyColor,
+          fontSize: 15,
+          marginBottom: 10,
+        }}>
+        Note - You can modify/delete user by long pressing it.
       </TextComponent>
       {peopleState.statuses.getPeopleAPICall === 'succeedded' &&
       peopleData?.getSize() > 0 ? (
@@ -170,16 +221,30 @@ const EventJoinersListComponent = ({
         />
       ) : peopleState.statuses.getPeopleAPICall === 'loading' ? (
         skelatons.map((eachItem, index) => (
-          <View key={index} style={[styles.eventLoadingSkelaton, { backgroundColor: colors[theme].lavenderColor}]} />
+          <View
+            key={index}
+            style={[
+              styles.eventLoadingSkelaton,
+              {backgroundColor: colors[theme].lavenderColor},
+            ]}
+          />
         ))
       ) : peopleState.statuses.getPeopleAPICall === 'failed' ? (
-        <View style={[styles.eventLoadingSkelaton, {marginTop: 30, backgroundColor: colors[theme].lavenderColor}]}>
+        <View
+          style={[
+            styles.eventLoadingSkelaton,
+            {marginTop: 30, backgroundColor: colors[theme].lavenderColor},
+          ]}>
           <TextComponent weight="bold">
             'Failed to fetch users. Please try again after some time'
           </TextComponent>
         </View>
       ) : (
-        <View style={[styles.eventLoadingSkelaton, {marginTop: 30, backgroundColor: colors[theme].lavenderColor}]}>
+        <View
+          style={[
+            styles.eventLoadingSkelaton,
+            {marginTop: 30, backgroundColor: colors[theme].lavenderColor},
+          ]}>
           <TextComponent style={{color: colors[theme].greyColor}} weight="bold">
             No Records Found!
           </TextComponent>
@@ -226,7 +291,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footerContainer: {
-    alignItems:"center",
-    justifyContent:"center"
-  }
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

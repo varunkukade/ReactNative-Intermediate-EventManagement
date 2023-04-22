@@ -237,6 +237,11 @@ const EventListComponent = (): ReactElement => {
             ? eventsData?.getSize()
             : 0}
         </TextComponent>
+        <TextComponent
+          weight="bold"
+          style={{color: colors[theme].greyColor, fontSize: 15, marginBottom: 10}}>
+          Note - You can modify/delete event by long pressing it.
+        </TextComponent>
         {eventsState.statuses.getEventAPICall === 'succeedded' &&
         eventsData?.getSize() > 0 ? (
           <RecyclerListView
