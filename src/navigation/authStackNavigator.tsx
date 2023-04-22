@@ -8,6 +8,7 @@ import {colors, fontStyles} from '../utils/appStyles';
 import {TextComponent} from '../reusables';
 import {TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import { useAppSelector } from '../reduxConfig/store';
 
 export type AuthStackParamList = {
   SignupScreen: undefined;
@@ -23,13 +24,14 @@ function AuthStackNavigator() {
     AuthStackParamList,
     'SignupScreen'
   > = useNavigation();
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   const getSigninNavigator = () => {
     return (
       <TouchableOpacity
         onPress={() => navigation.navigate('SigninScreen')}
         style={{
-          backgroundColor: colors.lavenderColor,
+          backgroundColor: colors[theme].lavenderColor,
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 15,
@@ -37,7 +39,7 @@ function AuthStackNavigator() {
           paddingVertical: 8,
         }}>
         <TextComponent
-          style={{fontSize: 14, color: colors.primaryColor}}
+          style={{fontSize: 14, color: colors[theme].textColor}}
           weight="bold">
           {' '}
           Sign-In
@@ -49,7 +51,7 @@ function AuthStackNavigator() {
     <AuthStack.Navigator
       screenOptions={{
         animation: 'slide_from_right',
-        headerTintColor: colors.primaryColor,
+        headerTintColor: colors[theme].primaryColor,
       }}
       initialRouteName="SignupScreen">
       <AuthStack.Screen
@@ -60,8 +62,8 @@ function AuthStackNavigator() {
           headerTitleAlign: 'left',
           headerBackVisible: true,
           headerRight: () => getSigninNavigator(),
-          headerStyle:{backgroundColor: colors.primaryColor},
-          headerTintColor: colors.whiteColor
+          headerStyle:{backgroundColor: colors[theme].primaryColor},
+          headerTintColor:colors[theme].whiteColor
         }}
         name="SignupScreen"
         component={SignupScreen}
@@ -73,8 +75,8 @@ function AuthStackNavigator() {
             headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
             headerTitleAlign: 'center',
             headerBackVisible: true,
-            headerStyle:{backgroundColor: colors.primaryColor},
-            headerTintColor: colors.whiteColor
+            headerStyle:{backgroundColor: colors[theme].primaryColor},
+            headerTintColor: colors[theme].whiteColor
         })}
         name="ForgotPasswordScreen"
         component={ForgotPasswordScreen}
@@ -86,8 +88,8 @@ function AuthStackNavigator() {
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle:{backgroundColor: colors.primaryColor},
-          headerTintColor: colors.whiteColor
+          headerStyle:{backgroundColor: colors[theme].primaryColor},
+          headerTintColor: colors[theme].whiteColor
         })}
         name="SigninScreen"
         component={SigninScreen}

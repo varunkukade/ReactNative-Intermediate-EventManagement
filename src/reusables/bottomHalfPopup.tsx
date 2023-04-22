@@ -3,6 +3,7 @@ import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import Modal, {ModalProps} from 'react-native-modal';
 import {colors, measureMents} from '../utils/appStyles';
 import TextComponent from './text';
+import { useAppSelector } from '../reduxConfig/store';
 
 export type EachAction = {
   icon: () => ReactElement;
@@ -36,6 +37,8 @@ const BottomHalfPopupComponent = ({
   const togglePopupState = () => {
     setIsModalVisible(!isModalVisible);
   };
+  const theme = useAppSelector(state => state.user.currentUser.theme)
+
   return (
     <Modal
       onBackButtonPress={togglePopupState}
@@ -43,18 +46,18 @@ const BottomHalfPopupComponent = ({
       {...props}
       style={{justifyContent: 'flex-end', margin: 0}}
       isVisible={isModalVisible}>
-      <ScrollView style={styles.modalContainer}>
-        <View style={styles.modalCommonLine} />
+      <ScrollView style={[styles.modalContainer, { backgroundColor: colors[theme].cardColor}]}>
+        <View style={[styles.modalCommonLine, {backgroundColor: theme === "dark" ? colors.dark.greyColor : colors.light.lavenderColor}]} />
         {showActions && actions?.length ? (
           <View>
             <View style={styles.titleContainer}>
               <TextComponent
                 weight="extraBold"
-                style={{fontSize: 17, color: colors.primaryColor}}>
+                style={{fontSize: 17, color: colors[theme].textColor}}>
                 {modalHeader}
               </TextComponent>
             </View>
-            <View style={styles.actionsContainer}>
+            <View style={[styles.actionsContainer]}>
               {actions.map((eachAction, index) => {
                 if (eachAction.isVisible) {
                   return (
@@ -62,11 +65,11 @@ const BottomHalfPopupComponent = ({
                       <TouchableOpacity
                         onPress={eachAction.onClick}
                         activeOpacity={0.5}
-                        style={styles.eachActionStyle}>
+                        style={[styles.eachActionStyle,  {backgroundColor: colors[theme].lightLavenderColor}]}>
                         {eachAction.icon()}
                       </TouchableOpacity>
                       <TextComponent
-                        style={{textAlign: 'center', color: colors.greyColor}}
+                        style={{textAlign: 'center', color: colors[theme].greyColor}}
                         weight="semibold">
                         {eachAction.label}
                       </TextComponent>
@@ -86,7 +89,6 @@ export default BottomHalfPopupComponent;
 
 const styles = StyleSheet.create({
   modalContainer: {
-    backgroundColor: 'white',
     paddingTop: 10,
     paddingBottom: 22,
     borderRadius: 4,
@@ -98,7 +100,6 @@ const styles = StyleSheet.create({
   modalCommonLine: {
     width: 50,
     height: 6,
-    backgroundColor: colors.lavenderColor,
     alignSelf: 'center',
     borderRadius: 15,
   },
@@ -123,7 +124,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   eachActionStyle: {
-    backgroundColor: colors.lavenderColor,
     width: 50,
     height: 50,
     borderRadius: 25,

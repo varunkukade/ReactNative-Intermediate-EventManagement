@@ -10,18 +10,17 @@ import {
 import {colors, measureMents} from '../utils/appStyles';
 import {
   ButtonComponent,
-  ImageComponent,
   InputComponent,
   TextComponent,
 } from '../reusables';
-import {useAppDispatch} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import {
   emailValidation,
   passwordValidation,
-  updateTheAsyncStorage,
+  setAsyncStorage,
 } from '../utils/commonFunctions';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
@@ -61,6 +60,7 @@ const SigninScreen = () => {
     useState<SigninFormData>(initialSigninForm);
 
   const [showPassword, setShowPassword] = useState(false);
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -86,7 +86,7 @@ const SigninScreen = () => {
             if (res.payload)
               ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
             setSigninForm(initialSigninForm);
-            updateTheAsyncStorage('true').then(res => {
+            setAsyncStorage("isAuthenticated",'true').then(res => {
               navigation.reset({
                 index: 0,
                 routes: [
@@ -181,7 +181,7 @@ const SigninScreen = () => {
           if (res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
           setSigninForm(initialSigninForm);
-          updateTheAsyncStorage('true').then(res => {
+          setAsyncStorage("isAuthenticated",'true').then(res => {
             navigation.reset({
               index: 0,
               routes: [
@@ -222,7 +222,7 @@ const SigninScreen = () => {
           <TextComponent
             style={{
               fontSize: 19,
-              color: colors.whiteColor,
+              color: colors[theme].whiteColor,
               marginBottom: 10,
               textAlign: 'center',
             }}
@@ -232,14 +232,14 @@ const SigninScreen = () => {
           <TextComponent
             style={{
               fontSize: 16,
-              color: colors.whiteColor,
+              color: colors[theme].whiteColor,
               textAlign: 'center',
             }}
             weight="normal">
             You can continue to login to manage your events.
           </TextComponent>
         </View>
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, { backgroundColor: colors[theme].cardColor}]}>
           <InputComponent
             value={signinForm.email.value}
             onChangeText={value => onChangeForm(value, constants.email)}
@@ -260,7 +260,7 @@ const SigninScreen = () => {
                 style={{position: 'absolute', right: 15}}>
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                  color={colors.iconLightPinkColor}
+                  color={colors[theme].iconLightPinkColor}
                   size={22}
                 />
               </TouchableOpacity>
@@ -272,7 +272,7 @@ const SigninScreen = () => {
             <TextComponent
               style={{
                 fontSize: 14,
-                color: colors.primaryColor,
+                color: colors[theme].textColor,
               }}
               weight="bold">
               Forgot Password?
@@ -285,7 +285,7 @@ const SigninScreen = () => {
           </ButtonComponent>
           <TextComponent
             weight="bold"
-            style={{textAlign: 'center', fontSize: 18, marginTop: 30}}>
+            style={{textAlign: 'center', fontSize: 18, marginTop: 30, color: colors[theme].textColor}}>
             Or
           </TextComponent>
           <GoogleSigninButton
@@ -306,7 +306,7 @@ const SigninScreen = () => {
             <TextComponent
               style={{
                 fontSize: 14,
-                color: colors.primaryColor,
+                color: colors[theme].textColor,
                 textAlign: 'center',
               }}
               weight="bold">
@@ -329,7 +329,6 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    backgroundColor: colors.whiteColor,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     paddingTop: 30,

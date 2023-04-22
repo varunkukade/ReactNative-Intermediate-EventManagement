@@ -24,20 +24,21 @@ const EventDetailsScreen = (): ReactElement | null => {
   const selectedEventDetails = useAppSelector(
     state => state.events.currentSelectedEvent,
   );
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   if (!selectedEventDetails) return null;
 
   return (
     <ScreenWrapper>
       <ScrollView
-        style={styles.wrapperComponent}
+        style={[styles.wrapperComponent]}
         showsVerticalScrollIndicator={false}>
         <View style={styles.topSection}>
           <TextComponent
             weight="extraBold"
             style={{
               fontSize: 24,
-              color: colors.primaryColor,
+              color: colors[theme].textColor,
               marginBottom: 24,
             }}>
             {selectedEventDetails.eventTitle}
@@ -45,14 +46,14 @@ const EventDetailsScreen = (): ReactElement | null => {
           <View style={styles.eventCommon}>
             <AntDesignIcons
               name="calendar"
-              color={colors.iconLightPinkColor}
+              color={colors[theme].iconLightPinkColor}
               size={18}
               style={{marginRight: 20}}
             />
             <TextComponent
               weight="semibold"
               style={{
-                color: colors.primaryColor,
+                color: colors[theme].textColor,
                 fontSize: 16,
               }}>
               {getDate(new Date(selectedEventDetails.eventDate))},{' '}
@@ -62,14 +63,14 @@ const EventDetailsScreen = (): ReactElement | null => {
           <View style={styles.eventCommon}>
             <Ionicons
               name="location-outline"
-              color={colors.iconLightPinkColor}
+              color={colors[theme].iconLightPinkColor}
               size={22}
               style={{marginRight: 20}}
             />
             <TextComponent
               weight="semibold"
               style={{
-                color: colors.primaryColor,
+                color: colors[theme].textColor,
                 fontSize: 16,
               }}>
               {selectedEventDetails.eventLocation}
@@ -77,23 +78,23 @@ const EventDetailsScreen = (): ReactElement | null => {
           </View>
         </View>
 
-        <View style={styles.bottomSection}>
-          <View style={styles.eventDetailsSubContainer1}>
-            <TextComponent style={styles.commonText} weight="bold">
+        <View style={[styles.bottomSection, { backgroundColor: colors[theme].cardColor}]}>
+          <View style={[styles.eventDetailsSubContainer1, { backgroundColor: colors[theme].lightLavenderColor}]}>
+            <TextComponent style={[styles.commonText, { color: colors[theme].textColor}]} weight="bold">
               {selectedEventDetails.mealProvided
                 ? 'Meals provided by organiser'
                 : 'Meals not provided by organiser'}
             </TextComponent>
           </View>
           {selectedEventDetails.eventFees === '0' ? (
-            <View style={styles.eventDetailsSubContainer1}>
-              <TextComponent style={styles.commonText} weight="bold">
+            <View style={[styles.eventDetailsSubContainer1, { backgroundColor: colors[theme].lightLavenderColor}]}>
+              <TextComponent style={[styles.commonText, { color: colors[theme].textColor}]} weight="bold">
                 Free Event
               </TextComponent>
             </View>
           ) : null}
-          <View style={styles.eventDetailsSubContainer1}>
-            <TextComponent style={styles.commonText} weight="bold">
+          <View style={[styles.eventDetailsSubContainer1, { backgroundColor: colors[theme].lightLavenderColor}]}>
+            <TextComponent style={[styles.commonText, { color: colors[theme].textColor}]} weight="bold">
               {selectedEventDetails.accomodationProvided
                 ? 'Accomodation provided by organiser'
                 : 'Accomodation not provided by organiser'}
@@ -101,25 +102,25 @@ const EventDetailsScreen = (): ReactElement | null => {
           </View>
           <View
             style={{
-              borderBottomColor: colors.greyColor,
+              borderBottomColor: colors[theme].greyColor,
               borderBottomWidth: StyleSheet.hairlineWidth,
               marginVertical: 20,
             }}
           />
           <TextComponent
-            style={{fontSize: 17, color: colors.primaryColor}}
+            style={{fontSize: 17, color: colors[theme].textColor}}
             weight="extraBold">
             Description
           </TextComponent>
           <TextComponent
             numberOfLines={5}
-            style={{fontSize: 16, color: colors.primaryColor, marginTop: 10}}
+            style={{fontSize: 16, color: colors[theme].textColor, marginTop: 10}}
             weight="normal">
             {selectedEventDetails.eventDesc}
           </TextComponent>
           <View
             style={{
-              borderBottomColor: colors.greyColor,
+              borderBottomColor: colors[theme].greyColor,
               borderBottomWidth: StyleSheet.hairlineWidth,
               marginVertical: 20,
             }}
@@ -128,7 +129,7 @@ const EventDetailsScreen = (): ReactElement | null => {
           selectedEventDetails.eventFees !== '' ? (
             <>
               <TextComponent
-                style={{fontSize: 17, color: colors.primaryColor}}
+                style={{fontSize: 17, color: colors[theme].textColor}}
                 weight="extraBold">
                 Fees
               </TextComponent>
@@ -136,7 +137,7 @@ const EventDetailsScreen = (): ReactElement | null => {
                 numberOfLines={5}
                 style={{
                   fontSize: 16,
-                  color: colors.primaryColor,
+                  color: colors[theme].textColor,
                   marginTop: 10,
                 }}
                 weight="normal">
@@ -144,7 +145,7 @@ const EventDetailsScreen = (): ReactElement | null => {
               </TextComponent>
               <View
                 style={{
-                  borderBottomColor: colors.greyColor,
+                  borderBottomColor: colors[theme].greyColor,
                   borderBottomWidth: StyleSheet.hairlineWidth,
                   marginVertical: 20,
                 }}
@@ -180,7 +181,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: measureMents.leftPadding,
   },
   bottomSection: {
-    backgroundColor: colors.whiteColor,
     paddingHorizontal: measureMents.leftPadding,
     paddingVertical: measureMents.leftPadding,
     flex: 1,
@@ -191,14 +191,12 @@ const styles = StyleSheet.create({
   },
   eventDetailsSubContainer1: {
     paddingVertical: 10,
-    backgroundColor: colors.lavenderColor,
     marginBottom: 15,
     paddingHorizontal: measureMents.leftPadding,
     borderRadius: 8,
     alignSelf: 'flex-start',
   },
   commonText: {
-    color: colors.primaryColor,
     fontSize: 14,
   },
 });

@@ -4,6 +4,7 @@ import Modal, {ModalProps} from 'react-native-modal';
 import {colors} from '../utils/appStyles';
 import TextComponent from './text';
 import ButtonComponent from './buttonComponent';
+import {useAppSelector} from '../reduxConfig/store';
 
 export type popupData = {
   header: string;
@@ -36,6 +37,8 @@ const CenterPopupComponent = ({
   popupData,
   ...props
 }: CenterPopupComponentProps): ReactElement => {
+  const theme = useAppSelector(state => state.user.currentUser.theme);
+
   return (
     <Modal
       animationIn="bounceIn"
@@ -44,27 +47,46 @@ const CenterPopupComponent = ({
       onBackdropPress={() => setIsModalVisible(!isModalVisible)}
       {...props}
       isVisible={isModalVisible}>
-      <View style={styles.modalContainer}>
+      <View
+        style={[
+          styles.modalContainer,
+          {backgroundColor: colors[theme].cardColor},
+        ]}>
         <TextComponent
           numberOfLines={1}
-          style={styles.header}
+          style={[styles.header, {color: colors[theme].textColor}]}
           weight="extraBold">
           {popupData().header}
         </TextComponent>
         <TextComponent
           numberOfLines={4}
-          style={styles.description}
+          style={[styles.description, {color: colors[theme].textColor}]}
           weight="normal">
           {popupData().description}
         </TextComponent>
         {children}
         <View style={styles.buttonContainer}>
-          <ButtonComponent onPress={popupData().onCancelClick} containerStyle={styles.button} textStyle={{color: colors.blackColor}} bgColor={colors.lavenderColor}>
+          <ButtonComponent
+            onPress={popupData().onCancelClick}
+            containerStyle={styles.button}
+            textStyle={{
+              color:
+                theme === 'light'
+                  ? colors[theme].textColor
+                  : colors.dark.blackColor,
+            }}
+            bgColor={
+              theme === 'light'
+                ? colors.light.lavenderColor
+                : colors.dark.greyColor
+            }>
             {popupData().confirmButtonText
               ? popupData().cancelButtonText
               : 'Cancel'}
           </ButtonComponent>
-          <ButtonComponent onPress={popupData().onConfirmClick} containerStyle={styles.button}>
+          <ButtonComponent
+            onPress={popupData().onConfirmClick}
+            containerStyle={styles.button}>
             {popupData().confirmButtonText
               ? popupData().confirmButtonText
               : 'Confirm'}
@@ -80,28 +102,25 @@ export default React.memo(CenterPopupComponent);
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 0.33,
-    backgroundColor: 'white',
     padding: 22,
     borderRadius: 20,
   },
   header: {
     fontSize: 20,
-    color: colors.blackColor,
     marginBottom: 20,
   },
   description: {
     fontSize: 15,
-    color: colors.blackColor,
     marginBottom: 20,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    position:"absolute",
+    position: 'absolute',
     bottom: 22,
-    alignSelf:"center"
+    alignSelf: 'center',
   },
   button: {
-    width: "45%"
-  }
+    width: '45%',
+  },
 });

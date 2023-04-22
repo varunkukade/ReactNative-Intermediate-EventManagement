@@ -47,6 +47,7 @@ const EventListComponent = (): ReactElement => {
   const dispatch = useAppDispatch();
   const eventsState = useAppSelector(state => state.events);
   const eventsData = dataProvider.cloneWithRows(eventsState.events);
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   //useStates
   const [longPressedEvent, setLongPressedEvent] = useState<EachEvent | null>(
@@ -105,14 +106,18 @@ const EventListComponent = (): ReactElement => {
     return (
       <TouchableOpacity
         onLongPress={() => onLongPressEvent(data)}
+        onPress={() => {
+          dispatch(setSelectedEvent(data));
+          navigation.navigate('EventDetailsScreen');
+        }}
         activeOpacity={0.5}
         key={index}
-        style={styles.eachEventComponent}>
+        style={[styles.eachEventComponent, {  backgroundColor: colors[theme].cardColor}]}>
         <View style={styles.secondSection}>
           <TextComponent
             weight="normal"
             style={{
-              color: colors.primaryColor,
+              color: colors[theme].textColor,
               fontSize: 14,
             }}>
             {data.eventTitle}
@@ -120,26 +125,22 @@ const EventListComponent = (): ReactElement => {
           <TextComponent
             weight="bold"
             style={{
-              color: colors.primaryColor,
+              color: colors[theme].textColor,
               fontSize: 15,
             }}>
             {moment(new Date(data.eventDate)).format('LL')}
           </TextComponent>
         </View>
         <View style={styles.thirdSection}>
-          <TouchableOpacity
+          <View
             activeOpacity={0.7}
-            onPress={() => {
-              dispatch(setSelectedEvent(data));
-              navigation.navigate('EventDetailsScreen');
-            }}
-            style={styles.navigateButton}>
+            style={[styles.navigateButton, {  backgroundColor: colors[theme].primaryColor}]}>
             <EntypoIcons
               name="chevron-right"
-              color={colors.whiteColor}
+              color={colors[theme].whiteColor}
               size={20}
             />
-          </TouchableOpacity>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -184,7 +185,7 @@ const EventListComponent = (): ReactElement => {
       icon: () => (
         <FeatherIcons
           size={22}
-          color={colors.blackColor}
+          color={colors[theme].greyColor}
           name="edit-2"
         />
       ),
@@ -196,7 +197,7 @@ const EventListComponent = (): ReactElement => {
       icon: () => (
         <MaterialIcons
           size={22}
-          color={colors.blackColor}
+          color={colors[theme].greyColor}
           name="delete-outline"
         />
       ),
@@ -219,7 +220,7 @@ const EventListComponent = (): ReactElement => {
     return (
       <View style={styles.footerContainer}>
         <ActivityIndicator/>
-        <TextComponent style={{color: colors.primaryColor, fontSize: 16, marginTop: 5}} weight="bold">Fetching More Events...</TextComponent>
+        <TextComponent style={{color: colors[theme].primaryColor, fontSize: 16, marginTop: 5}} weight="bold">Fetching More Events...</TextComponent>
       </View>
     )
     else return null;
@@ -230,7 +231,7 @@ const EventListComponent = (): ReactElement => {
       <View style={styles.eventListContainer}>
         <TextComponent
           weight="bold"
-          style={{color: colors.blackColor, fontSize: 15, marginBottom: 10}}>
+          style={{color: colors[theme].textColor, fontSize: 15, marginBottom: 10}}>
           Total Events:{' '}
           {eventsData?.getSize() && eventsData?.getSize() > 0
             ? eventsData?.getSize()
@@ -250,17 +251,17 @@ const EventListComponent = (): ReactElement => {
           />
         ) : eventsState.statuses.getEventAPICall === 'loading' ? (
           skelatons.map((eachItem, index) => (
-            <View key={index} style={styles.eventLoadingSkelaton} />
+            <View key={index} style={[styles.eventLoadingSkelaton, { backgroundColor: colors[theme].lavenderColor}]} />
           ))
         ) : eventsState.statuses.getEventAPICall === 'failed' ? (
-          <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-            <TextComponent weight="bold">
+          <View style={[styles.eventLoadingSkelaton, {marginTop: 30, backgroundColor: colors[theme].lavenderColor}]}>
+            <TextComponent style={{color: colors[theme].textColor}} weight="bold">
               Failed to fetch events. Please try again after some time
             </TextComponent>
           </View>
         ) : (
-          <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-            <TextComponent weight="bold">No Events Found!</TextComponent>
+          <View style={[styles.eventLoadingSkelaton, {marginTop: 30, backgroundColor: colors[theme].lavenderColor}]}>
+            <TextComponent style={{color: colors[theme].textColor}} weight="bold">No Events Found!</TextComponent>
           </View>
         )}
       </View>
@@ -288,7 +289,6 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   eachEventComponent: {
-    backgroundColor: colors.whiteColor,
     height: 90,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -299,7 +299,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: measureMents.leftPadding,
   },
   eventLoadingSkelaton: {
-    backgroundColor: colors.lavenderColor,
     height: 90,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -324,7 +323,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: colors.primaryColor,
     alignItems: 'center',
     justifyContent: 'center',
   },

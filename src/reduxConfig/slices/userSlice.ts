@@ -10,6 +10,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import { RootState } from '../store';
 import { GOOGLE_CONST } from '../../utils/constants';
+import { setAsyncStorage } from '../../utils/commonFunctions';
 
 export type MessageType = {
   message: string;
@@ -32,6 +33,7 @@ type userState = {
   };
   currentUser: {
     signinMethod : string;
+    theme: 'light' | 'dark';
   },
   loadingMessage: string;
 };
@@ -49,7 +51,8 @@ const initialState: userState = {
     googleSigninAPICall: 'idle',
   },
   currentUser: {
-    signinMethod : ""
+    signinMethod : "",
+    theme: "light",
   },
   loadingMessage: '',
 };
@@ -58,9 +61,27 @@ export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    reset: () => initialState,
+    reset: (state) => {
+      state.statuses = {
+        signupAPICall: 'idle',
+        signinAPICall: 'idle',
+        logoutAPICall: 'idle',
+        forgotPasswordAPICall: 'idle',
+        updateProfileAPICall: 'idle',
+        uploadProfilePictureAPICall: 'idle',
+        getProfilePictureAPICall: 'idle',
+        getProfileDataAPICall: 'idle',
+        googleSigninAPICall: 'idle',
+      }
+      state.currentUser.signinMethod = "",
+      state.loadingMessage = ""
+    },
     setCurrentUser: (state, action: PayloadAction<string>) => {
       state.currentUser.signinMethod = action.payload;
+    },
+    setTheme: (state, action: PayloadAction<'light' | 'dark'>) => {
+      state.currentUser.theme = action.payload;
+      setAsyncStorage('theme', action.payload)
     },
   },
   extraReducers(builder) {
@@ -156,7 +177,7 @@ export const userSlice = createSlice({
       });
   },
 });
-export const {reset: resetUserState, setCurrentUser} = userSlice.actions;
+export const {reset: resetUserState, setCurrentUser, setTheme} = userSlice.actions;
 export default userSlice.reducer;
 
 export const signupAPICall = createAsyncThunk<

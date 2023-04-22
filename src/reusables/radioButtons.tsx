@@ -1,7 +1,8 @@
 import React, {ReactElement, ReactNode, useState} from 'react';
 import {StyleSheet, View, TouchableOpacity} from 'react-native';
-import {colors, fontStyles} from '../utils/appStyles';
+import {colors} from '../utils/appStyles';
 import TextComponent from './text';
+import { useAppSelector } from '../reduxConfig/store';
 
 interface RadioButtonComponentProps {
     onPress: () => void
@@ -10,13 +11,15 @@ interface RadioButtonComponentProps {
 }
 
 const RadioButtonComponent = ({ onPress, selected, children }: RadioButtonComponentProps): ReactElement => {
+  const theme = useAppSelector(state => state.user.currentUser.theme)
+
   return (
     <View style={styles.radioButtonContainer}>
-      <TouchableOpacity onPress={onPress} style={styles.radioButton}>
-        {selected ? <View style={styles.radioButtonIcon} /> : null}
+      <TouchableOpacity onPress={onPress} style={[styles.radioButton, { borderColor: colors[theme].blackColor}]}>
+        {selected ? <View style={[styles.radioButtonIcon, { backgroundColor: colors[theme].cardColor}]} /> : null}
       </TouchableOpacity>
       <TouchableOpacity onPress={onPress}>
-        <TextComponent weight='semibold' style={styles.radioButtonText}>{children}</TextComponent>
+        <TextComponent style={[styles.radioButtonText, {color: colors[theme].textColor}]} weight='semibold'>{children}</TextComponent>
       </TouchableOpacity>
     </View>
   );
@@ -36,7 +39,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F8F8',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.primaryColor,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -44,7 +46,6 @@ const styles = StyleSheet.create({
     height: 14,
     width: 14,
     borderRadius: 7,
-    backgroundColor: colors.primaryColor,
   },
   radioButtonText: {
     fontSize: 16,

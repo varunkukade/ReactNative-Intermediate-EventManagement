@@ -1,5 +1,5 @@
-import React, {ReactElement, useState} from 'react';
-import {Alert, StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {ReactElement} from 'react';
+import { StyleSheet, TouchableOpacity, View} from 'react-native';
 import {MemoizedEventListComponent} from '../components/eventListComponent';
 import {MemoizedWelcomeComponent} from '../components/welcomeComponent';
 import {colors, measureMents} from '../utils/appStyles';
@@ -8,6 +8,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import ScreenWrapper from './screenWrapper';
+import { useAppSelector } from '../reduxConfig/store';
 
 const HomeScreen = (): ReactElement => {
   //navigation state
@@ -15,6 +16,8 @@ const HomeScreen = (): ReactElement => {
     HomeStackParamList,
     'BottomTabNavigator'
   > = useNavigation();
+
+  const theme = useAppSelector(state => state.user.currentUser.theme)
     
   const onAddEventClick = () => {
     navigation.navigate('AddEventScreen');
@@ -30,8 +33,8 @@ const HomeScreen = (): ReactElement => {
       <TouchableOpacity
         onPress={onAddEventClick}
         activeOpacity={0.7}
-        style={styles.addEventButton}>
-        <EntypoIcons name="plus" color={colors.whiteColor} size={20} />
+        style={[styles.addEventButton, { backgroundColor: colors[theme].commonPrimaryColor}]}>
+        <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
       </TouchableOpacity>
     </>
   );
@@ -58,7 +61,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: colors.primaryColor,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',

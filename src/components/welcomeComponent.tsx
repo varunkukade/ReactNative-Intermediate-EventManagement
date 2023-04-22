@@ -26,6 +26,7 @@ const PROFILE_PICTURE_SIZE = 60;
 const WelcomeComponent = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   const [uri, setUri] = useState('');
 
@@ -163,12 +164,12 @@ const WelcomeComponent = (): ReactElement => {
       <View style={styles.welcomeHelloText}>
         <TextComponent
           weight="normal"
-          style={{color: colors.primaryColor, fontSize: 20}}>
+          style={{color: colors[theme].textColor, fontSize: 20}}>
           Hello👋🏻
         </TextComponent>
         <TextComponent
           weight="bold"
-          style={{color: colors.primaryColor, fontSize: 20}}>
+          style={{color: colors[theme].textColor, fontSize: 20}}>
           {auth().currentUser?.displayName}
         </TextComponent>
       </View>
@@ -177,7 +178,7 @@ const WelcomeComponent = (): ReactElement => {
         activeOpacity={0.6}
         style={styles.profilePicContainer}>
         {uri === "" ? (
-          <View style={styles.profilePicSkaleton} />
+          <View style={[styles.profilePicSkaleton, { backgroundColor: colors[theme].lavenderColor}]} />
         ) : (
           <ImageComponent
             source={
@@ -190,7 +191,7 @@ const WelcomeComponent = (): ReactElement => {
             }}
           />
         )}
-        <TextComponent style={{color: colors.primaryColor}} weight="bold">
+        <TextComponent style={{color: colors[theme].textColor}} weight="bold">
           Update
         </TextComponent>
       </TouchableOpacity>
@@ -218,7 +219,6 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   profilePicSkaleton: {
-    backgroundColor: colors.lavenderColor,
     width: PROFILE_PICTURE_SIZE,
     height: PROFILE_PICTURE_SIZE,
     borderRadius: PROFILE_PICTURE_SIZE / 2,

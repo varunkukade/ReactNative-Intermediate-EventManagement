@@ -2,6 +2,7 @@ import React, {ReactElement, ReactNode} from 'react';
 import {StyleSheet, TouchableOpacity, StyleProp, ViewStyle, TouchableNativeFeedbackProps, TouchableOpacityProps, TextStyle} from 'react-native';
 import {colors} from '../utils/appStyles';
 import TextComponent from './text';
+import { useAppSelector } from '../reduxConfig/store';
 
 type ButtonCommonProps = TouchableNativeFeedbackProps & TouchableOpacityProps
 
@@ -19,10 +20,11 @@ const ButtonComponent = ({
   bgColor,
   ...props
 }: ButtonComponentProps): ReactElement => {
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   return (
-    <TouchableOpacity activeOpacity={0.7} {...props} style={[containerStyle,styles.wrapperComponent, {backgroundColor: bgColor? bgColor: colors.primaryColor}]}>
-        <TextComponent style={[{color: colors.whiteColor}, textStyle]} weight="bold">{children}</TextComponent>
+    <TouchableOpacity activeOpacity={0.7} {...props} style={[containerStyle,styles.wrapperComponent, {backgroundColor: bgColor? bgColor: colors[theme].buttonColor}]}>
+        <TextComponent style={[{color: colors[theme].whiteColor}, textStyle]} weight="bold">{children}</TextComponent>
     </TouchableOpacity>
   );
 };

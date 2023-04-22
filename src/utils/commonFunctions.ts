@@ -1,9 +1,5 @@
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAppDispatch} from '../reduxConfig/store';
-import {resetEventState} from '../reduxConfig/slices/eventsSlice';
-import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
-import {resetUserState} from '../reduxConfig/slices/userSlice';
 
 export type checkIfEmptyProps = boolean | object | string | number;
 export const checkIfEmpty = <T extends checkIfEmptyProps>(value: T) => {
@@ -41,23 +37,25 @@ export const getTime = (time: Date) => {
   return moment(time).format('LT');
 };
 
-export const updateTheAsyncStorage = async (str: 'true' | 'false') => {
+
+export const setAsyncStorage = async (key: string, value: string ) => {
   try {
-    await AsyncStorage.setItem('isAuthenticated', str);
+    await AsyncStorage.setItem(key, value);
   } catch (e) {
     // saving error
   }
 };
-export const getTheAsyncStorage = async (): Promise<boolean> => {
+
+export const getAsyncStorage = async (key : string): Promise<string> => {
   try {
-    const value = await AsyncStorage.getItem('isAuthenticated');
-    if (value !== null && value === 'true') {
+    const value = await AsyncStorage.getItem(key);
+    if (value !== null) {
       // value previously stored
-      return true;
-    } else return false;
+      return value;
+    } else return "";
   } catch (e) {
     // error reading value
-    return false;
+    return "";
   }
 };
 

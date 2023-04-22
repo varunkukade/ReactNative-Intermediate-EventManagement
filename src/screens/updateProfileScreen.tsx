@@ -15,7 +15,7 @@ import {
   emailValidation,
   mobileNumbervalidation,
   passwordValidation,
-  updateTheAsyncStorage,
+  setAsyncStorage,
 } from '../utils/commonFunctions';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -79,6 +79,7 @@ const UpdateProfileScreen = () => {
   let isGoogleUser = useAppSelector(
     state => state.user.currentUser.signinMethod === GOOGLE_CONST,
   );
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   let profileData = useRef<null | EachUser>(null);
 
@@ -170,7 +171,7 @@ const UpdateProfileScreen = () => {
       ToastAndroid.show(message, ToastAndroid.SHORT);
     }
     dispatch(logoutAPICall()).then(res => {
-      updateTheAsyncStorage('false');
+      setAsyncStorage("isAuthenticated",'false');
       resetReduxState();
       rootNavigation.reset({
         index: 0,
@@ -281,14 +282,14 @@ const UpdateProfileScreen = () => {
   return (
     <ScreenWrapper>
       <ScrollView
-        style={styles.wrapperComponent}
+        style={[styles.wrapperComponent, { backgroundColor: colors[theme].primaryColor}]}
         showsVerticalScrollIndicator={false}>
         <View style={styles.welcomeMessage}>
           <TextComponent
             style={{
               fontSize: 15,
               marginBottom: 10,
-              color: colors.whiteColor,
+              color: colors[theme].whiteColor,
               textAlign: 'center',
             }}
             weight="semibold">
@@ -297,7 +298,7 @@ const UpdateProfileScreen = () => {
               : 'You will need to relogin once you update email and password.'}
           </TextComponent>
         </View>
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, {  backgroundColor: colors[theme].cardColor}]}>
           <InputComponent
             value={updateProfileForm.name.value}
             onChangeText={value => onChangeForm(value, constants.name)}
@@ -327,7 +328,7 @@ const UpdateProfileScreen = () => {
                 style={{position: 'absolute', right: 15}}>
                 <Ionicons
                   name={showCurrentPassword ? 'eye-off-outline' : 'eye-outline'}
-                  color={colors.iconLightPinkColor}
+                  color={colors[theme].iconLightPinkColor}
                   size={22}
                 />
               </TouchableOpacity>
@@ -346,7 +347,7 @@ const UpdateProfileScreen = () => {
                 style={{position: 'absolute', right: 15}}>
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                  color={colors.iconLightPinkColor}
+                  color={colors[theme].iconLightPinkColor}
                   size={22}
                 />
               </TouchableOpacity>
@@ -367,7 +368,7 @@ const UpdateProfileScreen = () => {
                 style={{position: 'absolute', right: 15}}>
                 <Ionicons
                   name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                  color={colors.iconLightPinkColor}
+                  color={colors[theme].iconLightPinkColor}
                   size={22}
                 />
               </TouchableOpacity>
@@ -398,7 +399,6 @@ export default UpdateProfileScreen;
 const styles = StyleSheet.create({
   wrapperComponent: {
     flex: 1,
-    backgroundColor: colors.primaryColor,
   },
   welcomeMessage: {
     flex: 0.2,
@@ -408,7 +408,6 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 0.8,
-    backgroundColor: colors.whiteColor,
     paddingHorizontal: measureMents.leftPadding,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,

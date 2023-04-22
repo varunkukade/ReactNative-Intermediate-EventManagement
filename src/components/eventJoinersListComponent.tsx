@@ -20,6 +20,7 @@ const EventJoinersListComponent = ({
 
     //dispatch and selectors
   const dispatch = useAppDispatch();
+  const theme = useAppSelector(state => state.user.currentUser.theme)
   
   useEffect(() => {
     dispatch(getPeopleAPICall()).then(res => {
@@ -95,8 +96,8 @@ const EventJoinersListComponent = ({
     if(peopleState.statuses.getNextEventJoinersAPICall === "loading")
     return (
       <View style={styles.footerContainer}>
-        <ActivityIndicator color={colors.primaryColor}/>
-        <TextComponent style={{color: colors.primaryColor, fontSize: 16, marginTop: 5, marginBottom: 10}} weight="bold">Fetching More Event Joiners...</TextComponent>
+        <ActivityIndicator color={colors[theme].primaryColor}/>
+        <TextComponent style={{color: colors[theme].primaryColor, fontSize: 16, marginTop: 5, marginBottom: 10}} weight="bold">Fetching More Event Joiners...</TextComponent>
       </View>
     )
     else return null;
@@ -114,13 +115,13 @@ const EventJoinersListComponent = ({
         activeOpacity={0.7}
         key={index}
         onLongPress={() => onLongPressUser(data)}
-        style={styles.eachEventComponent}>
+        style={[styles.eachEventComponent, {  backgroundColor: colors[theme].cardColor}]}>
         <View style={styles.secondSection}>
           <TextComponent
             numberOfLines={2}
             weight="normal"
             style={{
-              color: colors.primaryColor,
+              color: colors[theme].textColor,
               fontSize: 14,
             }}>
             {data.userName}
@@ -128,7 +129,7 @@ const EventJoinersListComponent = ({
           <TextComponent
             weight="bold"
             style={{
-              color: colors.primaryColor,
+              color: colors[theme].textColor,
               fontSize: 15,
             }}>
             +91 {data.userMobileNumber}
@@ -137,7 +138,7 @@ const EventJoinersListComponent = ({
         <View style={styles.thirdSection}>
           <EntypoIcons
             name="chevron-right"
-            color={colors.primaryColor}
+            color={colors[theme].textColor}
             size={27}
           />
         </View>
@@ -149,7 +150,7 @@ const EventJoinersListComponent = ({
     <>
       <TextComponent
         weight="bold"
-        style={{color: colors.blackColor, fontSize: 15, marginBottom: 10}}>
+        style={{color: colors[theme].textColor, fontSize: 15, marginBottom: 10}}>
         Total People:{' '}
         {peopleData?.getSize() && peopleData?.getSize() > 0
           ? peopleData?.getSize()
@@ -169,17 +170,17 @@ const EventJoinersListComponent = ({
         />
       ) : peopleState.statuses.getPeopleAPICall === 'loading' ? (
         skelatons.map((eachItem, index) => (
-          <View key={index} style={styles.eventLoadingSkelaton} />
+          <View key={index} style={[styles.eventLoadingSkelaton, { backgroundColor: colors[theme].lavenderColor}]} />
         ))
       ) : peopleState.statuses.getPeopleAPICall === 'failed' ? (
-        <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
+        <View style={[styles.eventLoadingSkelaton, {marginTop: 30, backgroundColor: colors[theme].lavenderColor}]}>
           <TextComponent weight="bold">
             'Failed to fetch users. Please try again after some time'
           </TextComponent>
         </View>
       ) : (
-        <View style={[styles.eventLoadingSkelaton, {marginTop: 30}]}>
-          <TextComponent style={{color: colors.greyColor}} weight="bold">
+        <View style={[styles.eventLoadingSkelaton, {marginTop: 30, backgroundColor: colors[theme].lavenderColor}]}>
+          <TextComponent style={{color: colors[theme].greyColor}} weight="bold">
             No Records Found!
           </TextComponent>
         </View>
@@ -194,7 +195,6 @@ export const MemoizedEventJoinerListComponent = React.memo(
 
 const styles = StyleSheet.create({
   eventLoadingSkelaton: {
-    backgroundColor: colors.lavenderColor,
     height: 90,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -205,7 +205,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   eachEventComponent: {
-    backgroundColor: colors.whiteColor,
     height: 90,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,

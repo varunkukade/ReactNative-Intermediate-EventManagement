@@ -31,6 +31,7 @@ const LoadingAnimation = () => {
   const eventSlice = useAppSelector(state => state.events);
   const userSlice = useAppSelector(state => state.user);
   const peopleSlice = useAppSelector(state => state.people);
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   const eventSliceStatuses = useAppSelector(state => state.events.statuses);
   const userSliceStatuses = useAppSelector(state => state.user.statuses);
@@ -100,11 +101,11 @@ const LoadingAnimation = () => {
               },
               reanimatedStyle,
             ]}>
-            <Animated.View style={[styles.loadingAnimation]} />
+            <Animated.View style={[styles.loadingAnimation, { backgroundColor: colors[theme].lavenderColor}]} />
           </Animated.View>
           <TextComponent
             weight="bold"
-            style={{color: colors.whiteColor, fontSize: 16}}>
+            style={{color: colors[theme].whiteColor, fontSize: 16}}>
             {getLoadingMessage()}
           </TextComponent>
         </View>
@@ -128,7 +129,6 @@ const styles = StyleSheet.create({
   loadingAnimation: {
     width: SIZE,
     height: SIZE,
-    backgroundColor: colors.lavenderColor,
     borderRadius: SIZE / 2,
   },
   leftHeart: {

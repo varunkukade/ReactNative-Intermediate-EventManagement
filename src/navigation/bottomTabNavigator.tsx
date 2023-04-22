@@ -4,7 +4,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {colors, fontStyles} from '../utils/appStyles';
 import {StyleSheet, Text} from 'react-native';
 import { HomeScreen, SettingsScreen } from '../screens';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useAppSelector } from '../reduxConfig/store';
 
 export type BottomTabParamList = {
   Home: undefined;
@@ -15,12 +15,13 @@ const BottomTab = createMaterialBottomTabNavigator<BottomTabParamList>();
 
 const BottomTabNavigator = () => {
   const [currentTab, setCurrentTab] = useState<"Home" | "Settings" | "">("")
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   return (
       <BottomTab.Navigator
-        activeColor={colors.primaryColor}
-        inactiveColor={colors.greyColor}
-        barStyle={{backgroundColor: currentTab === "Home" ? colors.lightLavenderColor: colors.whiteColor}}
+        activeColor={colors[theme].textColor}
+        inactiveColor={colors[theme].greyColor}
+        barStyle={{backgroundColor: currentTab === "Home" ? colors[theme].lightLavenderColor :  colors[theme].cardColor}}
         initialRouteName="Home">
         <BottomTab.Screen
           name="Home"
@@ -32,7 +33,7 @@ const BottomTabNavigator = () => {
             tabBarIcon: ({focused}) => (
               <MaterialIcons
                 name="home"
-                color={focused ? colors.primaryColor : colors.greyColor}
+                color={focused ? colors[theme].primaryColor : colors[theme].greyColor}
                 size={26}
               />
             ),
@@ -49,7 +50,7 @@ const BottomTabNavigator = () => {
             tabBarIcon: ({focused}) => (
               <MaterialIcons
                 name="settings"
-                color={focused ? colors.primaryColor : colors.greyColor}
+                color={focused ? colors[theme].primaryColor : colors[theme].greyColor}
                 size={26}
               />
             ),

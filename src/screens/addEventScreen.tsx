@@ -68,6 +68,8 @@ const AddEventScreen = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const selectedEventDetails = route.params?.longPressedEvent;
+  const theme = useAppSelector(state => state.user.currentUser.theme)
+
 
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddEventFormData = {
@@ -248,7 +250,7 @@ const AddEventScreen = (): ReactElement => {
   return (
     <ScreenWrapper>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.wrapperComponent}>
+      <View style={[styles.mainContainer, { backgroundColor: colors[theme].cardColor}]}>
           <InputComponent
             value={eventForm.eventTitle.value}
             onChangeText={value => onChangeForm(value, constants.eventTitle)}
@@ -279,7 +281,7 @@ const AddEventScreen = (): ReactElement => {
                 <AntDesignIcons
                   style={{position: 'absolute', right: 15}}
                   name="calendar"
-                  color={colors.iconLightPinkColor}
+                  color={colors[theme].iconLightPinkColor}
                   size={20}
                 />
               }
@@ -308,7 +310,7 @@ const AddEventScreen = (): ReactElement => {
                 <MaterialIcons
                   style={{position: 'absolute', right: 15}}
                   name="timer"
-                  color={colors.iconLightPinkColor}
+                  color={colors[theme].iconLightPinkColor}
                   size={20}
                 />
               }
@@ -364,15 +366,17 @@ const AddEventScreen = (): ReactElement => {
 export default AddEventScreen;
 
 const styles = StyleSheet.create({
-  wrapperComponent: {
-    flex: 1,
-    paddingTop: 30,
-    paddingBottom: 30,
-    paddingHorizontal: measureMents.leftPadding,
-    backgroundColor: colors.whiteColor,
-  },
   dateTimePickerContainer: {
     marginBottom: 10,
     borderRadius: 20,
+  },
+  mainContainer: {
+    flex: 1,
+    paddingHorizontal: measureMents.leftPadding,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    paddingTop: 30,
+    paddingBottom: 30,
+    marginTop: 20
   },
 });

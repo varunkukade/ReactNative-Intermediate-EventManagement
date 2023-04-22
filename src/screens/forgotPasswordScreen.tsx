@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import {Platform, StyleSheet, ToastAndroid, View} from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
 import { ButtonComponent, InputComponent, TextComponent } from '../reusables';
 import { emailValidation } from '../utils/commonFunctions';
-import { useAppDispatch } from '../reduxConfig/store';
+import { useAppDispatch, useAppSelector } from '../reduxConfig/store';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/authStackNavigator';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { forgotPasswordAPICall } from '../reduxConfig/slices/userSlice';
 import { HomeStackParamList } from '../navigation/homeStackNavigator';
 import ScreenWrapper from './screenWrapper';
+import { colors, measureMents } from '../utils/appStyles';
 
 const constants = {
   email: 'email',
@@ -29,6 +29,8 @@ const ForgotPasswordScreen = () => {
   };
   const [forgotPasswordForm, setSignupForm] =
     useState<ForgotPasswordFormData>(initialForgotPasswordForm);
+
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   const onChangeForm = (
     value: string | Date | boolean,
@@ -104,12 +106,12 @@ const ForgotPasswordScreen = () => {
     <ScreenWrapper>
       <View style={styles.welcomeMessage}>
         <TextComponent
-          style={{fontSize: 16, color: colors.whiteColor, textAlign:"center"}}
+          style={{fontSize: 16, color: colors[theme].whiteColor, textAlign:"center"}}
           weight="normal">
          Enter your registered email below to recieve password reset email.
         </TextComponent>
       </View>
-      <View style={styles.mainContainer}>
+      <View style={[styles.mainContainer, {  backgroundColor: colors[theme].cardColor}]}>
       <InputComponent
           value={forgotPasswordForm.email.value}
           onChangeText={value => onChangeForm(value, constants.email)}
@@ -137,7 +139,6 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    backgroundColor: colors.whiteColor,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     paddingTop: 50,

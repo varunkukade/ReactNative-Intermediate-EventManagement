@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {useAppDispatch} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
@@ -70,6 +70,7 @@ const EventJoinersScreen = ({
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   const onLongPressUser = React.useCallback(
     (user: EachPerson) => {
@@ -198,7 +199,7 @@ const EventJoinersScreen = ({
       icon: () => (
         <FeatherIcons
           size={22}
-          color={colors.blackColor}
+          color={colors[theme].greyColor}
           name="edit-2"
         />
       ),
@@ -210,7 +211,7 @@ const EventJoinersScreen = ({
       icon: () => (
         <EntypoIcons
           size={22}
-          color={colors.blackColor}
+          color={colors[theme].greyColor}
           name="chevron-with-circle-right"
         />
       ),
@@ -222,7 +223,7 @@ const EventJoinersScreen = ({
       icon: () => (
         <EntypoIcons
           size={22}
-          color={colors.blackColor}
+          color={colors[theme].greyColor}
           name="chevron-with-circle-right"
         />
       ),
@@ -234,7 +235,7 @@ const EventJoinersScreen = ({
       icon: () => (
         <MaterialIcons
           size={22}
-          color={colors.blackColor}
+          color={colors[theme].greyColor}
           name="delete-outline"
         />
       ),
@@ -295,9 +296,9 @@ const EventJoinersScreen = ({
       {type === 'all' ? (
         <TouchableOpacity
           activeOpacity={0.7}
-          style={styles.addEventButton}
+          style={[styles.addEventButton, { backgroundColor: colors[theme].commonPrimaryColor}]}
           onPress={() => navigation.navigate('AddPeopleScreen')}>
-          <EntypoIcons name="plus" color={colors.whiteColor} size={20} />
+          <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
         </TouchableOpacity>
       ) : null}
       <BottomHalfPopupComponent
@@ -349,19 +350,10 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingHorizontal: measureMents.leftPadding,
   },
-  navigateButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: colors.primaryColor,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   addEventButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: colors.primaryColor,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',

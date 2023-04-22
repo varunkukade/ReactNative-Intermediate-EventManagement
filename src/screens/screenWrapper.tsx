@@ -2,6 +2,7 @@ import {useRoute} from '@react-navigation/native';
 import React, {ReactNode} from 'react';
 import {StatusBar, StyleSheet, View} from 'react-native';
 import {colors} from '../utils/appStyles';
+import { useAppSelector } from '../reduxConfig/store';
 
 type ScreenWrapperProps = {
   children: ReactNode;
@@ -11,6 +12,7 @@ type ScreenWrapperProps = {
 const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
   // we obtain the object that contains info about the current route
   const route = useRoute();
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   // for simplicity we will only modify the background color
   const getBackgroundColorBasedOnRoute = () => {
@@ -18,21 +20,19 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       case 'SignupScreen':
       case 'SigninScreen':
       case 'UpdateProfileScreen':
-        return colors.primaryColor;
+        return colors[theme].primaryColor;
 
       case 'Home':
       case 'EventDetailsScreen':
-        return colors.lightLavenderColor;
-
       case 'AddEventScreen':
       case 'All':
       case 'Pending':
       case 'Completed':
       case 'AddPeopleScreen':
-        return colors.whiteColor;
+        return colors[theme].lightLavenderColor;
 
       default:
-        return colors.primaryColor;
+        return colors[theme].primaryColor;
     }
   };
 
@@ -52,7 +52,8 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       case 'Pending':
       case 'Completed':
       case 'AddPeopleScreen':
-        return 'dark-content';
+        let content = theme === "dark" ? "light-content" : "dark-content"
+        return content;
 
       default:
         return 'light-content';

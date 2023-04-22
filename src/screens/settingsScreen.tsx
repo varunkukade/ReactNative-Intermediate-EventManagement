@@ -11,17 +11,18 @@ import {colors, measureMents} from '../utils/appStyles';
 import {TextComponent} from '../reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useAppDispatch} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
-import {logoutAPICall, resetUserState} from '../reduxConfig/slices/userSlice';
+import {logoutAPICall, resetUserState, setTheme} from '../reduxConfig/slices/userSlice';
 import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {updateTheAsyncStorage} from '../utils/commonFunctions';
+import {setAsyncStorage} from '../utils/commonFunctions';
 import {resetEventState} from '../reduxConfig/slices/eventsSlice';
 import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
 import {ScreenWrapper} from '.';
+import { VERSION_CONST } from '../utils/constants';
 
 const SettingsScreen = () => {
   //dispatch and selectors
@@ -38,7 +39,7 @@ const SettingsScreen = () => {
   //modal states
   const [isLogoutPopupVisible, setIsLogoutPopupVisible] = useState(false);
 
-  const [selectedMode, setSelectedMode] = useState('light');
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   const onCancelClick = useCallback(() => {
     setIsLogoutPopupVisible(false);
@@ -58,7 +59,7 @@ const SettingsScreen = () => {
           ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
         //Navigation state object - https://reactnavigation.org/docs/rootNavigation-state/
         resetReduxState();
-        updateTheAsyncStorage('false');
+        setAsyncStorage('isAuthenticated','false');
         rootNavigation.reset({
           index: 0,
           routes: [
@@ -100,9 +101,12 @@ const SettingsScreen = () => {
   }, [rootNavigation]);
 
   const changeTheme = useCallback(() => {
-    if (selectedMode === 'light') setSelectedMode('dark');
-    if (selectedMode === 'dark') setSelectedMode('light');
-  }, [selectedMode, setSelectedMode]);
+    if (theme === 'light'){
+      dispatch(setTheme('dark'))
+    }else {
+      dispatch(setTheme('light'))
+    }
+  }, [theme, dispatch]);
 
   let actions = [
     {
@@ -111,14 +115,14 @@ const SettingsScreen = () => {
       icon: () => (
         <EntypoIcons
           size={30}
-          color={colors.primaryColor}
+          color={colors[theme].primaryColor}
           name="chevron-with-circle-right"
         />
       ),
       rightIcon: () => (
         <EntypoIcons
           size={35}
-          color={colors.iconLightPinkColor}
+          color={colors[theme].iconLightPinkColor}
           name="chevron-with-circle-right"
         />
       ),
@@ -130,14 +134,14 @@ const SettingsScreen = () => {
       icon: () => (
         <EntypoIcons
           size={30}
-          color={colors.primaryColor}
+          color={colors[theme].primaryColor}
           name="chevron-with-circle-right"
         />
       ),
       rightIcon: () => (
         <EntypoIcons
           size={35}
-          color={colors.iconLightPinkColor}
+          color={colors[theme].iconLightPinkColor}
           name="chevron-with-circle-right"
         />
       ),
@@ -149,16 +153,16 @@ const SettingsScreen = () => {
       icon: () => (
         <EntypoIcons
           size={30}
-          color={colors.primaryColor}
+          color={colors[theme].primaryColor}
           name="chevron-with-circle-right"
         />
       ),
       rightIcon: () => (
         <MaterialCommunityIcons
           size={40}
-          color={colors.iconLightPinkColor}
+          color={colors[theme].iconLightPinkColor}
           name={
-            selectedMode === 'light'
+            theme === 'light'
               ? 'toggle-switch-off-outline'
               : 'toggle-switch-outline'
           }
@@ -172,14 +176,14 @@ const SettingsScreen = () => {
       icon: () => (
         <EntypoIcons
           size={30}
-          color={colors.primaryColor}
+          color={colors[theme].primaryColor}
           name="chevron-with-circle-right"
         />
       ),
       rightIcon: () => (
         <EntypoIcons
           size={35}
-          color={colors.iconLightPinkColor}
+          color={colors[theme].iconLightPinkColor}
           name="chevron-with-circle-right"
         />
       ),
@@ -191,22 +195,22 @@ const SettingsScreen = () => {
     <ScreenWrapper>
       <View style={styles.welcomeMessage}>
         <TextComponent
-          style={{fontSize: 20, color: colors.whiteColor}}
+          style={{fontSize: 20, color: colors[theme].whiteColor}}
           weight="bold">
           Settings
         </TextComponent>
       </View>
-      <View style={styles.mainContainer}>
+      <View style={[styles.mainContainer, { backgroundColor: colors[theme].cardColor}]}>
         {actions.map((eachAction, index) => (
           <View key={index}>
             {eachAction.id === 3 ? (
               <TouchableHighlight underlayColor='transparent' onPress={eachAction.onPress}>
-                <View style={styles.eachAction}>
+                <View style={[styles.eachAction, { backgroundColor: colors[theme].lightLavenderColor }]}>
                   <View style={styles.secondSection}>
                     <TextComponent
                       weight="semibold"
                       style={{
-                        color: colors.primaryColor,
+                        color: colors[theme].textColor,
                         fontSize: 16,
                       }}>
                       {eachAction.label}
@@ -214,9 +218,9 @@ const SettingsScreen = () => {
                   </View>
                   <View style={styles.thirdSection}>
                     <TextComponent
-                      style={{color: colors.primaryColor}}
+                      style={{color: colors[theme].textColor}}
                       weight="bold">
-                      {selectedMode === 'light' ? 'Off' : 'On'}
+                      {theme === 'light' ? 'Off' : 'On'}
                     </TextComponent>
                     {eachAction.rightIcon()}
                   </View>
@@ -226,12 +230,12 @@ const SettingsScreen = () => {
               <TouchableOpacity
                 activeOpacity={0.5}
                 onPress={eachAction.onPress}
-                style={styles.eachAction}>
+                style={[styles.eachAction, { backgroundColor: colors[theme].lightLavenderColor }]}>
                 <View style={styles.secondSection}>
                   <TextComponent
                     weight="semibold"
                     style={{
-                      color: colors.primaryColor,
+                      color: colors[theme].textColor,
                       fontSize: 16,
                     }}>
                     {eachAction.label}
@@ -244,8 +248,8 @@ const SettingsScreen = () => {
             )}
           </View>
         ))}
-        <TextComponent style={{textAlign: 'center'}} weight="bold">
-          Version 1.0.0
+        <TextComponent style={{textAlign: 'center', color: colors[theme].textColor}} weight="bold">
+          {VERSION_CONST}
         </TextComponent>
       </View>
       <CenterPopupComponent
@@ -267,7 +271,6 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    backgroundColor: colors.whiteColor,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     paddingTop: 30,
@@ -275,7 +278,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: measureMents.leftPadding,
   },
   eachAction: {
-    backgroundColor: colors.lightLavenderColor,
     height: 90,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -312,15 +314,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignSelf: 'center',
     marginTop: 20,
-    marginBottom: 20,
-  },
-  eachActionStyle: {
-    backgroundColor: colors.lavenderColor,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 5,
-  },
+  }
 });

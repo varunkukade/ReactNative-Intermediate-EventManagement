@@ -73,21 +73,47 @@ const AddPeopleScreen = (): ReactElement => {
   const selectedEventDetails = useAppSelector(
     state => state.events.currentSelectedEvent,
   );
-  let longPressedUser = route.params?.longPressedUser
+  const theme = useAppSelector(state => state.user.currentUser.theme)
+
+  let longPressedUser = route.params?.longPressedUser;
 
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddPeopleFormData = {
-    userName: {value: longPressedUser ? longPressedUser.userName : '', errorMessage: ''},
-    userMobileNumber: {value: longPressedUser ? longPressedUser.userMobileNumber : '', errorMessage: ''},
-    userEmail: {value: longPressedUser ? longPressedUser.userEmail : '', errorMessage: ''},
-    isPaymentCompleted: {value: longPressedUser ? !longPressedUser.isPaymentPending : false, errorMessage: ''},
+    userName: {
+      value: longPressedUser ? longPressedUser.userName : '',
+      errorMessage: '',
+    },
+    userMobileNumber: {
+      value: longPressedUser ? longPressedUser.userMobileNumber : '',
+      errorMessage: '',
+    },
+    userEmail: {
+      value: longPressedUser ? longPressedUser.userEmail : '',
+      errorMessage: '',
+    },
+    isPaymentCompleted: {
+      value: longPressedUser ? !longPressedUser.isPaymentPending : false,
+      errorMessage: '',
+    },
   };
   const [eventForm, setEventForm] =
     useState<AddPeopleFormData>(initialEventForm);
 
   const [paymentModes, setPaymentModes] = useState<EachPaymentMethod[]>([
-    {id: 1, value: true, name: 'Cash', selected: longPressedUser ? longPressedUser.paymentMode === "Cash": true },
-    {id: 2, value: false, name: 'Online', selected: longPressedUser ? longPressedUser.paymentMode === "Online" : false},
+    {
+      id: 1,
+      value: true,
+      name: 'Cash',
+      selected: longPressedUser ? longPressedUser.paymentMode === 'Cash' : true,
+    },
+    {
+      id: 2,
+      value: false,
+      name: 'Online',
+      selected: longPressedUser
+        ? longPressedUser.paymentMode === 'Online'
+        : false,
+    },
   ]);
 
   const onChangeForm = (
@@ -126,10 +152,10 @@ const AddPeopleScreen = (): ReactElement => {
   };
 
   const updateTheUser = () => {
-    if(!selectedEventDetails || !longPressedUser) return null;
+    if (!selectedEventDetails || !longPressedUser) return null;
     const {userEmail, userMobileNumber, userName, isPaymentCompleted} =
       eventForm;
-    let requestObj: updatePeopleAPICallRequest  = {
+    let requestObj: updatePeopleAPICallRequest = {
       userId: longPressedUser?.userId,
       newUpdate: {
         userEmail: userEmail.value,
@@ -137,7 +163,7 @@ const AddPeopleScreen = (): ReactElement => {
         userName: userName.value,
         isPaymentPending: !isPaymentCompleted.value,
         eventId: selectedEventDetails.eventId,
-      }
+      },
     };
     if (isPaymentCompleted.value) {
       paymentModes.forEach(eachMode => {
@@ -157,10 +183,10 @@ const AddPeopleScreen = (): ReactElement => {
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
-  }
+  };
 
   const createNewUser = () => {
-    if(!selectedEventDetails) return null;
+    if (!selectedEventDetails) return null;
     const {userEmail, userMobileNumber, userName, isPaymentCompleted} =
       eventForm;
     let requestObj: Omit<EachPerson, 'userId'> = {
@@ -169,7 +195,7 @@ const AddPeopleScreen = (): ReactElement => {
       userName: userName.value,
       isPaymentPending: !isPaymentCompleted.value,
       eventId: selectedEventDetails.eventId,
-      createdAt: new Date().toString()
+      createdAt: new Date().toString(),
     };
     if (isPaymentCompleted.value) {
       paymentModes.forEach(eachMode => {
@@ -190,7 +216,7 @@ const AddPeopleScreen = (): ReactElement => {
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
-  }
+  };
 
   const onFormSubmit = (): void => {
     const {userEmail, userMobileNumber, userName, isPaymentCompleted} =
@@ -201,10 +227,10 @@ const AddPeopleScreen = (): ReactElement => {
     ) {
       if (selectedEventDetails) {
         setFormErrors('empty');
-        if(longPressedUser) {
-          updateTheUser()
-        }else {
-          createNewUser()
+        if (longPressedUser) {
+          updateTheUser();
+        } else {
+          createNewUser();
         }
       }
     } else {
@@ -235,53 +261,61 @@ const AddPeopleScreen = (): ReactElement => {
 
   return (
     <ScreenWrapper>
-    <ScrollView
-      style={styles.wrapperComponent}
-      showsVerticalScrollIndicator={false}>
-      <InputComponent
-        value={eventForm.userName.value}
-        onChangeText={value => onChangeForm(value, constants.userName)}
-        label="Enter Name"
-        errorMessage={eventForm.userName.errorMessage}
-        placeholder="Varun Kukade"
-      />
-      <InputComponent
-        value={eventForm.userMobileNumber.value}
-        onChangeText={value => onChangeForm(value, constants.userMobileNumber)}
-        label="Enter Mobile Number"
-        keyboardType="numeric"
-        errorMessage={eventForm.userMobileNumber.errorMessage}
-        placeholder="9028476756"
-      />
-      <InputComponent
-        value={eventForm.userEmail.value}
-        onChangeText={value => onChangeForm(value, constants.userEmail)}
-        label="Enter Email"
-        placeholder="varun.k@gmail.com"
-      />
-      <CheckboxComponent
-        label="Check this if User has completed the payment"
-        value={eventForm.isPaymentCompleted.value}
-        onValueChange={value =>
-          onChangeForm(value, constants.isPaymentCompleted)
-        }
-      />
-      {eventForm.isPaymentCompleted.value ? (
-        <View style={styles.paymentModes}>
-          {paymentModes.map(item => (
-            <RadioButtonComponent
-              onPress={() => onRadioBtnClick(item)}
-              selected={item.selected}
-              key={item.id}>
-              {item.name}
-            </RadioButtonComponent>
-          ))}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View
+          style={[
+            styles.mainContainer,
+            {backgroundColor: colors[theme].cardColor},
+          ]}>
+          <InputComponent
+            value={eventForm.userName.value}
+            onChangeText={value => onChangeForm(value, constants.userName)}
+            label="Enter Name"
+            errorMessage={eventForm.userName.errorMessage}
+            placeholder="Varun Kukade"
+          />
+          <InputComponent
+            value={eventForm.userMobileNumber.value}
+            onChangeText={value =>
+              onChangeForm(value, constants.userMobileNumber)
+            }
+            label="Enter Mobile Number"
+            keyboardType="numeric"
+            errorMessage={eventForm.userMobileNumber.errorMessage}
+            placeholder="9028476756"
+          />
+          <InputComponent
+            value={eventForm.userEmail.value}
+            onChangeText={value => onChangeForm(value, constants.userEmail)}
+            label="Enter Email"
+            placeholder="varun.k@gmail.com"
+          />
+          <CheckboxComponent
+            label="Check this if User has completed the payment"
+            value={eventForm.isPaymentCompleted.value}
+            onValueChange={value =>
+              onChangeForm(value, constants.isPaymentCompleted)
+            }
+          />
+          {eventForm.isPaymentCompleted.value ? (
+            <View style={styles.paymentModes}>
+              {paymentModes.map(item => (
+                <RadioButtonComponent
+                  onPress={() => onRadioBtnClick(item)}
+                  selected={item.selected}
+                  key={item.id}>
+                  {item.name}
+                </RadioButtonComponent>
+              ))}
+            </View>
+          ) : null}
+          <ButtonComponent
+            onPress={onFormSubmit}
+            containerStyle={{marginTop: 30}}>
+            Submit
+          </ButtonComponent>
         </View>
-      ) : null}
-      <ButtonComponent onPress={onFormSubmit} containerStyle={{marginTop: 30}}>
-        Submit
-      </ButtonComponent>
-    </ScrollView>
+      </ScrollView>
     </ScreenWrapper>
   );
 };
@@ -289,11 +323,16 @@ const AddPeopleScreen = (): ReactElement => {
 export default AddPeopleScreen;
 
 const styles = StyleSheet.create({
-  wrapperComponent: {
+  mainContainer: {
     flex: 1,
+    paddingHorizontal: measureMents.leftPadding,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
     paddingTop: 30,
     paddingBottom: 30,
-    paddingHorizontal: measureMents.leftPadding,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    marginTop: 30
   },
   dateTimePickerContainer: {
     marginBottom: 10,

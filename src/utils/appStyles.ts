@@ -1,15 +1,38 @@
 import { Dimensions } from "react-native"
 
-export const colors = {
-    primaryColor: "#4B0082",
+const commonColors = {
     whiteColor: "#FFFFFF",
-    greyColor: "#909090",
     blackColor: "#000000",
-    lavenderColor: "#E6E6FA",
-    errorColor:"#ff3333",
-    iconLightPinkColor:"#FC8EAC",
-    lightLavenderColor: "#FBF8FF"
+    commonPrimaryColor: "#4B0082"
 }
+
+export const colors = {
+    "light": {
+        primaryColor: commonColors.commonPrimaryColor,
+        cardColor: commonColors.whiteColor,
+        textColor: commonColors.commonPrimaryColor,
+        buttonColor: commonColors.commonPrimaryColor,
+        greyColor: "#909090",
+        lavenderColor: "#E6E6FA",
+        errorColor:"#ff3333",
+        iconLightPinkColor:"#FC8EAC",
+        lightLavenderColor: "#FBF8FF",
+        ...commonColors
+    },
+    "dark": {
+        primaryColor: "#121212",
+        cardColor: "#28282B",
+        textColor: commonColors.whiteColor,
+        buttonColor: commonColors.commonPrimaryColor, 
+        greyColor: "#909090",
+        lavenderColor: "#28282B",
+        errorColor:"#ff3333",
+        iconLightPinkColor:"#FC8EAC",
+        lightLavenderColor: "#121212",
+        ...commonColors
+    },
+}
+
 
 export const measureMents = {
     leftPadding: 20,

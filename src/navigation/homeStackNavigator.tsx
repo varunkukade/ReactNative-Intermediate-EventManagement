@@ -13,6 +13,7 @@ import {NavigatorScreenParams} from '@react-navigation/native';
 import {BottomTabParamList} from './bottomTabNavigator';
 import {EachEvent} from '../reduxConfig/slices/eventsSlice';
 import {EachPerson} from '../reduxConfig/slices/peopleSlice';
+import { useAppSelector } from '../reduxConfig/store';
 
 export type HomeStackParamList = {
   BottomTabNavigator: undefined | NavigatorScreenParams<BottomTabParamList>;
@@ -26,11 +27,13 @@ export type HomeStackParamList = {
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 
 function HomeStackNavigator() {
+  const theme = useAppSelector(state => state.user.currentUser.theme)
+
   return (
     <HomeStack.Navigator
       screenOptions={{
         animation: 'slide_from_right',
-        headerTintColor: colors.primaryColor,
+        headerTintColor: colors[theme].textColor,
       }}
       initialRouteName="BottomTabNavigator">
       <HomeStack.Screen
@@ -45,6 +48,7 @@ function HomeStackNavigator() {
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
+          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
         }}
         name="AddEventScreen"
         component={AddEventScreen}
@@ -56,7 +60,7 @@ function HomeStackNavigator() {
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors.lightLavenderColor}
+          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
         })}
         name="EventDetailsScreen"
         component={EventDetailsScreen}
@@ -68,6 +72,7 @@ function HomeStackNavigator() {
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
+          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
         })}
         name="EventJoinersTopTab"
         component={EventJoinersTopTabs}
@@ -79,6 +84,7 @@ function HomeStackNavigator() {
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
+          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
         })}
         name="AddPeopleScreen"
         component={AddPeopleScreen}
@@ -90,8 +96,8 @@ function HomeStackNavigator() {
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors.primaryColor},
-          headerTintColor: colors.whiteColor,
+          headerStyle: {backgroundColor: colors[theme].primaryColor},
+          headerTintColor: colors[theme].whiteColor,
         })}
         name="UpdateProfileScreen"
         component={UpdateProfileScreen}

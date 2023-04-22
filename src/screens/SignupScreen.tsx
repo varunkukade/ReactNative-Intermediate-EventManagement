@@ -21,7 +21,7 @@ import {
   mobileNumbervalidation,
   passwordValidation,
 } from '../utils/commonFunctions';
-import {useAppDispatch} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {signupAPICall} from '../reduxConfig/slices/userSlice';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
@@ -67,6 +67,7 @@ const SignupScreen = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const theme = useAppSelector(state => state.user.currentUser.theme)
 
   const onChangeForm = (
     value: string | Date | boolean,
@@ -210,7 +211,7 @@ const SignupScreen = () => {
             style={{
               fontSize: 15,
               marginBottom: 10,
-              color: colors.whiteColor,
+              color: colors[theme].whiteColor,
               textAlign: 'center',
             }}
             weight="semibold">
@@ -218,7 +219,7 @@ const SignupScreen = () => {
             once place.
           </TextComponent>
         </View>
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, { backgroundColor: colors[theme].cardColor}]}>
           <InputComponent
             value={signupForm.name.value}
             onChangeText={value => onChangeForm(value, constants.name)}
@@ -246,7 +247,7 @@ const SignupScreen = () => {
                 style={{position: 'absolute', right: 15}}>
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                  color={colors.iconLightPinkColor}
+                  color={colors[theme].iconLightPinkColor}
                   size={22}
                 />
               </TouchableOpacity>
@@ -267,7 +268,7 @@ const SignupScreen = () => {
                 style={{position: 'absolute', right: 15}}>
                 <Ionicons
                   name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                  color={colors.iconLightPinkColor}
+                  color={colors[theme].iconLightPinkColor}
                   size={22}
                 />
               </TouchableOpacity>
@@ -297,7 +298,7 @@ const SignupScreen = () => {
             <TextComponent
               style={{
                 fontSize: 14,
-                color: colors.primaryColor,
+                color: colors[theme].textColor,
                 textAlign: 'center',
               }}
               weight="bold">
@@ -320,7 +321,6 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    backgroundColor: colors.whiteColor,
     paddingHorizontal: measureMents.leftPadding,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
