@@ -96,8 +96,8 @@ const EventJoinersListComponent = ({
     if(peopleState.statuses.getNextEventJoinersAPICall === "loading")
     return (
       <View style={styles.footerContainer}>
-        <ActivityIndicator color={colors[theme].primaryColor}/>
-        <TextComponent style={{color: colors[theme].primaryColor, fontSize: 16, marginTop: 5, marginBottom: 10}} weight="bold">Fetching More Event Joiners...</TextComponent>
+        <ActivityIndicator color={theme === "light" ? colors.light.commonPrimaryColor : colors.dark.whiteColor}/>
+        <TextComponent style={{color: theme === "light" ? colors.light.commonPrimaryColor : colors.dark.whiteColor, fontSize: 16, marginTop: 5, marginBottom: 10}} weight="bold">Fetching More Event Joiners...</TextComponent>
       </View>
     )
     else return null;

@@ -219,8 +219,8 @@ const EventListComponent = (): ReactElement => {
     if(eventsState.statuses.getNextEventsAPICall === "loading")
     return (
       <View style={styles.footerContainer}>
-        <ActivityIndicator/>
-        <TextComponent style={{color: colors[theme].primaryColor, fontSize: 16, marginTop: 5}} weight="bold">Fetching More Events...</TextComponent>
+        <ActivityIndicator color={theme === "light" ? colors.light.commonPrimaryColor : colors.dark.whiteColor}/>
+        <TextComponent style={{color: theme === "light" ? colors.light.commonPrimaryColor : colors.dark.whiteColor, fontSize: 16, marginTop: 5}} weight="bold">Fetching More Events...</TextComponent>
       </View>
     )
     else return null;
