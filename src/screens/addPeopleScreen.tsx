@@ -4,6 +4,8 @@ import {
   ScrollView,
   StyleSheet,
   ToastAndroid,
+  TouchableHighlight,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
@@ -16,6 +18,7 @@ import {
   CheckboxComponent,
   InputComponent,
   RadioButtonComponent,
+  TextComponent,
 } from '../reusables';
 import {mobileNumbervalidation} from '../utils/commonFunctions';
 import {
@@ -73,7 +76,7 @@ const AddPeopleScreen = (): ReactElement => {
   const selectedEventDetails = useAppSelector(
     state => state.events.currentSelectedEvent,
   );
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector(state => state.user.currentUser.theme);
 
   let longPressedUser = route.params?.longPressedUser;
 
@@ -314,6 +317,22 @@ const AddPeopleScreen = (): ReactElement => {
             containerStyle={{marginTop: 30}}>
             Submit
           </ButtonComponent>
+          <TouchableOpacity activeOpacity={0.6}>
+          <TextComponent
+            weight="semibold"
+            style={{color: colors[theme].textColor, fontSize: 15, marginTop: 20, textAlign: "center"}}>
+            {' '}
+            Add People from common list 👉🏻
+          </TextComponent>
+          </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.6}>
+          <TextComponent
+            weight="semibold"
+            style={{color: colors[theme].textColor, fontSize: 15, marginTop: 20, textAlign: "center"}}>
+            {' '}
+            Create new common list of people 👉🏻
+          </TextComponent>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </ScreenWrapper>
@@ -332,7 +351,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
-    marginTop: 30
+    marginTop: 30,
   },
   dateTimePickerContainer: {
     marginBottom: 10,
