@@ -90,7 +90,6 @@ const CreateCommonList = (): ReactElement => {
         if (eachUser.userId === userId) return { ...eachUser, expanded: !eachUser.expanded };
         else return eachUser;
       })
-     // console.log(updatedArr)
     setUsers(updatedArr);
   };
 
@@ -159,7 +158,6 @@ const CreateCommonList = (): ReactElement => {
             />
           </TouchableOpacity>
         </View>
-        {console.log("item.userName.value",item.userName.value)}
         {item.expanded ? (
           <View
             style={[styles.form, {backgroundColor: colors[theme].cardColor}]}>
