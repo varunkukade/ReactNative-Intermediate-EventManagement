@@ -50,7 +50,14 @@ const ButtonComponent = ({
         },
       ]}>
       <TextComponent
-        style={[{color: isDisabled ?  colors[theme].greyColor : colors[theme].whiteColor}, textStyle]}
+        style={[
+          {
+            color: isDisabled
+              ? colors[theme].greyColor
+              : colors[theme].whiteColor,
+          },
+          textStyle,
+        ]}
         weight="bold">
         {children}
       </TextComponent>

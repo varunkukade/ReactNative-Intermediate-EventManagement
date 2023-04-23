@@ -12,7 +12,7 @@ import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
 import {ButtonComponent, TextComponent} from '../../reusables';
 import ScreenWrapper from '../screenWrapper';
 import uuid from 'react-native-uuid';
-import EachUserComponent from './EachUserComponent';
+import EachUserComponent from './eachUserComponent';
 
 interface EachFormField<T> {
   value: T;

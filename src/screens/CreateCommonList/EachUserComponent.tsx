@@ -1,6 +1,6 @@
 import React, {ReactElement} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useAppSelector} from '../..//reduxConfig/store';
+import {useAppSelector} from '../../reduxConfig/store';
 import {EachUserFormData} from './createCommonList';
 import {colors, measureMents} from '../../utils/appStyles';
 import {InputComponent, TextComponent} from '../../reusables';

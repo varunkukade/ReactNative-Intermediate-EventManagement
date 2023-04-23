@@ -1,14 +1,14 @@
 import React, {ReactElement} from 'react';
 import { StyleSheet, TouchableOpacity, View} from 'react-native';
-import {MemoizedEventListComponent} from '../components/eventListComponent';
-import {MemoizedWelcomeComponent} from '../components/welcomeComponent';
-import {colors, measureMents} from '../utils/appStyles';
+import {MemoizedEventListComponent} from './eventListComponent';
+import {MemoizedWelcomeComponent} from './welcomeComponent';
+import {colors, measureMents} from '../../utils/appStyles';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
-import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import ScreenWrapper from './screenWrapper';
-import { useAppSelector } from '../reduxConfig/store';
+import {HomeStackParamList} from '../../navigation/homeStackNavigator';
+import ScreenWrapper from '../screenWrapper';
+import { useAppSelector } from '../../reduxConfig/store';
 
 const HomeScreen = (): ReactElement => {
   //navigation state

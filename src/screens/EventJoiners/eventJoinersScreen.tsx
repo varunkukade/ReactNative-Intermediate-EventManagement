@@ -6,29 +6,29 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
+import {colors, measureMents} from '../../utils/appStyles';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '../navigation/homeStackNavigator';
+import {HomeStackParamList} from '../../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import {
   EachPerson,
   removePeopleAPICall,
   updatePeopleAPICall,
   updatePeopleAPICallRequest,
-} from '../reduxConfig/slices/peopleSlice';
+} from '../../reduxConfig/slices/peopleSlice';
 import BottomHalfPopupComponent, {
   EachAction,
-} from '../reusables/bottomHalfPopup';
+} from '../../reusables/bottomHalfPopup';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
-import {TopTabParamList} from '../navigation/topTabsNavigator';
-import {RadioButtonComponent} from '../reusables';
-import {EachPaymentMethod} from './addPeopleScreen';
-import {MemoizedEventJoinerListComponent} from '../components/eventJoinersListComponent';
+import CenterPopupComponent, {popupData} from '../../reusables/centerPopup';
+import {TopTabParamList} from '../../navigation/topTabsNavigator';
+import {RadioButtonComponent} from '../../reusables';
+import {EachPaymentMethod} from '../addPeopleScreen';
+import {MemoizedEventJoinerListComponent} from './eventJoinersListComponent';
 import FeatherIcons from 'react-native-vector-icons/Feather';
-import ScreenWrapper from './screenWrapper';
+import ScreenWrapper from '../screenWrapper';
 
 type EventJoinersScreenProps = {
   type: 'all' | 'pending' | 'completed';
