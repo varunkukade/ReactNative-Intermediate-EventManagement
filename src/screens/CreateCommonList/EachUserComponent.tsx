@@ -3,7 +3,7 @@ import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useAppSelector} from '../../reduxConfig/store';
 import {EachUserFormData} from './createCommonList';
 import {colors, measureMents} from '../../utils/appStyles';
-import {InputComponent, TextComponent} from '../../reusables';
+import {ButtonComponent, InputComponent, TextComponent} from '../../reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 

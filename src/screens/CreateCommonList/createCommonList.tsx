@@ -1,9 +1,5 @@
-import React, {ReactElement, useState, useCallback} from 'react';
-import {
-  FlatList,
-  StyleSheet,
-  View,
-} from 'react-native';
+import React, {ReactElement, useState, useCallback, useEffect} from 'react';
+import {FlatList, StyleSheet, View, Keyboard} from 'react-native';
 import {colors, measureMents} from '../../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../../navigation/homeStackNavigator';
@@ -13,6 +9,10 @@ import {ButtonComponent, TextComponent} from '../../reusables';
 import ScreenWrapper from '../screenWrapper';
 import uuid from 'react-native-uuid';
 import EachUserComponent from './eachUserComponent';
+import {
+  emailValidation,
+  mobileNumbervalidation,
+} from '../../utils/commonFunctions';
 
 interface EachFormField<T> {
   value: T;
@@ -63,6 +63,22 @@ const CreateCommonList = (): ReactElement => {
     },
   ]);
 
+  const [keyboardStatus, setKeyboardStatus] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardStatus(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardStatus(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
   const onAddUserClick = () => {
     setUsers([...users, newUser]);
   };
@@ -105,22 +121,69 @@ const CreateCommonList = (): ReactElement => {
     [users, setUsers],
   );
 
+  const onCreateListClick = () => {
+    //here loop through all users data and check for name validation
+    const allFieldsValid = users.every(user => {
+      const {userName, userMobileNumber, userEmail} = user;
+      return (
+        userName.value.trim() &&
+        (!userMobileNumber?.value.trim() ||
+          mobileNumbervalidation(userMobileNumber.value.trim()).isValid) &&
+        (!userEmail?.value.trim() || emailValidation(userEmail.value.trim()))
+      );
+    });
+
+    if (!allFieldsValid) {
+      const newArr = users.map(user => {
+        const {userName, userMobileNumber, userEmail} = user;
+        const newUserName = userName.value.trim()
+          ? {...userName, errorMessage: ''}
+          : {...userName, errorMessage: 'User Name cannot be empty.'};
+        const newUserMobileNumber =
+          !userMobileNumber?.value.trim() ||
+          mobileNumbervalidation(userMobileNumber.value.trim()).isValid
+            ? {...userMobileNumber, errorMessage: ''}
+            : {...userMobileNumber, errorMessage: 'Mobile Number is invalid.'};
+        const newUserEmail =
+          !userEmail?.value.trim() ||
+          emailValidation(userEmail.value.trim(),
+          )
+            ? {...userEmail, errorMessage: ''}
+            : {...userEmail, errorMessage: 'Email is invalid.'};
+
+        return {
+          ...user,
+          userName: newUserName,
+          userMobileNumber: newUserMobileNumber,
+          userEmail: newUserEmail,
+        };
+      });
+
+      setUsers(newArr);
+    } else {
+      // all fields are valid, submit the form
+      console.log('all forms valid');
+    }
+  };
+
   return (
     <ScreenWrapper>
-      <View style={styles.description}>
-        <TextComponent
-          style={{
-            fontSize: 15,
-            color: colors[theme].textColor,
-            textAlign: 'center',
-            marginBottom: 20,
-          }}
-          weight="semibold">
-          Create common list of people here and while adding people to any event
-          you can select people from this list.
-        </TextComponent>
-        <ButtonComponent onPress={onAddUserClick}>ADD USER</ButtonComponent>
-      </View>
+      {!keyboardStatus ? (
+        <View style={styles.description}>
+          <TextComponent
+            style={{
+              fontSize: 15,
+              color: colors[theme].textColor,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}
+            weight="semibold">
+            Create common list of people here and while adding people to any
+            event you can select people from this list.
+          </TextComponent>
+          <ButtonComponent onPress={onAddUserClick}>ADD USER</ButtonComponent>
+        </View>
+      ) : null}
       <FlatList
         data={users}
         style={{
@@ -139,9 +202,15 @@ const CreateCommonList = (): ReactElement => {
         )}
         keyExtractor={item => item.userId.toString()}
       />
-      <View style={[styles.description, { paddingBottom: 20}]}>
-        <ButtonComponent isDisabled={users.length === 0}>CREATE LIST</ButtonComponent>
-      </View>
+      {!keyboardStatus ? (
+        <View style={[styles.description, {paddingBottom: 20}]}>
+          <ButtonComponent
+            onPress={onCreateListClick}
+            isDisabled={users.length === 0}>
+            CREATE LIST
+          </ButtonComponent>
+        </View>
+      ) : null}
     </ScreenWrapper>
   );
 };

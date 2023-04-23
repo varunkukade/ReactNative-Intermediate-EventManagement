@@ -26,7 +26,7 @@ const PROFILE_PICTURE_SIZE = 60;
 const WelcomeComponent = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector(state => state.user.currentUser.theme);
 
   const [uri, setUri] = useState('');
 
@@ -40,9 +40,9 @@ const WelcomeComponent = (): ReactElement => {
         if (
           Platform.OS === 'android' &&
           resp.meta.requestStatus === 'fulfilled' &&
-          resp.payload.type === "success"
+          resp.payload.type === 'success'
         ) {
-          setUri(resp.payload.uri)
+          setUri(resp.payload.uri);
         }
       }
     });
@@ -106,7 +106,7 @@ const WelcomeComponent = (): ReactElement => {
             response.assets &&
             response.assets.length > 0 &&
             response.assets[0].uri
-          ){
+          ) {
             setUri(response.assets[0].uri);
           }
         } else {
@@ -116,8 +116,9 @@ const WelcomeComponent = (): ReactElement => {
       })
       .catch(err => {
         if (Platform.OS === 'android') {
-          ToastAndroid.show(err?.message ||
-            'Oops, something went wrong. Failed to update Profile picture. Please try again later.',
+          ToastAndroid.show(
+            err?.message ||
+              'Oops, something went wrong. Failed to update Profile picture. Please try again later.',
             ToastAndroid.SHORT,
           );
         }
@@ -177,13 +178,16 @@ const WelcomeComponent = (): ReactElement => {
         onPress={askPermissions}
         activeOpacity={0.6}
         style={styles.profilePicContainer}>
-        {uri === "" ? (
-          <View style={[styles.profilePicSkaleton, { backgroundColor: colors[theme].lavenderColor}]} />
+        {uri === '' ? (
+          <View
+            style={[
+              styles.profilePicSkaleton,
+              {backgroundColor: colors[theme].lavenderColor},
+            ]}
+          />
         ) : (
           <ImageComponent
-            source={
-              uri !== '' ? {uri} : require('../../images/dummyPicture.png')
-            }
+            source={{uri}}
             style={{
               width: PROFILE_PICTURE_SIZE,
               height: PROFILE_PICTURE_SIZE,
