@@ -25,6 +25,7 @@ export type EachUserFormData = {
   userName: EachFormField<string>;
   userMobileNumber?: EachFormField<string>;
   userEmail?: EachFormField<string>;
+  isValidUser: '' | 'YES' | 'NO';
 };
 
 export type EachPaymentMethod = {
@@ -45,12 +46,13 @@ const CreateCommonList = (): ReactElement => {
   const dispatch = useAppDispatch();
   const theme = useAppSelector(state => state.user.currentUser.theme);
 
-  const newUser = {
+  const newUser: EachUserFormData = {
     userId: uuid.v4(),
     expanded: true,
     userName: {value: '', errorMessage: ''},
     userMobileNumber: {value: '', errorMessage: ''},
     userEmail: {value: '', errorMessage: ''},
+    isValidUser: '',
   };
   //useStates
   const [users, setUsers] = useState<EachUserFormData[]>([
@@ -60,6 +62,7 @@ const CreateCommonList = (): ReactElement => {
       userName: {value: '', errorMessage: ''},
       userMobileNumber: {value: '', errorMessage: ''},
       userEmail: {value: '', errorMessage: ''},
+      isValidUser: '',
     },
   ]);
 
@@ -121,47 +124,70 @@ const CreateCommonList = (): ReactElement => {
     [users, setUsers],
   );
 
+  const updateFormErrors = () => {
+    const newArr = users.map(user => {
+      const {userName, userMobileNumber, userEmail} = user;
+      const newUserName = userName.value.trim()
+        ? {...userName, errorMessage: ''}
+        : {...userName, errorMessage: 'User Name cannot be empty.'};
+      const newUserMobileNumber =
+        !userMobileNumber?.value.trim() ||
+        mobileNumbervalidation(userMobileNumber.value.trim()).isValid
+          ? {...userMobileNumber, errorMessage: ''}
+          : {
+              ...userMobileNumber,
+              errorMessage: mobileNumbervalidation(
+                userMobileNumber.value.trim(),
+              ).errorMessage,
+            };
+      const newUserEmail =
+        !userEmail?.value.trim() ||
+        emailValidation(userEmail.value.trim()).isValid
+          ? {...userEmail, errorMessage: ''}
+          : {
+              ...userEmail,
+              errorMessage: emailValidation(userEmail.value.trim())
+                .errorMessage,
+            };
+
+      return {
+        ...user,
+        userName: newUserName,
+        userMobileNumber: newUserMobileNumber,
+        userEmail: newUserEmail,
+        isValidUser:
+          newUserName.errorMessage === '' &&
+          newUserMobileNumber.errorMessage === '' &&
+          newUserEmail.errorMessage === '' ? "YES" : "NO"
+      };
+    });
+    setUsers(newArr);
+  };
+
+  const isUserValid = useCallback((user: EachUserFormData) => {
+    const {userName, userMobileNumber, userEmail} = user;
+    if (
+      userName.value.trim() &&
+      (!userMobileNumber?.value.trim() ||
+        mobileNumbervalidation(userMobileNumber.value.trim()).isValid) &&
+      (!userEmail?.value.trim() ||
+        emailValidation(userEmail.value.trim()).isValid)
+    ) {
+      return true;
+    } else return false;
+  }, []);
+
   const onCreateListClick = () => {
     //here loop through all users data and check for name validation
     const allFieldsValid = users.every(user => {
-      const {userName, userMobileNumber, userEmail} = user;
-      return (
-        userName.value.trim() &&
-        (!userMobileNumber?.value.trim() ||
-          mobileNumbervalidation(userMobileNumber.value.trim()).isValid) &&
-        (!userEmail?.value.trim() || emailValidation(userEmail.value.trim()))
-      );
+      return isUserValid(user);
     });
 
     if (!allFieldsValid) {
-      const newArr = users.map(user => {
-        const {userName, userMobileNumber, userEmail} = user;
-        const newUserName = userName.value.trim()
-          ? {...userName, errorMessage: ''}
-          : {...userName, errorMessage: 'User Name cannot be empty.'};
-        const newUserMobileNumber =
-          !userMobileNumber?.value.trim() ||
-          mobileNumbervalidation(userMobileNumber.value.trim()).isValid
-            ? {...userMobileNumber, errorMessage: ''}
-            : {...userMobileNumber, errorMessage: 'Mobile Number is invalid.'};
-        const newUserEmail =
-          !userEmail?.value.trim() ||
-          emailValidation(userEmail.value.trim(),
-          )
-            ? {...userEmail, errorMessage: ''}
-            : {...userEmail, errorMessage: 'Email is invalid.'};
-
-        return {
-          ...user,
-          userName: newUserName,
-          userMobileNumber: newUserMobileNumber,
-          userEmail: newUserEmail,
-        };
-      });
-
-      setUsers(newArr);
+      updateFormErrors();
     } else {
       // all fields are valid, submit the form
+      updateFormErrors();
       console.log('all forms valid');
     }
   };
@@ -198,6 +224,7 @@ const CreateCommonList = (): ReactElement => {
             deleteUser={deleteUser}
             expandUser={expandUser}
             onChangeForm={onChangeForm}
+            isUserValid={item.isValidUser}
           />
         )}
         keyExtractor={item => item.userId.toString()}

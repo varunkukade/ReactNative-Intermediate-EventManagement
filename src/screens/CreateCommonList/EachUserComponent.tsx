@@ -16,6 +16,7 @@ type EachUserComponentProps = {
     fieldName: 'userName' | 'userMobileNumber' | 'userEmail',
     id: string | number[],
   ) => void;
+  isUserValid: "" | "YES" | "NO";
 };
 
 type ConstantsType = {
@@ -34,10 +35,12 @@ const EachUserComponent = ({
   deleteUser,
   expandUser,
   onChangeForm,
+  isUserValid = "",
 }: EachUserComponentProps): ReactElement => {
   //dispatch and selectors
   const theme = useAppSelector(state => state.user.currentUser.theme);
 
+  const isInvalidUser = () => isUserValid === "NO";
   return (
     <>
       <View
@@ -48,6 +51,13 @@ const EachUserComponent = ({
             borderBottomLeftRadius: eachUser.expanded ? 0 : 20,
             borderBottomRightRadius: eachUser.expanded ? 0 : 20,
             marginBottom: eachUser.expanded ? 0 : measureMents.leftPadding,
+            borderWidth: isInvalidUser() ? 1 : 0,
+            borderTopColor: colors[theme].errorColor,
+            borderLeftColor: colors[theme].errorColor,
+            borderRightColor: colors[theme].errorColor,
+            borderBottomColor: eachUser.expanded
+              ? colors[theme].cardColor
+              : colors[theme].errorColor,
           },
         ]}>
         <TextComponent
@@ -81,7 +91,19 @@ const EachUserComponent = ({
         </TouchableOpacity>
       </View>
       {eachUser.expanded ? (
-        <View style={[styles.form, {backgroundColor: colors[theme].cardColor}]}>
+        <View
+          style={[
+            styles.form,
+            {
+              backgroundColor: colors[theme].cardColor,
+              borderWidth: isInvalidUser() ? 1 : 0,
+              borderBottomColor: colors[theme].errorColor,
+              borderRightColor: colors[theme].errorColor,
+              borderLeftColor: colors[theme].errorColor,
+              borderTopColor: colors[theme].cardColor,
+              height: isInvalidUser() ? 370 : 330,
+            },
+          ]}>
           <InputComponent
             value={eachUser.userName.value}
             onChangeText={value =>
@@ -97,6 +119,7 @@ const EachUserComponent = ({
             onChangeText={value =>
               onChangeForm(value, constants.userMobileNumber, eachUser.userId)
             }
+            errorMessage={eachUser.userMobileNumber?.errorMessage}
             label="Enter Mobile Number"
             keyboardType="numeric"
             placeholder="10 digits"
@@ -106,6 +129,7 @@ const EachUserComponent = ({
             onChangeText={value =>
               onChangeForm(value, constants.userEmail, eachUser.userId)
             }
+            errorMessage={eachUser.userEmail?.errorMessage}
             label="Enter Email"
             placeholder="Email of user"
           />
@@ -127,7 +151,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: measureMents.leftPadding,
   },
   form: {
-    height: 330,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     paddingBottom: 10,
