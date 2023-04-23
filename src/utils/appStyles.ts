@@ -17,7 +17,7 @@ export const colors = {
         lavenderColor: "#E6E6FA",
         errorColor:"#ff3333",
         iconLightPinkColor:"#FC8EAC",
-        lightLavenderColor: "#FBF8FF",
+        lightLavenderColor: "rgb(245, 245, 255)",
         ...commonColors
     },
     "dark": {

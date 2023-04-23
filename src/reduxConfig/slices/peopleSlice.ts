@@ -2,8 +2,8 @@ import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import apiUrls from '../apiUrls';
 import firestore from '@react-native-firebase/firestore';
 import {MessageType} from './eventsSlice';
-import { RootState, store } from '../store';
-import { PAGINATION_CONSTANT } from '../../utils/constants';
+import {RootState, store} from '../store';
+import {PAGINATION_CONSTANT} from '../../utils/constants';
 
 type status = 'idle' | 'succeedded' | 'failed' | 'loading';
 
@@ -27,21 +27,23 @@ type PeopleState = {
     removePeopleAPICall: status;
     updatePeopleAPICall: status;
     getNextEventJoinersAPICall: status;
+    addCommonListAPICall: status;
   };
   loadingMessage: string;
 };
 
 const initialState: PeopleState = {
   people: [],
-  lastFetchedUserId: "",
+  lastFetchedUserId: '',
   statuses: {
     addPeopleAPICall: 'idle',
     getPeopleAPICall: 'idle',
     removePeopleAPICall: 'idle',
     updatePeopleAPICall: 'idle',
-    getNextEventJoinersAPICall: 'idle'
+    getNextEventJoinersAPICall: 'idle',
+    addCommonListAPICall: 'idle',
   },
-  loadingMessage: ''
+  loadingMessage: '',
 };
 
 export const peopleSlice = createSlice({
@@ -56,7 +58,7 @@ export const peopleSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(addPeopleAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Adding User To Event'
+        state.loadingMessage = 'Adding User To Event';
         state.statuses.addPeopleAPICall = 'loading';
       })
       .addCase(addPeopleAPICall.fulfilled, (state, action) => {
@@ -93,7 +95,7 @@ export const peopleSlice = createSlice({
         state.statuses.getNextEventJoinersAPICall = 'failed';
       })
       .addCase(removePeopleAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Deleting the user'
+        state.loadingMessage = 'Deleting the user';
         state.statuses.removePeopleAPICall = 'loading';
       })
       .addCase(removePeopleAPICall.fulfilled, (state, action) => {
@@ -106,19 +108,26 @@ export const peopleSlice = createSlice({
         state.statuses.removePeopleAPICall = 'failed';
       })
       .addCase(updatePeopleAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Updating User Status'
+        state.loadingMessage = 'Updating User Status';
         state.statuses.updatePeopleAPICall = 'loading';
       })
       .addCase(updatePeopleAPICall.fulfilled, (state, action) => {
-        const {isPaymentPending,userName, userEmail, userMobileNumber, paymentMode } = action.meta.arg.newUpdate;
+        const {
+          isPaymentPending,
+          userName,
+          userEmail,
+          userMobileNumber,
+          paymentMode,
+        } = action.meta.arg.newUpdate;
         state.people = state.people.map(eachPerson => {
           if (eachPerson.userId === action.meta.arg.userId) {
             if (isPaymentPending !== undefined)
               eachPerson.isPaymentPending = isPaymentPending;
-            if(userName) eachPerson.userName = userName;
-            if(userEmail) eachPerson.userEmail = userEmail;
-            if(userMobileNumber) eachPerson.userMobileNumber = userMobileNumber;
-            if(paymentMode) eachPerson.paymentMode = paymentMode 
+            if (userName) eachPerson.userName = userName;
+            if (userEmail) eachPerson.userEmail = userEmail;
+            if (userMobileNumber)
+              eachPerson.userMobileNumber = userMobileNumber;
+            if (paymentMode) eachPerson.paymentMode = paymentMode;
             return eachPerson;
           } else return eachPerson;
         });
@@ -126,6 +135,16 @@ export const peopleSlice = createSlice({
       })
       .addCase(updatePeopleAPICall.rejected, (state, action) => {
         state.statuses.removePeopleAPICall = 'failed';
+      })
+      .addCase(addCommonListAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Creating Common List...';
+        state.statuses.addCommonListAPICall = 'loading';
+      })
+      .addCase(addCommonListAPICall.fulfilled, (state, action) => {
+        state.statuses.addCommonListAPICall = 'succeedded';
+      })
+      .addCase(addCommonListAPICall.rejected, (state, action) => {
+        state.statuses.addCommonListAPICall = 'failed';
       });
   },
 });
@@ -155,7 +174,9 @@ export const addPeopleAPICall = createAsyncThunk<
         });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
-        message: err?.message || 'Failed to add user. Please try again after some time',
+        message:
+          err?.message ||
+          'Failed to add user. Please try again after some time',
       });
     }
   },
@@ -185,7 +206,9 @@ export const removePeopleAPICall = createAsyncThunk<
       });
   } catch (err: any) {
     return thunkAPI.rejectWithValue({
-      message: err?.message || 'Failed to remove user. Please try again after some time',
+      message:
+        err?.message ||
+        'Failed to remove user. Please try again after some time',
     });
   }
 });
@@ -207,7 +230,7 @@ export const getPeopleAPICall = createAsyncThunk<
   try {
     return await firestore()
       .collection(apiUrls.people)
-      .orderBy("createdAt", "desc")
+      .orderBy('createdAt', 'desc')
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(documentSnapshot => {
@@ -215,7 +238,7 @@ export const getPeopleAPICall = createAsyncThunk<
           updatedObj.userId = documentSnapshot.id;
           responseArr.push(updatedObj);
         });
-        if(responseArr.length > 0){
+        if (responseArr.length > 0) {
           thunkAPI.dispatch(
             setlastFetchedUserId(responseArr[responseArr.length - 1].userId),
           );
@@ -228,7 +251,9 @@ export const getPeopleAPICall = createAsyncThunk<
       });
   } catch (err: any) {
     return thunkAPI.rejectWithValue({
-      message: err?.message || 'Failed to fetch users. Please try again after some time',
+      message:
+        err?.message ||
+        'Failed to fetch users. Please try again after some time',
     });
   }
 });
@@ -264,7 +289,9 @@ export const updatePeopleAPICall = createAsyncThunk<
         });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
-        message: err?.message || 'Failed to update user. Please try again after some time',
+        message:
+          err?.message ||
+          'Failed to update user. Please try again after some time',
       });
     }
   },
@@ -273,8 +300,8 @@ export const updatePeopleAPICall = createAsyncThunk<
 export type SuccessType = {
   responseData: EachPerson[];
   message: string;
-  successMessagetype: 'moreUsersExist' | 'noMoreUsers'
-}
+  successMessagetype: 'moreUsersExist' | 'noMoreUsers';
+};
 export const getNextEventJoinersAPICall = createAsyncThunk<
   //type of successfull returned obj
   SuccessType,
@@ -286,50 +313,110 @@ export const getNextEventJoinersAPICall = createAsyncThunk<
     dispatch: typeof store.dispatch;
     state: RootState;
   }
->('events/getNextEventJoiners', async (_, {dispatch, getState, rejectWithValue}) => {
-  //this callback is called as payload creator callback.
-  let responseArr: EachPerson[] = [];
-  try {
-    let lastDocFetched = await firestore()
-      .collection(apiUrls.people)
-      .doc(getState().people.lastFetchedUserId)
-      .get()
-    return await firestore()
-      .collection(apiUrls.people)
-      .orderBy("createdAt", "desc")
-      .startAfter(lastDocFetched)
-      .limit(PAGINATION_CONSTANT)
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(documentSnapshot => {
-          let updatedObj = JSON.parse(JSON.stringify(documentSnapshot.data()));
-          updatedObj.userId = documentSnapshot.id;
-          responseArr.push(updatedObj);
+>(
+  'events/getNextEventJoiners',
+  async (_, {dispatch, getState, rejectWithValue}) => {
+    //this callback is called as payload creator callback.
+    let responseArr: EachPerson[] = [];
+    try {
+      let lastDocFetched = await firestore()
+        .collection(apiUrls.people)
+        .doc(getState().people.lastFetchedUserId)
+        .get();
+      return await firestore()
+        .collection(apiUrls.people)
+        .orderBy('createdAt', 'desc')
+        .startAfter(lastDocFetched)
+        .limit(PAGINATION_CONSTANT)
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(documentSnapshot => {
+            let updatedObj = JSON.parse(
+              JSON.stringify(documentSnapshot.data()),
+            );
+            updatedObj.userId = documentSnapshot.id;
+            responseArr.push(updatedObj);
+          });
+          if (responseArr.length > 0) {
+            dispatch(
+              setlastFetchedUserId(responseArr[responseArr.length - 1].userId),
+            );
+            //return the resolved promise with data.
+            return {
+              responseData: responseArr,
+              message: 'Users fetched successfully',
+              successMessagetype: 'moreUsersExist',
+            } as SuccessType;
+          } else {
+            //return the resolved promise with data.
+            return {
+              responseData: [],
+              message: 'No More Event Joiners',
+              successMessagetype: 'noMoreUsers',
+            } as SuccessType;
+          }
         });
-        if(responseArr.length > 0){
-          dispatch(
-            setlastFetchedUserId(responseArr[responseArr.length - 1].userId),
-          );
-          //return the resolved promise with data.
-          return {
-            responseData: responseArr,
-            message: 'Users fetched successfully',
-            successMessagetype: 'moreUsersExist'
-          } as SuccessType
-        }else {
-          //return the resolved promise with data.
-          return {
-            responseData: [],
-            message: 'No More Event Joiners',
-            successMessagetype: 'noMoreUsers'
-          } as SuccessType
-        }
-      });
-  } catch (err: any) {
-    //return rejected promise from payload creator
-    return rejectWithValue({
-      message: err?.message || 'Failed to fetch more users. Please try again after some time',
-      failureType: "failure"
-    } as MessageType);
+    } catch (err: any) {
+      //return rejected promise from payload creator
+      return rejectWithValue({
+        message:
+          err?.message ||
+          'Failed to fetch more users. Please try again after some time',
+        failureType: 'failure',
+      } as MessageType);
+    }
+  },
+);
+
+type addCommonListAPICallReqObj = {
+  commonListName: string;
+  createdBy: string;
+  createdAt: string;
+  users: Omit<EachPerson, 'userId' | 'eventId'>[];
+};
+
+export const addCommonListAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  MessageType,
+  //type of request obj passed to payload creator
+  addCommonListAPICallReqObj,
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
   }
-});
+>(
+  'people/addCommonList',
+  async (requestObj: addCommonListAPICallReqObj, thunkAPI) => {
+    try {
+      // add a document to the CommonList collection
+      const commonListDoc = await firestore()
+        .collection(apiUrls.commonList)
+        .add({
+          commonListName: requestObj.commonListName,
+          createdBy: requestObj.createdBy,
+          createdAt: requestObj.createdAt,
+        });
+
+      // add a multiple documents using batch to the CommonListUsers subcollection within CommonList Collection
+
+      // Create a batch instance
+      const batch = firestore().batch();
+
+      // Iterate through the array of documents and add them to the batch
+      requestObj.users.forEach(doc => {
+        const docRef = commonListDoc.collection(apiUrls.commonListUsers).doc();
+        batch.set(docRef, doc);
+      });
+
+      return await batch.commit().then(res => {
+        return {message: 'Common List Created Successfully!'};
+      });
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue({
+        message:
+          err?.message ||
+          'Failed to create common list. Please try again after some time',
+      });
+    }
+  },
+);

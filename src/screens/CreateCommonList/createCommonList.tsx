@@ -1,5 +1,5 @@
 import React, {ReactElement, useState, useCallback, useEffect} from 'react';
-import {FlatList, StyleSheet, View, Keyboard} from 'react-native';
+import {FlatList, StyleSheet, View, Keyboard, Platform, ToastAndroid} from 'react-native';
 import {colors, measureMents} from '../../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../../navigation/homeStackNavigator';
@@ -15,7 +15,9 @@ import {
   mobileNumbervalidation,
 } from '../../utils/commonFunctions';
 import CenterPopupComponent, {popupData} from '../../reusables/centerPopup';
-import { MAX_BULK_ADDITION } from '../../utils/constants';
+import {MAX_BULK_ADDITION} from '../../utils/constants';
+import { EachPerson, addCommonListAPICall } from '../../reduxConfig/slices/peopleSlice';
+import auth from '@react-native-firebase/auth';
 
 interface EachFormField<T> {
   value: T;
@@ -63,6 +65,11 @@ const CreateCommonList = (): ReactElement => {
   const [bulkUserModal, setBulkUserModal] = useState(false);
   const [bulkUserCount, setBulkUserCount] = useState('1');
   const [keyboardStatus, setKeyboardStatus] = useState(false);
+  const [listNameModal, setListNameModal] = useState(false);
+  const [listName, setListName] = useState({
+    value: "",
+    errorMessage: ""
+  });
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -189,6 +196,46 @@ const CreateCommonList = (): ReactElement => {
     } else return false;
   }, []);
 
+  const callApi = useCallback(() => {
+    let requestArr: Omit<EachPerson, 'userId' | 'eventId'>[] = [];
+    users.forEach(eachUser => {
+      requestArr.push({
+        userEmail: eachUser.userEmail?.value || "",
+        userMobileNumber: eachUser.userMobileNumber?.value || "",
+        userName: eachUser.userName.value,
+        isPaymentPending: true,
+        createdAt: new Date().toString(),
+        paymentMode: '',
+      });
+    });
+    let requestObj = {
+      commonListName: listName.value,
+      createdBy: auth().currentUser?.uid,
+      createdAt: new Date().toString(),
+      users: requestArr
+    }
+    dispatch(addCommonListAPICall(requestObj)).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        setUsers([
+          {
+            userId: uuid.v4(),
+            expanded: true,
+            userName: {value: '', errorMessage: ''},
+            userMobileNumber: {value: '', errorMessage: ''},
+            userEmail: {value: '', errorMessage: ''},
+            isValidUser: '',
+          },
+        ])
+        navigation.pop();
+      } else {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  },[]);
+
   const onCreateListClick = () => {
     //here loop through all users data and check for name validation
     const allFieldsValid = users.every(user => {
@@ -200,7 +247,7 @@ const CreateCommonList = (): ReactElement => {
     } else {
       // all fields are valid, submit the form
       updateFormErrors();
-      console.log('all forms valid');
+      setListNameModal(true)
     }
   };
 
@@ -208,6 +255,21 @@ const CreateCommonList = (): ReactElement => {
     setBulkUserModal(false);
     setBulkUserCount('1');
   }, [setBulkUserModal, setBulkUserCount]);
+
+  const onListNameCancelClick = useCallback(() => {
+    setListNameModal(false);
+    setListName({value: "", errorMessage: ""})
+  }, [setListNameModal, setListName]);
+
+  const onListNameConfirmClick = useCallback(() => {
+    if(listName.value){
+      setListName({...listName, errorMessage: ""})
+      setListNameModal(false);
+      callApi()
+    }else {
+      setListName({...listName, errorMessage: "List Name cannot be empty."})
+    }
+  }, [listName, setListName, setListNameModal, callApi ]);
 
   const onConfirmClick = useCallback(() => {
     let updatedUsers = [...users];
@@ -235,17 +297,27 @@ const CreateCommonList = (): ReactElement => {
     };
   }, [onCancelClick, onConfirmClick]);
 
+   //create new instance of this function only when dependencies change
+   const listNamePopupData = useCallback((): popupData => {
+    return {
+      header: 'Final Step',
+      description: 'Name the list',
+      onCancelClick: onListNameCancelClick,
+      onConfirmClick: onListNameConfirmClick,
+    };
+  }, [onListNameCancelClick, onListNameConfirmClick]);
+
   const getBulkCountErrorMessage = () => {
     return bulkUserCount &&
-    parseInt(bulkUserCount) >= 1 &&
-    parseInt(bulkUserCount) <= MAX_BULK_ADDITION
+      parseInt(bulkUserCount) >= 1 &&
+      parseInt(bulkUserCount) <= MAX_BULK_ADDITION
       ? ''
       : bulkUserCount === ''
       ? 'User Count cannot be empty.'
       : parseInt(bulkUserCount) > MAX_BULK_ADDITION
       ? `Max cap is ${MAX_BULK_ADDITION}.`
-      : 'Invalid Count.'
-  }
+      : 'Invalid Count.';
+  };
 
   return (
     <ScreenWrapper>
@@ -266,7 +338,7 @@ const CreateCommonList = (): ReactElement => {
             <ButtonComponent
               containerStyle={{paddingHorizontal: measureMents.leftPadding}}
               onPress={onAddUserClick}>
-              ADD USER
+              ADD SINGLE USER
             </ButtonComponent>
             <ButtonComponent
               containerStyle={{paddingHorizontal: measureMents.leftPadding}}
@@ -318,6 +390,16 @@ const CreateCommonList = (): ReactElement => {
           keyboardType="numeric"
           onChangeText={value => setBulkUserCount(value)}
           errorMessage={getBulkCountErrorMessage()}
+        />
+      </CenterPopupComponent>
+      <CenterPopupComponent
+        popupData={listNamePopupData}
+        isModalVisible={listNameModal}
+        setIsModalVisible={setListNameModal}>
+        <InputComponent
+          value={listName.value}
+          onChangeText={value => setListName({ ...listName, value})}
+          errorMessage={listName.errorMessage}
         />
       </CenterPopupComponent>
     </ScreenWrapper>
