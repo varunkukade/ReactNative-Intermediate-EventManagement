@@ -101,7 +101,6 @@ export default React.memo(CenterPopupComponent);
 
 const styles = StyleSheet.create({
   modalContainer: {
-    flex: 0.33,
     padding: 22,
     borderRadius: 20,
   },
@@ -116,11 +115,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    position: 'absolute',
-    bottom: 22,
-    alignSelf: 'center',
   },
   button: {
-    width: '45%',
+    width: '40%',
   },
 });
