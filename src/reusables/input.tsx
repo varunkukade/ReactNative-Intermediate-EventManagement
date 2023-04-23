@@ -10,6 +10,7 @@ interface InputComponentProps extends Omit<TextInputProps,'cursorColor'> {
   label?: string;
   errorMessage?: string;
   rightIconComponent?: ReactNode;
+  required?: boolean
 }
 
 const InputComponent = ({
@@ -18,17 +19,21 @@ const InputComponent = ({
   label,
   errorMessage,
   rightIconComponent,
+  required = false,
   ...props
 }: InputComponentProps): ReactElement => {
   const theme = useAppSelector(state => state.user.currentUser.theme)
 
   return (
     <View>
+      <View style={{flexDirection:"row"}}>
       <TextComponent
         weight="semibold"
         style={{fontSize: 16, color: colors[theme].textColor}}>
         {label}
       </TextComponent>
+      {required ? <TextComponent weight="semibold" style={{color: colors[theme].errorColor, marginLeft: 5, fontSize: 17}}>*</TextComponent> : null}
+      </View>
       <View style={styles.textInputWrapper}>
         <TextInput
           style={[styles.input, {marginBottom: errorMessage ? 0 : 15,  backgroundColor: colors[theme].lightLavenderColor,  color: colors[theme].textColor}]}

@@ -29,6 +29,7 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       case 'Pending':
       case 'Completed':
       case 'AddPeopleScreen':
+      case 'CreateCommonList':
         return colors[theme].lightLavenderColor;
 
       default:
@@ -52,6 +53,7 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       case 'Pending':
       case 'Completed':
       case 'AddPeopleScreen':
+      case 'CreateCommonList':
         let content = theme === "dark" ? "light-content" : "dark-content"
         return content;
 

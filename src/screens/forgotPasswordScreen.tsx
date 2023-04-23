@@ -116,6 +116,7 @@ const ForgotPasswordScreen = () => {
           value={forgotPasswordForm.email.value}
           onChangeText={value => onChangeForm(value, constants.email)}
           label="Email"
+          required
           errorMessage={forgotPasswordForm.email.errorMessage}
           placeholder="abc@gmail.com"
         />

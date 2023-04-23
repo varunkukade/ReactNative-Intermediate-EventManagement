@@ -244,6 +244,7 @@ const SigninScreen = () => {
             value={signinForm.email.value}
             onChangeText={value => onChangeForm(value, constants.email)}
             label="Email"
+            required
             errorMessage={signinForm.email.errorMessage}
             placeholder="abc@gmail.com"
           />
@@ -251,6 +252,7 @@ const SigninScreen = () => {
             value={signinForm.password.value}
             onChangeText={value => onChangeForm(value, constants.password)}
             label="Password"
+            required
             errorMessage={signinForm.password.errorMessage}
             placeholder="Enter a password..."
             secureTextEntry={!showPassword}

@@ -221,6 +221,7 @@ const SignupScreen = () => {
         </View>
         <View style={[styles.mainContainer, { backgroundColor: colors[theme].cardColor}]}>
           <InputComponent
+            required
             value={signupForm.name.value}
             onChangeText={value => onChangeForm(value, constants.name)}
             label="Name"
@@ -233,6 +234,7 @@ const SignupScreen = () => {
             label="Email"
             errorMessage={signupForm.email.errorMessage}
             placeholder="abc@gmail.com"
+            required
           />
           <InputComponent
             value={signupForm.password.value}
@@ -240,6 +242,7 @@ const SignupScreen = () => {
             label="Password"
             errorMessage={signupForm.password.errorMessage}
             placeholder="Enter a password..."
+            required
             secureTextEntry={!showPassword}
             rightIconComponent={
               <TouchableOpacity
@@ -258,6 +261,7 @@ const SignupScreen = () => {
             onChangeText={value =>
               onChangeForm(value, constants.confirmPasssword)
             }
+            required
             label="Confirm Password"
             secureTextEntry={!showConfirmPassword}
             errorMessage={signupForm.confirmPasssword.errorMessage}
@@ -279,6 +283,7 @@ const SignupScreen = () => {
             onChangeText={value => onChangeForm(value, constants.mobileNumber)}
             label="Mobile Number"
             keyboardType="numeric"
+            required
             errorMessage={signupForm.mobileNumber.errorMessage}
             placeholder="Enter the mobile number..."
           />

@@ -274,6 +274,7 @@ const AddPeopleScreen = (): ReactElement => {
             value={eventForm.userName.value}
             onChangeText={value => onChangeForm(value, constants.userName)}
             label="Enter Name"
+            required
             errorMessage={eventForm.userName.errorMessage}
             placeholder="Varun Kukade"
           />
@@ -284,6 +285,7 @@ const AddPeopleScreen = (): ReactElement => {
             }
             label="Enter Mobile Number"
             keyboardType="numeric"
+            required
             errorMessage={eventForm.userMobileNumber.errorMessage}
             placeholder="9028476756"
           />
@@ -318,20 +320,30 @@ const AddPeopleScreen = (): ReactElement => {
             Submit
           </ButtonComponent>
           <TouchableOpacity activeOpacity={0.6}>
-          <TextComponent
-            weight="semibold"
-            style={{color: colors[theme].textColor, fontSize: 15, marginTop: 20, textAlign: "center"}}>
-            {' '}
-            Add People from common list 👉🏻
-          </TextComponent>
+            <TextComponent
+              weight="semibold"
+              style={{
+                color: colors[theme].textColor,
+                fontSize: 15,
+                marginTop: 20,
+                textAlign: 'center',
+              }}>
+              {' '}
+              Add People from common list 👉🏻
+            </TextComponent>
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.6}>
-          <TextComponent
-            weight="semibold"
-            style={{color: colors[theme].textColor, fontSize: 15, marginTop: 20, textAlign: "center"}}>
-            {' '}
-            Create new common list of people 👉🏻
-          </TextComponent>
+          <TouchableOpacity onPress={() => navigation.navigate("CreateCommonList")} activeOpacity={0.6}>
+            <TextComponent
+              weight="semibold"
+              style={{
+                color: colors[theme].textColor,
+                fontSize: 15,
+                marginTop: 20,
+                textAlign: 'center',
+              }}>
+              {' '}
+              Create new common list of people 👉🏻
+            </TextComponent>
           </TouchableOpacity>
         </View>
       </ScrollView>

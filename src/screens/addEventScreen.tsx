@@ -255,6 +255,7 @@ const AddEventScreen = (): ReactElement => {
             value={eventForm.eventTitle.value}
             onChangeText={value => onChangeForm(value, constants.eventTitle)}
             label="Event Title"
+            required
             errorMessage={eventForm.eventTitle.errorMessage}
             placeholder="Wedding"
           />
@@ -263,6 +264,7 @@ const AddEventScreen = (): ReactElement => {
             onChangeText={value => onChangeForm(value, constants.eventDesc)}
             label="Event Description"
             multiline
+            required
             numberOfLines={5}
             errorMessage={eventForm.eventDesc.errorMessage}
             placeholder="Add a informative description..."
@@ -275,6 +277,7 @@ const AddEventScreen = (): ReactElement => {
               onChangeText={value => onChangeForm(value, constants.eventDate)}
               label="Event Date"
               editable={false}
+              required
               errorMessage={eventForm.eventDate.errorMessage}
               placeholder={getDate(eventForm.eventDate.value)}
               rightIconComponent={
@@ -301,6 +304,7 @@ const AddEventScreen = (): ReactElement => {
             onPress={() => setShowTimePicker(!showTimePicker)}>
             <InputComponent
               value={''}
+              required
               onChangeText={value => onChangeForm(value, constants.eventTime)}
               label="Event Time"
               editable={false}
@@ -329,6 +333,7 @@ const AddEventScreen = (): ReactElement => {
             onChangeText={value => onChangeForm(value, constants.eventLocation)}
             label="Event Location"
             multiline
+            required
             numberOfLines={5}
             errorMessage={eventForm.eventLocation.errorMessage}
             placeholder="Singh Residency, near Tarakpur bus Stand, Ahmednagar, 414003."

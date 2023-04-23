@@ -295,18 +295,20 @@ const UpdateProfileScreen = () => {
             weight="semibold">
             {isGoogleUser
               ? `If you haven't created your password yet, you can create password through "Reset Password"`
-              : 'You will need to relogin once you update email and password.'}
+              : 'You will need to relogin once you update profile.'}
           </TextComponent>
         </View>
         <View style={[styles.mainContainer, {  backgroundColor: colors[theme].cardColor}]}>
           <InputComponent
             value={updateProfileForm.name.value}
+            required
             onChangeText={value => onChangeForm(value, constants.name)}
             label="Name"
             errorMessage={updateProfileForm.name.errorMessage}
             placeholder="Varun Kukade"
           />
           <InputComponent
+            required
             value={updateProfileForm.email.value}
             onChangeText={value => onChangeForm(value, constants.email)}
             label="Email"
@@ -318,6 +320,7 @@ const UpdateProfileScreen = () => {
             onChangeText={value =>
               onChangeForm(value, constants.currentPassword)
             }
+            required
             label="Current Password"
             errorMessage={updateProfileForm.currentPassword.errorMessage}
             placeholder="Enter a current password..."
@@ -338,6 +341,7 @@ const UpdateProfileScreen = () => {
             value={updateProfileForm.password.value}
             onChangeText={value => onChangeForm(value, constants.password)}
             label="New Password"
+            required
             errorMessage={updateProfileForm.password.errorMessage}
             placeholder="Enter a New password..."
             secureTextEntry={!showPassword}
@@ -358,6 +362,7 @@ const UpdateProfileScreen = () => {
             onChangeText={value =>
               onChangeForm(value, constants.confirmPasssword)
             }
+            required
             label="Confirm new Password"
             secureTextEntry={!showConfirmPassword}
             errorMessage={updateProfileForm.confirmPasssword.errorMessage}
@@ -379,6 +384,7 @@ const UpdateProfileScreen = () => {
             onChangeText={value => onChangeForm(value, constants.mobileNumber)}
             label="Mobile Number"
             keyboardType="numeric"
+            required
             errorMessage={updateProfileForm.mobileNumber.errorMessage}
             placeholder="Enter the mobile number..."
           />
