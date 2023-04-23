@@ -27,8 +27,7 @@ Motive of this app is to have one stop solution for all the event management for
    3. Organise new event with event name, desc, date, time, location, fees(if any)
    4. View all the events at one place. We have used pagination here so that as user scroll down the list , next events will be loaded automatically. View event details by clicking on each event. You can also edit or delete the event.
    5. Add people to the event. You can edit them .You can also remove people from the event. 
-   6. View all people added in event at one place. We have used pagination here so that as user scroll down the list, further list will be loaded automatically. People are divided into 3 tabs (All, people who have payment pending, people who have completed the payment). 
-   You can move users pending to completed and viceversa.
+   6. View all people added in event at one place. We have used pagination here so that as user scroll down the list, further list will be loaded automatically. People are divided into 3 tabs (All, people who have payment pending, people who have completed the payment). You can move users pending to completed and viceversa. You can create common lists of people to whom you invite frequently (max 200 people at once for now) and add to any event by selecting them from common lists.
    7. You can view app in light and dark mode both.
 
 
