@@ -1,5 +1,13 @@
 import React, {ReactElement, useState, useCallback, useEffect} from 'react';
-import {FlatList, StyleSheet, View, Keyboard, Platform, ToastAndroid} from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  View,
+  Keyboard,
+  Platform,
+  ToastAndroid,
+  TouchableOpacity,
+} from 'react-native';
 import {colors, measureMents} from '../../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../../navigation/homeStackNavigator';
@@ -16,8 +24,12 @@ import {
 } from '../../utils/commonFunctions';
 import CenterPopupComponent, {popupData} from '../../reusables/centerPopup';
 import {MAX_BULK_ADDITION} from '../../utils/constants';
-import { EachPerson, addCommonListAPICall } from '../../reduxConfig/slices/peopleSlice';
+import {
+  EachPerson,
+  addCommonListAPICall,
+} from '../../reduxConfig/slices/peopleSlice';
 import auth from '@react-native-firebase/auth';
+import EntypoIcons from 'react-native-vector-icons/Entypo';
 
 interface EachFormField<T> {
   value: T;
@@ -67,9 +79,10 @@ const CreateCommonList = (): ReactElement => {
   const [keyboardStatus, setKeyboardStatus] = useState(false);
   const [listNameModal, setListNameModal] = useState(false);
   const [listName, setListName] = useState({
-    value: "",
-    errorMessage: ""
+    value: '',
+    errorMessage: '',
   });
+  const [showAddUserView, setShowAddUserView] = useState(false);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -101,6 +114,7 @@ const CreateCommonList = (): ReactElement => {
 
   const onAddBulkUserClick = () => {
     setBulkUserModal(true);
+    setShowAddUserView(!showAddUserView);
   };
 
   const expandUser = useCallback(
@@ -196,45 +210,48 @@ const CreateCommonList = (): ReactElement => {
     } else return false;
   }, []);
 
-  const callApi = useCallback((listNameValue: string) => {
-    let requestArr: Omit<EachPerson, 'userId' | 'eventId'>[] = [];
-    users.forEach(eachUser => {
-      requestArr.push({
-        userEmail: eachUser.userEmail?.value || "",
-        userMobileNumber: eachUser.userMobileNumber?.value || "",
-        userName: eachUser.userName.value,
-        isPaymentPending: true,
-        createdAt: new Date().toString(),
-        paymentMode: '',
+  const callApi = useCallback(
+    (listNameValue: string) => {
+      let requestArr: Omit<EachPerson, 'userId' | 'eventId'>[] = [];
+      users.forEach(eachUser => {
+        requestArr.push({
+          userEmail: eachUser.userEmail?.value || '',
+          userMobileNumber: eachUser.userMobileNumber?.value || '',
+          userName: eachUser.userName.value,
+          isPaymentPending: true,
+          createdAt: new Date().toString(),
+          paymentMode: '',
+        });
       });
-    });
-    let requestObj = {
-      commonListName: listNameValue,
-      createdBy: auth().currentUser?.uid,
-      createdAt: new Date().toString(),
-      users: requestArr
-    }
-    dispatch(addCommonListAPICall(requestObj)).then(resp => {
-      if (resp.meta.requestStatus === 'fulfilled') {
-        if (Platform.OS === 'android' && resp.payload)
-          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-        setUsers([
-          {
-            userId: uuid.v4(),
-            expanded: true,
-            userName: {value: '', errorMessage: ''},
-            userMobileNumber: {value: '', errorMessage: ''},
-            userEmail: {value: '', errorMessage: ''},
-            isValidUser: '',
-          },
-        ])
-        navigation.pop();
-      } else {
-        if (Platform.OS === 'android' && resp.payload)
-          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-      }
-    });
-  },[users, auth().currentUser?.uid]);
+      let requestObj = {
+        commonListName: listNameValue,
+        createdBy: auth().currentUser?.uid,
+        createdAt: new Date().toString(),
+        users: requestArr,
+      };
+      dispatch(addCommonListAPICall(requestObj)).then(resp => {
+        if (resp.meta.requestStatus === 'fulfilled') {
+          if (Platform.OS === 'android' && resp.payload)
+            ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+          setUsers([
+            {
+              userId: uuid.v4(),
+              expanded: true,
+              userName: {value: '', errorMessage: ''},
+              userMobileNumber: {value: '', errorMessage: ''},
+              userEmail: {value: '', errorMessage: ''},
+              isValidUser: '',
+            },
+          ]);
+          navigation.pop();
+        } else {
+          if (Platform.OS === 'android' && resp.payload)
+            ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        }
+      });
+    },
+    [users, auth().currentUser?.uid],
+  );
 
   const onCreateListClick = () => {
     //here loop through all users data and check for name validation
@@ -247,7 +264,7 @@ const CreateCommonList = (): ReactElement => {
     } else {
       // all fields are valid, submit the form
       updateFormErrors();
-      setListNameModal(true)
+      setListNameModal(true);
     }
   };
 
@@ -258,18 +275,18 @@ const CreateCommonList = (): ReactElement => {
 
   const onListNameCancelClick = useCallback(() => {
     setListNameModal(false);
-    setListName({value: "", errorMessage: ""})
+    setListName({value: '', errorMessage: ''});
   }, [setListNameModal, setListName]);
 
   const onListNameConfirmClick = useCallback(() => {
-    if(listName.value){
-      setListName({...listName, errorMessage: ""})
+    if (listName.value) {
+      setListName({...listName, errorMessage: ''});
       setListNameModal(false);
-      callApi(listName.value)
-    }else {
-      setListName({...listName, errorMessage: "List Name cannot be empty."})
+      callApi(listName.value);
+    } else {
+      setListName({...listName, errorMessage: 'List Name cannot be empty.'});
     }
-  }, [listName, setListName, setListNameModal, callApi ]);
+  }, [listName, setListName, setListNameModal, callApi]);
 
   const onConfirmClick = useCallback(() => {
     let updatedUsers = [...users];
@@ -297,8 +314,8 @@ const CreateCommonList = (): ReactElement => {
     };
   }, [onCancelClick, onConfirmClick]);
 
-   //create new instance of this function only when dependencies change
-   const listNamePopupData = useCallback((): popupData => {
+  //create new instance of this function only when dependencies change
+  const listNamePopupData = useCallback((): popupData => {
     return {
       header: 'Final Step',
       description: 'Name the list',
@@ -319,6 +336,10 @@ const CreateCommonList = (): ReactElement => {
       : 'Invalid Count.';
   };
 
+  const onPlusClick = () => {
+    setShowAddUserView(!showAddUserView);
+  };
+
   return (
     <ScreenWrapper>
       {!keyboardStatus ? (
@@ -327,25 +348,13 @@ const CreateCommonList = (): ReactElement => {
             style={{
               fontSize: 15,
               color: colors[theme].textColor,
-              textAlign: 'center',
+              textAlign: 'left',
               marginBottom: 20,
             }}
             weight="semibold">
             Create common list of people here and while adding people to any
             event you can select people from this list.
           </TextComponent>
-          <View style={styles.buttonContainer}>
-            <ButtonComponent
-              containerStyle={{paddingHorizontal: measureMents.leftPadding}}
-              onPress={onAddUserClick}>
-              ADD SINGLE USER
-            </ButtonComponent>
-            <ButtonComponent
-              containerStyle={{paddingHorizontal: measureMents.leftPadding}}
-              onPress={onAddBulkUserClick}>
-              ADD BULK USERS
-            </ButtonComponent>
-          </View>
           <TextComponent
             style={{color: colors[theme].textColor, marginTop: 10}}
             weight="semibold">
@@ -398,10 +407,59 @@ const CreateCommonList = (): ReactElement => {
         setIsModalVisible={setListNameModal}>
         <InputComponent
           value={listName.value}
-          onChangeText={value => setListName({ ...listName, value})}
+          onChangeText={value => setListName({...listName, value})}
           errorMessage={listName.errorMessage}
         />
       </CenterPopupComponent>
+      {showAddUserView && !keyboardStatus ? (
+        <View
+          style={[
+            styles.addUsersView,
+            {
+              backgroundColor: colors[theme].whiteColor,
+              borderColor: colors[theme].blackColor,
+              borderWidth: 1,
+            },
+          ]}>
+          <TouchableOpacity
+            onPress={onAddUserClick}
+            style={[styles.commonAddUserView]}>
+            <TextComponent
+              style={{color: colors[theme].blackColor}}
+              weight="semibold">
+              {' '}
+              Add Single User
+            </TextComponent>
+          </TouchableOpacity>
+          <View
+            style={{
+              borderBottomColor: colors[theme].greyColor,
+              borderBottomWidth: StyleSheet.hairlineWidth,
+              marginHorizontal: '10%',
+            }}
+          />
+          <TouchableOpacity
+            onPress={onAddBulkUserClick}
+            style={styles.commonAddUserView}>
+            <TextComponent
+              style={{color: colors[theme].blackColor}}
+              weight="semibold">
+              Add Bulk User
+            </TextComponent>
+          </TouchableOpacity>
+        </View>
+      ) : null}
+      {!keyboardStatus ? (
+        <TouchableOpacity
+          onPress={onPlusClick}
+          activeOpacity={0.7}
+          style={[
+            styles.addUser,
+            {backgroundColor: colors[theme].commonPrimaryColor},
+          ]}>
+          <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
+        </TouchableOpacity>
+      ) : null}
     </ScreenWrapper>
   );
 };
@@ -418,5 +476,29 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  addUsersView: {
+    height: 100,
+    width: 150,
+    position: 'absolute',
+    right: 25,
+    bottom: 160,
+    borderRadius: 20,
+  },
+  addUser: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 100,
+    right: 20,
+  },
+  commonAddUserView: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 0.5,
+    paddingHorizontal: '10%',
   },
 });
