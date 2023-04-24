@@ -4,6 +4,7 @@ import firestore from '@react-native-firebase/firestore';
 import {MessageType} from './eventsSlice';
 import {RootState, store} from '../store';
 import {PAGINATION_CONSTANT} from '../../utils/constants';
+import auth from '@react-native-firebase/auth';
 
 type status = 'idle' | 'succeedded' | 'failed' | 'loading';
 
@@ -368,7 +369,7 @@ export const getNextEventJoinersAPICall = createAsyncThunk<
   },
 );
 
-type addCommonListAPICallReqObj = {
+type AddCommonListAPICallReqObj = {
   commonListName: string;
   createdBy: string;
   createdAt: string;
@@ -379,14 +380,14 @@ export const addCommonListAPICall = createAsyncThunk<
   //type of successfull returned obj
   MessageType,
   //type of request obj passed to payload creator
-  addCommonListAPICallReqObj,
+  AddCommonListAPICallReqObj,
   //type of returned error obj from rejectWithValue
   {
     rejectValue: MessageType;
   }
 >(
   'people/addCommonList',
-  async (requestObj: addCommonListAPICallReqObj, thunkAPI) => {
+  async (requestObj: AddCommonListAPICallReqObj, thunkAPI) => {
     try {
       // add a document to the CommonList collection
       const commonListDoc = await firestore()
@@ -420,3 +421,85 @@ export const addCommonListAPICall = createAsyncThunk<
     }
   },
 );
+
+export type CommonListObject = {
+  commonListName: string;
+  createdBy: string;
+  createdAt: string;
+  users: Omit<EachPerson, 'userId' | 'eventId'>[];
+  commonListId: string;
+};
+
+export const getCommonListsAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    responseData: CommonListObject[];
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  undefined,
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('events/getCommonLists', async (_, thunkAPI) => {
+  let commonListArr: CommonListObject[] = [];
+  try {
+    const commonListRef = firestore().collection(apiUrls.commonList);
+
+    await commonListRef
+      //.where('createdBy', '==', auth().currentUser?.uid)
+      .orderBy('createdAt', 'desc')
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(documentSnapshot => {
+          let updatedObj = JSON.parse(JSON.stringify(documentSnapshot.data()));
+          updatedObj.commonListId = documentSnapshot.id;
+          updatedObj.users = [];
+          commonListArr.push(updatedObj);
+        });
+      });
+
+    //here get the users for each common list squentially in the array using map.
+    let arrayOfPromises = commonListArr.map(async eachCommonList => {
+      return await commonListRef
+        .doc(eachCommonList.commonListId)
+        .collection(apiUrls.commonListUsers)
+        .get()
+        .then(querySnapshot => {
+          const updatedUsers = querySnapshot.docs.map(documentSnapshot => {
+            console.log('documentSnapshot', documentSnapshot);
+            const updatedUser = JSON.parse(
+              JSON.stringify(documentSnapshot.data()),
+            );
+            updatedUser.userId = documentSnapshot.id;
+            return updatedUser;
+          });
+
+          // Return the updated eachCommonList object as promise.
+          return {
+            ...eachCommonList,
+            users: updatedUsers,
+          };
+        });
+    });
+
+    //here As API are already called inside MAP method, Promise.all is used to wait for all promises to successfull.
+    return await Promise.all(arrayOfPromises).then(res => {
+      res.forEach(eachResponse => {
+        console.log('eachResponse', eachResponse);
+      });
+      //return the resolved promise with data.
+      return {
+        responseData: [],
+        message: 'Common Lists fetched successfully',
+      };
+    });
+  } catch (err: any) {
+    return thunkAPI.rejectWithValue({
+      message:
+        err?.message ||
+        'Failed to fetch common list. Please try again after some time',
+    });
+  }
+});

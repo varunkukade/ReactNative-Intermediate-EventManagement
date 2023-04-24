@@ -320,7 +320,9 @@ const AddPeopleScreen = (): ReactElement => {
           </ButtonComponent>
           {!longPressedUser ? (
             <>
-              <TouchableOpacity activeOpacity={0.6}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('DisplayCommonList')}
+                activeOpacity={0.6}>
                 <TextComponent
                   weight="semibold"
                   style={{

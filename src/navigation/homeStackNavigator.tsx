@@ -4,6 +4,7 @@ import {
   AddEventScreen,
   AddPeopleScreen,
   CreateCommonList,
+  DisplayCommonLists,
   EventDetailsScreen,
   UpdateProfileScreen,
 } from '../screens/index';
@@ -24,6 +25,7 @@ export type HomeStackParamList = {
   AddPeopleScreen: undefined | {longPressedUser: EachPerson};
   UpdateProfileScreen: undefined;
   CreateCommonList: undefined;
+  DisplayCommonList: undefined;
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -115,6 +117,18 @@ function HomeStackNavigator() {
         })}
         name="CreateCommonList"
         component={CreateCommonList}
+      />
+      <HomeStack.Screen
+        options={({route, navigation}) => ({
+          headerTitle: 'Common Lists',
+          headerShadowVisible: false,
+          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleAlign: 'center',
+          headerBackVisible: true,
+          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+        })}
+        name="DisplayCommonList"
+        component={DisplayCommonLists}
       />
     </HomeStack.Navigator>
   );
