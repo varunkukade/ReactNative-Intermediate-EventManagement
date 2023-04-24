@@ -210,39 +210,32 @@ const CreateCommonList = (): ReactElement => {
     } else return false;
   }, []);
 
+  const getRequestObj = useCallback((listNameValue: string) => {
+    let requestArr: Omit<EachPerson, 'userId' | 'eventId'>[] = [];
+    users.forEach(eachUser => {
+      requestArr.push({
+        userEmail: eachUser.userEmail?.value || '',
+        userMobileNumber: eachUser.userMobileNumber?.value || '',
+        userName: eachUser.userName.value,
+        isPaymentPending: true,
+        createdAt: new Date().toString(),
+        paymentMode: '',
+      });
+    });
+    return {
+      commonListName: listNameValue,
+      createdBy: auth().currentUser?.uid,
+      createdAt: new Date().toString(),
+      users: requestArr,
+    };
+  },[users,auth().currentUser?.uid, new Date().toString()])
+
   const callApi = useCallback(
     (listNameValue: string) => {
-      let requestArr: Omit<EachPerson, 'userId' | 'eventId'>[] = [];
-      users.forEach(eachUser => {
-        requestArr.push({
-          userEmail: eachUser.userEmail?.value || '',
-          userMobileNumber: eachUser.userMobileNumber?.value || '',
-          userName: eachUser.userName.value,
-          isPaymentPending: true,
-          createdAt: new Date().toString(),
-          paymentMode: '',
-        });
-      });
-      let requestObj = {
-        commonListName: listNameValue,
-        createdBy: auth().currentUser?.uid,
-        createdAt: new Date().toString(),
-        users: requestArr,
-      };
-      dispatch(addCommonListAPICall(requestObj)).then(resp => {
+      dispatch(addCommonListAPICall(getRequestObj(listNameValue))).then(resp => {
         if (resp.meta.requestStatus === 'fulfilled') {
           if (Platform.OS === 'android' && resp.payload)
             ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-          setUsers([
-            {
-              userId: uuid.v4(),
-              expanded: true,
-              userName: {value: '', errorMessage: ''},
-              userMobileNumber: {value: '', errorMessage: ''},
-              userEmail: {value: '', errorMessage: ''},
-              isValidUser: '',
-            },
-          ]);
           navigation.pop();
         } else {
           if (Platform.OS === 'android' && resp.payload)
@@ -250,7 +243,7 @@ const CreateCommonList = (): ReactElement => {
         }
       });
     },
-    [users, auth().currentUser?.uid],
+    [dispatch, navigation],
   );
 
   const onCreateListClick = () => {
