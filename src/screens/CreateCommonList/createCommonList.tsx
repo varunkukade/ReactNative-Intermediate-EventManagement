@@ -196,7 +196,7 @@ const CreateCommonList = (): ReactElement => {
     } else return false;
   }, []);
 
-  const callApi = useCallback(() => {
+  const callApi = useCallback((listNameValue: string) => {
     let requestArr: Omit<EachPerson, 'userId' | 'eventId'>[] = [];
     users.forEach(eachUser => {
       requestArr.push({
@@ -209,7 +209,7 @@ const CreateCommonList = (): ReactElement => {
       });
     });
     let requestObj = {
-      commonListName: listName.value,
+      commonListName: listNameValue,
       createdBy: auth().currentUser?.uid,
       createdAt: new Date().toString(),
       users: requestArr
@@ -234,7 +234,7 @@ const CreateCommonList = (): ReactElement => {
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
-  },[]);
+  },[users, auth().currentUser?.uid]);
 
   const onCreateListClick = () => {
     //here loop through all users data and check for name validation
@@ -265,7 +265,7 @@ const CreateCommonList = (): ReactElement => {
     if(listName.value){
       setListName({...listName, errorMessage: ""})
       setListNameModal(false);
-      callApi()
+      callApi(listName.value)
     }else {
       setListName({...listName, errorMessage: "List Name cannot be empty."})
     }
