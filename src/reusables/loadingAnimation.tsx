@@ -58,7 +58,8 @@ const LoadingAnimation = () => {
       peopleSliceStatuses.addPeopleAPICall === LOADING ||
       peopleSliceStatuses.removePeopleAPICall === LOADING ||
       peopleSliceStatuses.updatePeopleAPICall === LOADING ||
-      peopleSliceStatuses.addCommonListAPICall === LOADING
+      peopleSliceStatuses.addCommonListAPICall === LOADING ||
+      peopleSliceStatuses.getCommonListsAPICall === LOADING
     )
       return peopleSlice.loadingMessage;
   }
@@ -78,7 +79,8 @@ const LoadingAnimation = () => {
       peopleSliceStatuses.addPeopleAPICall === LOADING ||
       peopleSliceStatuses.removePeopleAPICall === LOADING ||
       peopleSliceStatuses.updatePeopleAPICall === LOADING ||
-      peopleSliceStatuses.addCommonListAPICall === LOADING
+      peopleSliceStatuses.addCommonListAPICall === LOADING ||
+      peopleSliceStatuses.getCommonListsAPICall === LOADING
     );
   }
 

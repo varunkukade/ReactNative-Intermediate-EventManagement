@@ -243,7 +243,7 @@ const CreateCommonList = (): ReactElement => {
         }
       });
     },
-    [dispatch, navigation],
+    [dispatch, navigation, getRequestObj],
   );
 
   const onCreateListClick = () => {

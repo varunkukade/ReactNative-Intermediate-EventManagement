@@ -29,8 +29,10 @@ type PeopleState = {
     updatePeopleAPICall: status;
     getNextEventJoinersAPICall: status;
     addCommonListAPICall: status;
+    getCommonListsAPICall: status;
   };
   loadingMessage: string;
+  commonLists: CommonListObject[]
 };
 
 const initialState: PeopleState = {
@@ -43,8 +45,10 @@ const initialState: PeopleState = {
     updatePeopleAPICall: 'idle',
     getNextEventJoinersAPICall: 'idle',
     addCommonListAPICall: 'idle',
+    getCommonListsAPICall: 'idle',
   },
   loadingMessage: '',
+  commonLists: []
 };
 
 export const peopleSlice = createSlice({
@@ -54,6 +58,9 @@ export const peopleSlice = createSlice({
     reset: () => initialState,
     setlastFetchedUserId: (state, action: PayloadAction<string>) => {
       state.lastFetchedUserId = JSON.parse(JSON.stringify(action.payload));
+    },
+    updateCommonList: (state, action: PayloadAction<CommonListObject[]>) => {
+      state.commonLists = JSON.parse(JSON.stringify(action.payload));
     },
   },
   extraReducers(builder) {
@@ -146,11 +153,28 @@ export const peopleSlice = createSlice({
       })
       .addCase(addCommonListAPICall.rejected, (state, action) => {
         state.statuses.addCommonListAPICall = 'failed';
+      })
+      .addCase(getCommonListsAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Fetching Common Lists...';
+        state.statuses.getCommonListsAPICall = 'loading';
+      })
+      .addCase(getCommonListsAPICall.fulfilled, (state, action) => {
+        state.commonLists.length = 0;
+        if (action.payload.responseData) {
+          state.commonLists = JSON.parse(
+            JSON.stringify(action.payload.responseData),
+          );
+          state.commonLists = state.commonLists.filter((eachCommonList) => eachCommonList.createdBy === auth().currentUser?.uid)
+        }
+        state.statuses.getCommonListsAPICall = 'succeedded';
+      })
+      .addCase(getCommonListsAPICall.rejected, (state, action) => {
+        state.statuses.getCommonListsAPICall = 'failed';
       });
   },
 });
 
-export const {reset: resetPeopleState, setlastFetchedUserId} =
+export const {reset: resetPeopleState, setlastFetchedUserId, updateCommonList} =
   peopleSlice.actions;
 export default peopleSlice.reducer;
 
@@ -422,12 +446,15 @@ export const addCommonListAPICall = createAsyncThunk<
   },
 );
 
+export type EachUserInCommonList = Omit<EachPerson, 'eventId'>
+
 export type CommonListObject = {
   commonListName: string;
   createdBy: string;
   createdAt: string;
-  users: Omit<EachPerson, 'userId' | 'eventId'>[];
+  users: EachUserInCommonList[];
   commonListId: string;
+  expanded : boolean
 };
 
 export const getCommonListsAPICall = createAsyncThunk<
@@ -453,9 +480,10 @@ export const getCommonListsAPICall = createAsyncThunk<
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(documentSnapshot => {
-          let updatedObj = JSON.parse(JSON.stringify(documentSnapshot.data()));
+          let updatedObj: CommonListObject = JSON.parse(JSON.stringify(documentSnapshot.data()));
           updatedObj.commonListId = documentSnapshot.id;
           updatedObj.users = [];
+          updatedObj.expanded = true;
           commonListArr.push(updatedObj);
         });
       });
@@ -467,9 +495,8 @@ export const getCommonListsAPICall = createAsyncThunk<
         .collection(apiUrls.commonListUsers)
         .get()
         .then(querySnapshot => {
-          const updatedUsers = querySnapshot.docs.map(documentSnapshot => {
-            console.log('documentSnapshot', documentSnapshot);
-            const updatedUser = JSON.parse(
+          const updatedUsers: EachUserInCommonList[]  = querySnapshot.docs.map(documentSnapshot => {
+            const updatedUser: EachUserInCommonList = JSON.parse(
               JSON.stringify(documentSnapshot.data()),
             );
             updatedUser.userId = documentSnapshot.id;
@@ -486,12 +513,9 @@ export const getCommonListsAPICall = createAsyncThunk<
 
     //here As API are already called inside MAP method, Promise.all is used to wait for all promises to successfull.
     return await Promise.all(arrayOfPromises).then(res => {
-      res.forEach(eachResponse => {
-        console.log('eachResponse', eachResponse);
-      });
       //return the resolved promise with data.
       return {
-        responseData: [],
+        responseData: res,
         message: 'Common Lists fetched successfully',
       };
     });

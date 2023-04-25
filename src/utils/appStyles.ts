@@ -9,7 +9,7 @@ const commonColors = {
 export const colors = {
     "light": {
         primaryColor: commonColors.commonPrimaryColor,
-        cardColor: commonColors.whiteColor,
+        cardColor: "#E6E6FA",
         textColor: commonColors.commonPrimaryColor,
         buttonColor: commonColors.commonPrimaryColor,
         disabledButtonColor: "rgba(75, 0, 130, 0.5)",
