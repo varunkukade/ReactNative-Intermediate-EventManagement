@@ -3,17 +3,17 @@ import {StyleSheet, View} from 'react-native';
 import {colors} from '../utils/appStyles';
 import CheckBox, {CheckBoxProps} from '@react-native-community/checkbox';
 import TextComponent from './text';
-import { useAppSelector } from '../reduxConfig/store';
+import {useAppSelector} from '../reduxConfig/store';
 
 interface CheckboxComponentProps extends CheckBoxProps {
-  label: string
+  label?: string;
 }
 
 const CheckboxComponent = ({
   label,
   ...props
-}: Omit<CheckboxComponentProps,'boxType' | 'tintColors'>): ReactElement => {
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+}: Omit<CheckboxComponentProps, 'boxType' | 'tintColors'>): ReactElement => {
+  const theme = useAppSelector(state => state.user.currentUser.theme);
 
   return (
     <View style={styles.wrapperComponent}>
@@ -21,9 +21,15 @@ const CheckboxComponent = ({
         style={styles.checkBox}
         {...props}
         boxType="circle"
-        tintColors={{true:colors[theme].textColor}}
+        tintColors={{true: colors[theme].textColor}}
       />
-      <TextComponent style={{color: colors[theme].textColor}} weight='semibold'>{label}</TextComponent>
+      {label ? (
+        <TextComponent
+          style={{color: colors[theme].textColor}}
+          weight="semibold">
+          {label}
+        </TextComponent>
+      ) : null}
     </View>
   );
 };
@@ -32,12 +38,11 @@ export default CheckboxComponent;
 
 const styles = StyleSheet.create({
   wrapperComponent: {
-    flexDirection:'row',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    width:"100%",
-    marginBottom:8
+    width: '100%',
+    marginBottom: 8,
   },
-  checkBox: {
-  }
+  checkBox: {},
 });

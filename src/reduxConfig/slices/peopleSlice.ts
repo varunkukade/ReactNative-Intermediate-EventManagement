@@ -446,7 +446,7 @@ export const addCommonListAPICall = createAsyncThunk<
   },
 );
 
-export type EachUserInCommonList = Omit<EachPerson, 'eventId'>
+export type EachUserInCommonList = Omit<EachPerson, 'eventId'> & { selected: boolean }
 
 export type CommonListObject = {
   commonListName: string;
@@ -500,6 +500,7 @@ export const getCommonListsAPICall = createAsyncThunk<
               JSON.stringify(documentSnapshot.data()),
             );
             updatedUser.userId = documentSnapshot.id;
+            updatedUser.selected = false;
             return updatedUser;
           });
 

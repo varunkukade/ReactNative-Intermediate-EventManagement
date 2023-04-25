@@ -5,7 +5,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
-import {TextComponent} from '../../reusables';
+import {ButtonComponent, TextComponent} from '../../reusables';
 import ScreenWrapper from '../screenWrapper';
 import {generateArray} from '../../utils/commonFunctions';
 import {
@@ -28,6 +28,7 @@ const DisplayCommonLists = (): ReactElement => {
   const currentSelectedEvent = useAppSelector(
     state => state.events.currentSelectedEvent,
   );
+  const selectedEventDetails = useAppSelector(state => state.events.currentSelectedEvent)
   const peopleState = useAppSelector(state => state.people);
 
   const theme = useAppSelector(state => state.user.currentUser.theme);
@@ -47,6 +48,51 @@ const DisplayCommonLists = (): ReactElement => {
     },
     [peopleState.commonLists, dispatch],
   );
+
+  const onUserSelected = useCallback(
+    (value: boolean, commonListId: string, userId: string) => {
+      let updatedArr = peopleState.commonLists.map(eachCommonList => {
+        if (eachCommonList.commonListId === commonListId) {
+          let updatedUserArr = eachCommonList.users.map(eachUser => {
+            if (eachUser.userId === userId)
+              return {...eachUser, selected: value};
+            else return eachUser;
+          });
+          return {...eachCommonList, users: updatedUserArr};
+        } else return eachCommonList;
+      });
+      dispatch(updateCommonList(updatedArr));
+    },
+    [peopleState.commonLists, dispatch],
+  );
+
+  const onAllUsersSelected = useCallback(
+    (value: boolean, commonListId: string) => {
+      let updatedArr = peopleState.commonLists.map(eachCommonList => {
+        if (eachCommonList.commonListId === commonListId) {
+          let updatedUserArr = eachCommonList.users.map(eachUser => {
+            return {...eachUser, selected: value};
+          });
+          return {...eachCommonList, users: updatedUserArr};
+        } else return eachCommonList;
+      });
+      dispatch(updateCommonList(updatedArr));
+    },
+    [peopleState.commonLists, dispatch],
+  );
+
+  const isAtleastOneUserSelected = () => {
+    let isAtleastOneUserSelected = false
+    peopleState.commonLists.map((eachCommonList) => {
+        if(eachCommonList.users.some((eachUser)=> eachUser.selected)) isAtleastOneUserSelected = true
+    })
+    return isAtleastOneUserSelected
+  }
+
+  const addUsersToEvent = () => {
+    if (!selectedEventDetails) return null;
+    console.log("add users to event call")
+  }
 
   return (
     <ScreenWrapper>
@@ -76,6 +122,8 @@ const DisplayCommonLists = (): ReactElement => {
             <DisplayEachCommonList
               expandCommonList={expandCommonList}
               eachCommonList={item}
+              onUserSelected={onUserSelected}
+              onAllUsersSelected={onAllUsersSelected}
             />
           )}
           keyExtractor={item => item.commonListId.toString()}
@@ -90,7 +138,7 @@ const DisplayCommonLists = (): ReactElement => {
             ]}>
             {generateArray(3).map((eachSkalaton, index) => (
               <View
-                key = {index}
+                key={index}
                 style={[
                   styles.eachUser,
                   {backgroundColor: colors[theme].lightLavenderColor},
@@ -121,6 +169,13 @@ const DisplayCommonLists = (): ReactElement => {
           </TextComponent>
         </View>
       )}
+      <View style={styles.addButton}>
+        <ButtonComponent
+          isDisabled = {!isAtleastOneUserSelected()}
+          onPress={addUsersToEvent}>
+          Submit
+        </ButtonComponent>
+      </View>
     </ScreenWrapper>
   );
 };
@@ -147,7 +202,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: measureMents.leftPadding,
     borderRadius: 20,
     paddingVertical: measureMents.leftPadding * 1.4,
-    width:"90%",
-    marginBottom: measureMents.leftPadding
+    width: '90%',
+    marginBottom: measureMents.leftPadding,
+  },
+  addButton: {
+    paddingHorizontal: measureMents.leftPadding,
+    paddingBottom: 20,
   },
 });
