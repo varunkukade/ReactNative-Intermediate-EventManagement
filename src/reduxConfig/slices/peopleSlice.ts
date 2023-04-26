@@ -21,9 +21,11 @@ export type EachPerson = {
 
 type PeopleState = {
   people: EachPerson[];
+  originalPeople: EachPerson[];
   lastFetchedUserId: string;
   statuses: {
     addPeopleAPICall: status;
+    addPeopleInBatchAPICall: status;
     getPeopleAPICall: status;
     removePeopleAPICall: status;
     updatePeopleAPICall: status;
@@ -32,14 +34,16 @@ type PeopleState = {
     getCommonListsAPICall: status;
   };
   loadingMessage: string;
-  commonLists: CommonListObject[]
+  commonLists: CommonListObject[];
 };
 
 const initialState: PeopleState = {
   people: [],
+  originalPeople:[],
   lastFetchedUserId: '',
   statuses: {
     addPeopleAPICall: 'idle',
+    addPeopleInBatchAPICall: 'idle',
     getPeopleAPICall: 'idle',
     removePeopleAPICall: 'idle',
     updatePeopleAPICall: 'idle',
@@ -48,7 +52,7 @@ const initialState: PeopleState = {
     getCommonListsAPICall: 'idle',
   },
   loadingMessage: '',
-  commonLists: []
+  commonLists: [],
 };
 
 export const peopleSlice = createSlice({
@@ -61,6 +65,9 @@ export const peopleSlice = createSlice({
     },
     updateCommonList: (state, action: PayloadAction<CommonListObject[]>) => {
       state.commonLists = JSON.parse(JSON.stringify(action.payload));
+    },
+    updatePeopleState: (state, action: PayloadAction<EachPerson[]>) => {
+      state.people = JSON.parse(JSON.stringify(action.payload));
     },
   },
   extraReducers(builder) {
@@ -75,6 +82,16 @@ export const peopleSlice = createSlice({
       .addCase(addPeopleAPICall.rejected, (state, action) => {
         state.statuses.addPeopleAPICall = 'failed';
       })
+      .addCase(addPeopleInBatchAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Adding Users To Event';
+        state.statuses.addPeopleInBatchAPICall = 'loading';
+      })
+      .addCase(addPeopleInBatchAPICall.fulfilled, (state, action) => {
+        state.statuses.addPeopleInBatchAPICall = 'succeedded';
+      })
+      .addCase(addPeopleInBatchAPICall.rejected, (state, action) => {
+        state.statuses.addPeopleInBatchAPICall = 'failed';
+      })
       .addCase(getPeopleAPICall.pending, (state, action) => {
         state.statuses.getPeopleAPICall = 'loading';
       })
@@ -82,6 +99,9 @@ export const peopleSlice = createSlice({
         state.people.length = 0;
         if (action.payload.responseData) {
           state.people = JSON.parse(
+            JSON.stringify(action.payload.responseData),
+          );
+          state.originalPeople = JSON.parse(
             JSON.stringify(action.payload.responseData),
           );
         }
@@ -164,7 +184,10 @@ export const peopleSlice = createSlice({
           state.commonLists = JSON.parse(
             JSON.stringify(action.payload.responseData),
           );
-          state.commonLists = state.commonLists.filter((eachCommonList) => eachCommonList.createdBy === auth().currentUser?.uid)
+          state.commonLists = state.commonLists.filter(
+            eachCommonList =>
+              eachCommonList.createdBy === auth().currentUser?.uid,
+          );
         }
         state.statuses.getCommonListsAPICall = 'succeedded';
       })
@@ -174,8 +197,12 @@ export const peopleSlice = createSlice({
   },
 });
 
-export const {reset: resetPeopleState, setlastFetchedUserId, updateCommonList} =
-  peopleSlice.actions;
+export const {
+  reset: resetPeopleState,
+  setlastFetchedUserId,
+  updateCommonList,
+  updatePeopleState
+} = peopleSlice.actions;
 export default peopleSlice.reducer;
 
 export const addPeopleAPICall = createAsyncThunk<
@@ -206,6 +233,34 @@ export const addPeopleAPICall = createAsyncThunk<
     }
   },
 );
+
+export const addPeopleInBatchAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  MessageType,
+  //type of request obj passed to payload creator
+  EachPerson[],
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('people/addPeopleInBatch', async (users: EachPerson[], thunkAPI) => {
+  try {
+    console.log(users)
+    const batch = firestore().batch();
+    users.forEach(user => {
+      const userRef = firestore().collection(apiUrls.people).doc(); // Create a new document reference
+      batch.set(userRef, user); // Add the user object to the batch
+    });
+    return batch.commit().then(res => {
+      return {message: 'Users added successfully'};
+    });
+  } catch (err: any) {
+    return thunkAPI.rejectWithValue({
+      message:
+        err?.message || 'Failed to add users. Please try again after some time',
+    });
+  }
+});
 
 export const removePeopleAPICall = createAsyncThunk<
   //type of successfull returned obj
@@ -446,7 +501,9 @@ export const addCommonListAPICall = createAsyncThunk<
   },
 );
 
-export type EachUserInCommonList = Omit<EachPerson, 'eventId'> & { selected: boolean }
+export type EachUserInCommonList = Omit<EachPerson, 'eventId'> & {
+  selected: boolean;
+};
 
 export type CommonListObject = {
   commonListName: string;
@@ -454,7 +511,7 @@ export type CommonListObject = {
   createdAt: string;
   users: EachUserInCommonList[];
   commonListId: string;
-  expanded : boolean
+  expanded: boolean;
 };
 
 export const getCommonListsAPICall = createAsyncThunk<
@@ -480,7 +537,9 @@ export const getCommonListsAPICall = createAsyncThunk<
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(documentSnapshot => {
-          let updatedObj: CommonListObject = JSON.parse(JSON.stringify(documentSnapshot.data()));
+          let updatedObj: CommonListObject = JSON.parse(
+            JSON.stringify(documentSnapshot.data()),
+          );
           updatedObj.commonListId = documentSnapshot.id;
           updatedObj.users = [];
           updatedObj.expanded = true;
@@ -495,14 +554,16 @@ export const getCommonListsAPICall = createAsyncThunk<
         .collection(apiUrls.commonListUsers)
         .get()
         .then(querySnapshot => {
-          const updatedUsers: EachUserInCommonList[]  = querySnapshot.docs.map(documentSnapshot => {
-            const updatedUser: EachUserInCommonList = JSON.parse(
-              JSON.stringify(documentSnapshot.data()),
-            );
-            updatedUser.userId = documentSnapshot.id;
-            updatedUser.selected = false;
-            return updatedUser;
-          });
+          const updatedUsers: EachUserInCommonList[] = querySnapshot.docs.map(
+            documentSnapshot => {
+              const updatedUser: EachUserInCommonList = JSON.parse(
+                JSON.stringify(documentSnapshot.data()),
+              );
+              updatedUser.userId = documentSnapshot.id;
+              updatedUser.selected = false;
+              return updatedUser;
+            },
+          );
 
           // Return the updated eachCommonList object as promise.
           return {

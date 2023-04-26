@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     width: '100%',
-    marginBottom: 8,
   },
   checkBox: {},
 });

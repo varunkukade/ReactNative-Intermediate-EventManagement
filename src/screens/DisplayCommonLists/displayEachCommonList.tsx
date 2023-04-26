@@ -14,17 +14,14 @@ type EachUserComponentProps = {
     commonListId: string,
     userId: string,
   ) => void;
-  onAllUsersSelected: (
-    value: boolean,
-    commonListId: string,
-  ) => void;
+  onAllUsersSelected: (value: boolean, commonListId: string) => void;
 };
 
 const DisplayEachCommonList = ({
   eachCommonList,
   expandCommonList,
   onUserSelected,
-  onAllUsersSelected
+  onAllUsersSelected,
 }: EachUserComponentProps): ReactElement => {
   //dispatch and selectors
   const theme = useAppSelector(state => state.user.currentUser.theme);
@@ -43,21 +40,25 @@ const DisplayEachCommonList = ({
               : measureMents.leftPadding,
           },
         ]}>
-        <TextComponent
-          weight="semibold"
-          style={{color: colors[theme].textColor}}>
-          {eachCommonList.commonListName}
-        </TextComponent>
-        <CheckboxComponent
-          value={eachCommonList.users.every((eachUser) => eachUser.selected)}
-          style={{position: 'absolute', right: "35%"}}
-          onValueChange={value =>
-            onAllUsersSelected(value, eachCommonList.commonListId)
-          }
-        />
+        <View style={styles.textComponentContainer}>
+          <TextComponent
+            weight="semibold"
+            style={{color: colors[theme].textColor}}>
+            {eachCommonList.commonListName}
+          </TextComponent>
+        </View>
+        <View style={styles.checkBoxContainer}>
+          <CheckboxComponent
+            value={eachCommonList.users.every(eachUser => eachUser.selected)}
+            //style={{position: 'absolute', right: "35%"}}
+            onValueChange={value =>
+              onAllUsersSelected(value, eachCommonList.commonListId)
+            }
+          />
+        </View>
         <TouchableOpacity
-          style={{position: 'absolute', right: '7%'}}
           activeOpacity={0.8}
+          style={styles.expandButton}
           onPress={() => {
             expandCommonList(eachCommonList.commonListId);
           }}>
@@ -80,9 +81,10 @@ const DisplayEachCommonList = ({
               backgroundColor: colors[theme].cardColor,
             },
           ]}>
-          {eachCommonList.users.map(eachUser => (
+          {eachCommonList.users.map((eachUser, index) => (
             <TouchableOpacity
               activeOpacity={0.6}
+              key={index}
               onPress={() => {
                 onUserSelected(
                   !eachUser.selected,
@@ -94,14 +96,16 @@ const DisplayEachCommonList = ({
                 styles.eachUser,
                 {backgroundColor: colors[theme].lightLavenderColor},
               ]}>
-              <TextComponent
-                style={{color: colors[theme].textColor}}
-                weight="semibold">
-                {eachUser.userName}
-              </TextComponent>
+              <View style={styles.userNameContainer}>
+                <TextComponent
+                  style={{color: colors[theme].textColor}}
+                  weight="semibold">
+                  {eachUser.userName}
+                </TextComponent>
+              </View>
+              <View style={styles.userCheckboxContainer}>
               <CheckboxComponent
                 value={eachUser.selected}
-                style={{position: 'absolute', right: '14%'}}
                 onValueChange={value =>
                   onUserSelected(
                     value,
@@ -110,6 +114,7 @@ const DisplayEachCommonList = ({
                   )
                 }
               />
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -124,10 +129,10 @@ const styles = StyleSheet.create({
   mainContainer: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    alignItems: 'center',
-    flexDirection: 'row',
     paddingHorizontal: measureMents.leftPadding,
     paddingVertical: measureMents.leftPadding,
+    width: '100%',
+    flexDirection: 'row',
   },
   form: {
     borderBottomLeftRadius: 20,
@@ -139,9 +144,28 @@ const styles = StyleSheet.create({
   eachUser: {
     paddingHorizontal: measureMents.leftPadding,
     borderRadius: 20,
-    paddingVertical: measureMents.leftPadding,
+    paddingVertical: measureMents.leftPadding - 10,
     marginTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
+  textComponentContainer: {
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    width: '75%',
+  },
+  checkBoxContainer: {
+    width: '10%',
+  },
+  expandButton: {
+    width: '15%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  userNameContainer: {
+   width: "90%"
+  },
+  userCheckboxContainer: {
+   width: "10%"
+  }
 });

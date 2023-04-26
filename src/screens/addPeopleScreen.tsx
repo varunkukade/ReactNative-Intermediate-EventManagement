@@ -221,7 +221,7 @@ const AddPeopleScreen = (): ReactElement => {
   };
 
   const onFormSubmit = (): void => {
-    const {userEmail, userMobileNumber, userName, isPaymentCompleted} =
+    const {userMobileNumber, userName} =
       eventForm;
     if (
       mobileNumbervalidation(userMobileNumber.value).isValid &&

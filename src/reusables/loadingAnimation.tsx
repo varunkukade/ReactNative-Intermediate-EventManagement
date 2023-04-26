@@ -56,6 +56,7 @@ const LoadingAnimation = () => {
       return userSlice.loadingMessage;
     else if (
       peopleSliceStatuses.addPeopleAPICall === LOADING ||
+      peopleSliceStatuses.addPeopleInBatchAPICall === LOADING ||
       peopleSliceStatuses.removePeopleAPICall === LOADING ||
       peopleSliceStatuses.updatePeopleAPICall === LOADING ||
       peopleSliceStatuses.addCommonListAPICall === LOADING ||
@@ -77,6 +78,7 @@ const LoadingAnimation = () => {
       userSliceStatuses.getProfileDataAPICall === LOADING || 
       userSliceStatuses.googleSigninAPICall === LOADING ||
       peopleSliceStatuses.addPeopleAPICall === LOADING ||
+      peopleSliceStatuses.addPeopleInBatchAPICall === LOADING ||
       peopleSliceStatuses.removePeopleAPICall === LOADING ||
       peopleSliceStatuses.updatePeopleAPICall === LOADING ||
       peopleSliceStatuses.addCommonListAPICall === LOADING ||
