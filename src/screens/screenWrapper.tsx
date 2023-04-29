@@ -31,6 +31,8 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       case 'AddPeopleScreen':
       case 'CreateCommonList':
       case 'DisplayCommonList': 
+      case 'UpdateCommonListScreen':
+      case 'UpdateCommonListUsersScreen': 
         return colors[theme].lightLavenderColor;
 
       default:
@@ -56,6 +58,8 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       case 'AddPeopleScreen':
       case 'CreateCommonList':
       case 'DisplayCommonList':
+      case 'UpdateCommonListScreen':
+      case 'UpdateCommonListUsersScreen':
         let content = theme === "dark" ? "light-content" : "dark-content"
         return content;
 

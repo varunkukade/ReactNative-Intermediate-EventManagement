@@ -114,15 +114,6 @@ const EventJoinersListComponent = ({
     },
   );
 
-  const showSearchedResults = (value: string) => {
-    setSearchedText(value)
-    if(value === "" || !value) {
-      dispatch(updatePeopleState(peopleState.originalPeople))
-      return;
-    }
-    let updatedUserArray = peopleState.people.filter((eachPeople) => eachPeople.userName.replace(/\s/g, "").toLowerCase().includes(value.replace(/\s/g, "").toLowerCase()))
-    dispatch(updatePeopleState(updatedUserArray))
-  }
 
   //show fotter while loading more people
   const getFooter = () => {
@@ -226,12 +217,6 @@ const EventJoinersListComponent = ({
             Note - You can modify/delete user by long pressing it.
           </TextComponent>
         </View>
-      <InputComponent
-        value={searchedText}
-        onChangeText={value => showSearchedResults(value)}
-        placeholder="Search user..."
-        style={[styles.searchInput, {backgroundColor: colors[theme].cardColor, color: colors[theme].textColor}]}
-      />
       {peopleState.statuses.getPeopleAPICall === 'succeedded' &&
       peopleData?.getSize() > 0 ? (
         <RecyclerListView

@@ -7,6 +7,8 @@ import {
   DisplayCommonLists,
   EventDetailsScreen,
   UpdateProfileScreen,
+  UpdateCommonListScreen,
+  UpdateCommonListUsersScreen
 } from '../screens/index';
 import {colors, fontStyles} from '../utils/appStyles';
 import EventJoinersTopTabs from './topTabsNavigator';
@@ -26,6 +28,8 @@ export type HomeStackParamList = {
   UpdateProfileScreen: undefined;
   CreateCommonList: undefined;
   DisplayCommonList: undefined;
+  UpdateCommonListScreen: undefined;
+  UpdateCommonListUsersScreen: undefined | {selectedCommonListId: string, selectedCommonListName: string};
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -129,6 +133,30 @@ function HomeStackNavigator() {
         })}
         name="DisplayCommonList"
         component={DisplayCommonLists}
+      />
+      <HomeStack.Screen
+        options={({route, navigation}) => ({
+          headerTitle: 'Update Common lists',
+          headerShadowVisible: false,
+          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleAlign: 'center',
+          headerBackVisible: true,
+          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+        })}
+        name="UpdateCommonListScreen"
+        component={UpdateCommonListScreen}
+      />
+      <HomeStack.Screen
+        options={({route, navigation}) => ({
+          headerTitle: `Update ${route.params?.selectedCommonListName}`,
+          headerShadowVisible: false,
+          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleAlign: 'center',
+          headerBackVisible: true,
+          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+        })}
+        name="UpdateCommonListUsersScreen"
+        component={UpdateCommonListUsersScreen}
       />
     </HomeStack.Navigator>
   );

@@ -32,6 +32,7 @@ type PeopleState = {
     getNextEventJoinersAPICall: status;
     addCommonListAPICall: status;
     getCommonListsAPICall: status;
+    removeCustomListAPICall: status;
   };
   loadingMessage: string;
   commonLists: CommonListObject[];
@@ -50,6 +51,7 @@ const initialState: PeopleState = {
     getNextEventJoinersAPICall: 'idle',
     addCommonListAPICall: 'idle',
     getCommonListsAPICall: 'idle',
+    removeCustomListAPICall: 'idle'
   },
   loadingMessage: '',
   commonLists: [],
@@ -162,7 +164,7 @@ export const peopleSlice = createSlice({
         state.statuses.updatePeopleAPICall = 'succeedded';
       })
       .addCase(updatePeopleAPICall.rejected, (state, action) => {
-        state.statuses.removePeopleAPICall = 'failed';
+        state.statuses.updatePeopleAPICall = 'failed';
       })
       .addCase(addCommonListAPICall.pending, (state, action) => {
         state.loadingMessage = 'Creating Common List...';
@@ -193,6 +195,19 @@ export const peopleSlice = createSlice({
       })
       .addCase(getCommonListsAPICall.rejected, (state, action) => {
         state.statuses.getCommonListsAPICall = 'failed';
+      })
+      .addCase(removeCustomListAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Deleting the Custom List';
+        state.statuses.removeCustomListAPICall = 'loading';
+      })
+      .addCase(removeCustomListAPICall.fulfilled, (state, action) => {
+        state.commonLists = state.commonLists.filter(
+          eachList => eachList.commonListId !== action.meta.arg.customListId,
+        );
+        state.statuses.removeCustomListAPICall = 'succeedded';
+      })
+      .addCase(removeCustomListAPICall.rejected, (state, action) => {
+        state.statuses.removeCustomListAPICall = 'failed';
       });
   },
 });
@@ -311,6 +326,7 @@ export const getPeopleAPICall = createAsyncThunk<
     return await firestore()
       .collection(apiUrls.people)
       .orderBy('createdAt', 'desc')
+      .limit(PAGINATION_CONSTANT)
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(documentSnapshot => {
@@ -521,12 +537,14 @@ export const getCommonListsAPICall = createAsyncThunk<
     message: string;
   },
   //type of request obj passed to payload creator
-  undefined,
+  {
+   expanded: boolean
+  },
   //type of returned error obj from rejectWithValue
   {
     rejectValue: MessageType;
   }
->('events/getCommonLists', async (_, thunkAPI) => {
+>('events/getCommonLists', async (requestObj, thunkAPI) => {
   let commonListArr: CommonListObject[] = [];
   try {
     const commonListRef = firestore().collection(apiUrls.commonList);
@@ -542,7 +560,7 @@ export const getCommonListsAPICall = createAsyncThunk<
           );
           updatedObj.commonListId = documentSnapshot.id;
           updatedObj.users = [];
-          updatedObj.expanded = true;
+          updatedObj.expanded = requestObj.expanded;
           commonListArr.push(updatedObj);
         });
       });
@@ -586,6 +604,37 @@ export const getCommonListsAPICall = createAsyncThunk<
       message:
         err?.message ||
         'Failed to fetch common list. Please try again after some time',
+    });
+  }
+});
+
+export const removeCustomListAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  {
+    customListId: string;
+  },
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('people/removeCustomList', async (requestObj: {customListId: string}, thunkAPI) => {
+  try {
+    return await firestore()
+      .collection(apiUrls.commonList)
+      .doc(requestObj.customListId)
+      .delete()
+      .then(res => {
+        return {message: 'Common List deleted successfully'};
+      });
+  } catch (err: any) {
+    return thunkAPI.rejectWithValue({
+      message:
+        err?.message ||
+        'Failed to delete common list. Please try again after some time',
     });
   }
 });

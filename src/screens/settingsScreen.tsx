@@ -93,6 +93,10 @@ const SettingsScreen = () => {
     homeStackNavigation.navigate('UpdateProfileScreen');
   }, [homeStackNavigation]);
 
+  const onUpdateCommonListPress = useCallback(()=> {
+    homeStackNavigation.navigate('UpdateCommonListScreen');
+  }, [homeStackNavigation])
+
   const onResetPasswordPress = useCallback(() => {
     rootNavigation.navigate('AuthStack', {
       screen: 'ForgotPasswordScreen',
@@ -149,6 +153,25 @@ const SettingsScreen = () => {
     },
     {
       id: 3,
+      label: 'Update Common Lists',
+      icon: () => (
+        <EntypoIcons
+          size={30}
+          color={colors[theme].primaryColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      rightIcon: () => (
+        <EntypoIcons
+          size={35}
+          color={colors[theme].iconLightPinkColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      onPress: onUpdateCommonListPress,
+    },
+    {
+      id: 4,
       label: 'Dark Mode',
       icon: () => (
         <EntypoIcons
@@ -171,7 +194,7 @@ const SettingsScreen = () => {
       onPress: () => changeTheme(),
     },
     {
-      id: 4,
+      id: 5,
       label: 'Log-out',
       icon: () => (
         <EntypoIcons
@@ -203,7 +226,7 @@ const SettingsScreen = () => {
       <View style={[styles.mainContainer, { backgroundColor: colors[theme].cardColor}]}>
         {actions.map((eachAction, index) => (
           <View key={index}>
-            {eachAction.id === 3 ? (
+            {eachAction.id === 4 ? (
               <TouchableHighlight underlayColor='transparent' onPress={eachAction.onPress}>
                 <View style={[styles.eachAction, { backgroundColor: colors[theme].lightLavenderColor }]}>
                   <View style={styles.secondSection}>

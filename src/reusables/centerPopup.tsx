@@ -77,7 +77,7 @@ const CenterPopupComponent = ({
             }}
             bgColor={
               theme === 'light'
-                ? colors.light.lavenderColor
+                ? colors.light.lightLavenderColor
                 : colors.dark.greyColor
             }>
             {popupData().confirmButtonText
