@@ -1,5 +1,5 @@
 import React, {ReactElement, useEffect} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../../utils/appStyles';
 import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
 import ScreenWrapper from '../screenWrapper';
@@ -7,8 +7,18 @@ import {generateArray} from '../../utils/commonFunctions';
 import {getCommonListsAPICall} from '../../reduxConfig/slices/peopleSlice';
 import UpdateEachCommonList from './updateEachCommonList';
 import {TextComponent} from '../../reusables';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '../../navigation/homeStackNavigator';
+import { useNavigation } from '@react-navigation/native';
+import EntypoIcons from 'react-native-vector-icons/Entypo';
 
 const DisplayCommonLists = (): ReactElement => {
+     //navigation and route state
+  const navigation: NativeStackNavigationProp<
+  HomeStackParamList,
+  'UpdateCommonListScreen'
+> = useNavigation();
+
   //recycler view states
   const skelatons = generateArray(5);
 
@@ -89,6 +99,12 @@ const DisplayCommonLists = (): ReactElement => {
           </View>
         </View>
       )}
+      <TouchableOpacity
+        onPress={() => navigation.navigate('CreateCommonList')}
+        activeOpacity={0.7}
+        style={[styles.addCustomListButton, { backgroundColor: colors[theme].commonPrimaryColor}]}>
+        <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
+      </TouchableOpacity>
     </ScreenWrapper>
   );
 };
@@ -108,5 +124,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: measureMents.leftPadding,
+  },
+  addCustomListButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 60,
+    right: 25,
   },
 });

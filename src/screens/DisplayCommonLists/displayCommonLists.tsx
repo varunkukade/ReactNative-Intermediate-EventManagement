@@ -134,8 +134,11 @@ const DisplayCommonLists = (): ReactElement => {
             marginBottom: 20,
           }}
           weight="semibold">
-          Select people that you want to add in{' '}
-          {currentSelectedEvent?.eventTitle}
+          
+          {
+            peopleState.commonLists.length === 0 ? `First create common list of people and then you can select people from it to add in ${currentSelectedEvent?.eventTitle}` : `Select people that you want to add in
+            ${currentSelectedEvent?.eventTitle}`
+          }
         </TextComponent>
       </View>
       {peopleState.statuses.getCommonListsAPICall === 'succeedded' &&

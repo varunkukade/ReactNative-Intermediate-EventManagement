@@ -40,7 +40,7 @@ type PeopleState = {
 
 const initialState: PeopleState = {
   people: [],
-  originalPeople:[],
+  originalPeople: [],
   lastFetchedUserId: '',
   statuses: {
     addPeopleAPICall: 'idle',
@@ -51,7 +51,7 @@ const initialState: PeopleState = {
     getNextEventJoinersAPICall: 'idle',
     addCommonListAPICall: 'idle',
     getCommonListsAPICall: 'idle',
-    removeCustomListAPICall: 'idle'
+    removeCustomListAPICall: 'idle',
   },
   loadingMessage: '',
   commonLists: [],
@@ -216,7 +216,7 @@ export const {
   reset: resetPeopleState,
   setlastFetchedUserId,
   updateCommonList,
-  updatePeopleState
+  updatePeopleState,
 } = peopleSlice.actions;
 export default peopleSlice.reducer;
 
@@ -260,7 +260,6 @@ export const addPeopleInBatchAPICall = createAsyncThunk<
   }
 >('people/addPeopleInBatch', async (users: EachPerson[], thunkAPI) => {
   try {
-    console.log(users)
     const batch = firestore().batch();
     users.forEach(user => {
       const userRef = firestore().collection(apiUrls.people).doc(); // Create a new document reference
@@ -538,7 +537,7 @@ export const getCommonListsAPICall = createAsyncThunk<
   },
   //type of request obj passed to payload creator
   {
-   expanded: boolean
+    expanded: boolean;
   },
   //type of returned error obj from rejectWithValue
   {
@@ -621,20 +620,35 @@ export const removeCustomListAPICall = createAsyncThunk<
   {
     rejectValue: MessageType;
   }
->('people/removeCustomList', async (requestObj: {customListId: string}, thunkAPI) => {
-  try {
-    return await firestore()
-      .collection(apiUrls.commonList)
-      .doc(requestObj.customListId)
-      .delete()
-      .then(res => {
-        return {message: 'Common List deleted successfully'};
+>(
+  'people/removeCustomList',
+  async (requestObj: {customListId: string}, thunkAPI) => {
+    try {
+      //here first delete all users in common list
+      await firestore()
+        .collection(apiUrls.commonList)
+        .doc(requestObj.customListId)
+        .collection(apiUrls.commonListUsers)
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(documentSnapshot => {
+            documentSnapshot.ref.delete();
+          });
+        });
+
+      return await firestore()
+        .collection(apiUrls.commonList)
+        .doc(requestObj.customListId)
+        .delete()
+        .then(res => {
+          return {message: 'Common List deleted successfully'};
+        });
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue({
+        message:
+          err?.message ||
+          'Failed to delete common list. Please try again after some time',
       });
-  } catch (err: any) {
-    return thunkAPI.rejectWithValue({
-      message:
-        err?.message ||
-        'Failed to delete common list. Please try again after some time',
-    });
-  }
-});
+    }
+  },
+);

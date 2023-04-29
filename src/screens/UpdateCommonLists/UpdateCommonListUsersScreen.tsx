@@ -67,13 +67,14 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const theme = useAppSelector(state => state.user.currentUser.theme);
+  const selectedCommonList = useAppSelector(state => state.people.commonLists.find((eachCommonList) => eachCommonList.commonListId === route.params?.selectedCommonListId))
 
   //useStates
   const [users, setUsers] = useState<EachUserFormData[]>([]);
   const [bulkUserCount, setBulkUserCount] = useState('1');
   const [keyboardStatus, setKeyboardStatus] = useState(false);
   const [listName, setListName] = useState({
-    value: '',
+    value: selectedCommonList?.commonListName || '',
     errorMessage: '',
   });
   const [showAddUserView, setShowAddUserView] = useState(false);
@@ -96,6 +97,21 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
       hideSubscription.remove();
     };
   }, []);
+
+  useEffect(() => {
+    if(!selectedCommonList) return;
+    let newArr: EachUserFormData[] = selectedCommonList?.users.map((eachUser) => {
+        return {
+         userId: eachUser.userId,
+         expanded: true,
+         userName: { value: eachUser.userName, errorMessage: '' },
+         userMobileNumber: { value : eachUser.userMobileNumber, errorMessage: ''},
+         userEmail: { value: eachUser.userEmail, errorMessage: ''},
+         isValidUser: 'YES'
+        }
+     })
+    setUsers(newArr)
+  }, [selectedCommonList])
 
   const onAddUserClick = () => {
     setUsers([
@@ -250,7 +266,7 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
     [dispatch, navigation, getRequestObj],
   );
 
-  const onCreateListClick = () => {
+  const onSaveChangesClick = () => {
     //here loop through all users data and check for name validation
     const allFieldsValid = users.every(user => {
       return isUserValid(user);
@@ -261,7 +277,7 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
     } else {
       // all fields are valid, submit the form
       updateFormErrors();
-      setListNameModal(true);
+      console.log("no errors")
     }
   };
 
@@ -269,28 +285,14 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
     setBulkUserModal(false);
     setBulkUserCount('1');
   }, [setBulkUserModal, setBulkUserCount]);
-
-  const onListNameCancelClick = useCallback(() => {
-    setListNameModal(false);
-    setListName({value: '', errorMessage: ''});
-  }, [setListNameModal, setListName]);
   
   const onDeleteCancelClick = useCallback(() => {
     setDeleteListModal(false);
   },[setDeleteListModal])
 
-  const onListNameConfirmClick = useCallback(() => {
-    if (listName.value) {
-      setListName({...listName, errorMessage: ''});
-      setListNameModal(false);
-      callApi(listName.value);
-    } else {
-      setListName({...listName, errorMessage: 'List Name cannot be empty.'});
-    }
-  }, [listName, setListName, setListNameModal, callApi]);
-
   const onDeleteConfirmClick = useCallback(()=> {
     if(!route.params?.selectedCommonListId) return;
+    setDeleteListModal(false)
      //delete this list from common list and pop back to previous screen
      dispatch(removeCustomListAPICall({ customListId: route.params?.selectedCommonListId })).then(
         resp => {
@@ -333,16 +335,6 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
   }, [onCancelClick, onConfirmClick]);
 
   //create new instance of this function only when dependencies change
-  const listNamePopupData = useCallback((): popupData => {
-    return {
-      header: 'Final Step',
-      description: 'Name the list',
-      onCancelClick: onListNameCancelClick,
-      onConfirmClick: onListNameConfirmClick,
-    };
-  }, [onListNameCancelClick, onListNameConfirmClick]);
-
-  //create new instance of this function only when dependencies change
   const deletePopupData = useCallback((): popupData => {
     return {
       header: `Delete ${route.params?.selectedCommonListName} ?`,
@@ -374,7 +366,6 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
 
   return (
     <ScreenWrapper>
-      {!keyboardStatus ? (
         <View
           style={[
             styles.nameAndDeleteButtonContainer,
@@ -395,7 +386,6 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
             />
           </TouchableOpacity>
         </View>
-      ) : null}
       <FlatList
         data={users}
         style={{
@@ -418,12 +408,15 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
       {!keyboardStatus ? (
         <View
           style={[
-            {paddingBottom: 20, paddingHorizontal: measureMents.leftPadding},
+            {
+                paddingBottom: 20, 
+                paddingHorizontal: measureMents.leftPadding
+            }
           ]}>
           <ButtonComponent
-            onPress={onCreateListClick}
+            onPress={onSaveChangesClick}
             isDisabled={users.length === 0}>
-            CREATE LIST
+            Save Changes
           </ButtonComponent>
         </View>
       ) : null}
@@ -436,16 +429,6 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
           keyboardType="numeric"
           onChangeText={value => setBulkUserCount(value)}
           errorMessage={getBulkCountErrorMessage()}
-        />
-      </CenterPopupComponent>
-      <CenterPopupComponent
-        popupData={listNamePopupData}
-        isModalVisible={listNameModal}
-        setIsModalVisible={setListNameModal}>
-        <InputComponent
-          value={listName.value}
-          onChangeText={value => setListName({...listName, value})}
-          errorMessage={listName.errorMessage}
         />
       </CenterPopupComponent>
       <CenterPopupComponent
@@ -515,6 +498,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 20,
+    marginHorizontal: measureMents.leftPadding
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -555,6 +539,6 @@ const styles = StyleSheet.create({
     width: '20%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end'
   },
 });

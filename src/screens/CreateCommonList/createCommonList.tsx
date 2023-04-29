@@ -27,6 +27,7 @@ import {MAX_BULK_ADDITION} from '../../utils/constants';
 import {
   EachPerson,
   addCommonListAPICall,
+  getCommonListsAPICall,
 } from '../../reduxConfig/slices/peopleSlice';
 import auth from '@react-native-firebase/auth';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
@@ -237,6 +238,7 @@ const CreateCommonList = (): ReactElement => {
           if (Platform.OS === 'android' && resp.payload)
             ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
           navigation.pop();
+          dispatch(getCommonListsAPICall({ expanded: false }))
         } else {
           if (Platform.OS === 'android' && resp.payload)
             ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
