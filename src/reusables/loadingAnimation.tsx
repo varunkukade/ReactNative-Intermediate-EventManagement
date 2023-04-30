@@ -6,6 +6,7 @@ import Animated, {
   withSpring,
   withRepeat,
   cancelAnimation,
+  runOnUI,
 } from 'react-native-reanimated';
 import TextComponent from './text';
 import {colors} from '../utils/appStyles';
@@ -89,9 +90,12 @@ const LoadingAnimation = () => {
   }
 
   useEffect(() => {
-    //start scaling animation
-    scale.value = withRepeat(withSpring(1), -1, true);
-
+    // Update the shared value on the UI thread within the useEffect hook
+    const updateValue = () => {
+      'worklet';
+      scale.value = withRepeat(withSpring(1), -1, true);
+    }; 
+    runOnUI(updateValue)();
     return () => cancelAnimation(scale);
   }, []);
 
