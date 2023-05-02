@@ -29,6 +29,7 @@ Motive of this app is to have one stop solution for all the event management for
    5. Add people to the event. You can edit them .You can also remove people from the event. 
    6. View all people added in event at one place. We have used pagination here so that as user scroll down the list, further list will be loaded automatically. People are divided into 3 tabs (All, people who have payment pending, people who have completed the payment). You can move users pending to completed and viceversa. You can create common lists of people to whom you invite frequently (max 200 people at once for now) and add to any event by selecting them from common lists.
    7. You can view app in light and dark mode both.
+   8. You can create your own common lists of people and while adding people to any event you can select people from created common lists. You can also add users in bulk (max 200 for now) in common list.
 
 
 App Screenshots:
