@@ -19,7 +19,7 @@ const LoadingAnimation = () => {
   //useSharedValue lets us create a value which is completely handled by UI thread. UseState create a value handled by js thread.
   const scale = useSharedValue(1.3);
 
-  //create a worklet which will run on UI thread
+  //create a worklet which will run on UI thread. useAnimatedStyle automatically mark callback as worklet
   //whenever shared value inside the worklet changes, worklet reruns.
   const reanimatedStyle = useAnimatedStyle(() => {
     return {

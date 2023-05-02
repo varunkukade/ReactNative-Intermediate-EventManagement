@@ -385,19 +385,20 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
   };
 
   const scrollHandler = useAnimatedScrollHandler({
+    //this hook automatically makes every fun inside as worklet
     onScroll: event => {
       if (
         lastContentOffset.value > event.contentOffset.y &&
         isScrolling.value
       ) {
-        //user is going up the list by scrolling down.
+        //user is going up the list by scrolling down, show the header.
         translateY.value = 0;
         height.value = 100;
       } else if (
         lastContentOffset.value < event.contentOffset.y &&
         isScrolling.value
       ) {
-        //user is going down the list by scrolling up
+        //user is going down the list by scrolling up, hide the header.
         translateY.value = -100;
         height.value = 0;
       }
