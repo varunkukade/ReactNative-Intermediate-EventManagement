@@ -25,7 +25,6 @@ import {
 import CenterPopupComponent, {popupData} from '../../reusables/centerPopup';
 import {MAX_BULK_ADDITION} from '../../utils/constants';
 import {
-    CommonListObject,
   EachPerson,
   addCommonListAPICall,
   removeCustomListAPICall,
@@ -33,6 +32,14 @@ import {
 import auth from '@react-native-firebase/auth';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Animated, {
+  Easing,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { withSpring } from 'react-native-reanimated';
 
 interface EachFormField<T> {
   value: T;
@@ -62,12 +69,18 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
     'UpdateCommonListUsersScreen'
   > = useNavigation();
 
-  const route: RouteProp<HomeStackParamList, 'UpdateCommonListUsersScreen'> = useRoute();
+  const route: RouteProp<HomeStackParamList, 'UpdateCommonListUsersScreen'> =
+    useRoute();
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const theme = useAppSelector(state => state.user.currentUser.theme);
-  const selectedCommonList = useAppSelector(state => state.people.commonLists.find((eachCommonList) => eachCommonList.commonListId === route.params?.selectedCommonListId))
+  const selectedCommonList = useAppSelector(state =>
+    state.people.commonLists.find(
+      eachCommonList =>
+        eachCommonList.commonListId === route.params?.selectedCommonListId,
+    ),
+  );
 
   //useStates
   const [users, setUsers] = useState<EachUserFormData[]>([]);
@@ -81,8 +94,13 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
 
   //modal states
   const [bulkUserModal, setBulkUserModal] = useState(false);
-  const [listNameModal, setListNameModal] = useState(false);
   const [deleteListModal, setDeleteListModal] = useState(false);
+
+  //UI thread values
+  const translateY = useSharedValue(0);
+  const height = useSharedValue(100);
+  const lastContentOffset = useSharedValue(0);
+  const isScrolling = useSharedValue(false);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -99,19 +117,19 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
   }, []);
 
   useEffect(() => {
-    if(!selectedCommonList) return;
-    let newArr: EachUserFormData[] = selectedCommonList?.users.map((eachUser) => {
-        return {
-         userId: eachUser.userId,
-         expanded: true,
-         userName: { value: eachUser.userName, errorMessage: '' },
-         userMobileNumber: { value : eachUser.userMobileNumber, errorMessage: ''},
-         userEmail: { value: eachUser.userEmail, errorMessage: ''},
-         isValidUser: 'YES'
-        }
-     })
-    setUsers(newArr)
-  }, [selectedCommonList])
+    if (!selectedCommonList) return;
+    let newArr: EachUserFormData[] = selectedCommonList?.users.map(eachUser => {
+      return {
+        userId: eachUser.userId,
+        expanded: true,
+        userName: {value: eachUser.userName, errorMessage: ''},
+        userMobileNumber: {value: eachUser.userMobileNumber, errorMessage: ''},
+        userEmail: {value: eachUser.userEmail, errorMessage: ''},
+        isValidUser: 'YES',
+      };
+    });
+    setUsers(newArr);
+  }, [selectedCommonList]);
 
   const onAddUserClick = () => {
     setUsers([
@@ -277,7 +295,7 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
     } else {
       // all fields are valid, submit the form
       updateFormErrors();
-      console.log("no errors")
+      console.log('no errors');
     }
   };
 
@@ -285,28 +303,30 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
     setBulkUserModal(false);
     setBulkUserCount('1');
   }, [setBulkUserModal, setBulkUserCount]);
-  
+
   const onDeleteCancelClick = useCallback(() => {
     setDeleteListModal(false);
-  },[setDeleteListModal])
+  }, [setDeleteListModal]);
 
-  const onDeleteConfirmClick = useCallback(()=> {
-    if(!route.params?.selectedCommonListId) return;
-    setDeleteListModal(false)
-     //delete this list from common list and pop back to previous screen
-     dispatch(removeCustomListAPICall({ customListId: route.params?.selectedCommonListId })).then(
-        resp => {
-          if (resp.meta.requestStatus === 'fulfilled') {
-            if (Platform.OS === 'android' && resp.payload)
-              ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-            navigation.pop();
-          } else {
-            if (Platform.OS === 'android' && resp.payload)
-              ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-          }
-        },
-      );
-  },[route, dispatch, navigation, ])
+  const onDeleteConfirmClick = useCallback(() => {
+    if (!route.params?.selectedCommonListId) return;
+    setDeleteListModal(false);
+    //delete this list from common list and pop back to previous screen
+    dispatch(
+      removeCustomListAPICall({
+        customListId: route.params?.selectedCommonListId,
+      }),
+    ).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        navigation.pop();
+      } else {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  }, [route, dispatch, navigation]);
 
   const onConfirmClick = useCallback(() => {
     let updatedUsers = [...users];
@@ -361,57 +381,103 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
   };
 
   const onDeleteCommonListClick = () => {
-    setDeleteListModal(true)
-  }
+    setDeleteListModal(true);
+  };
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: event => {
+      if (
+        lastContentOffset.value > event.contentOffset.y &&
+        isScrolling.value
+      ) {
+        //user is going up the list by scrolling down.
+        translateY.value = 0;
+        height.value = 100;
+      } else if (
+        lastContentOffset.value < event.contentOffset.y &&
+        isScrolling.value
+      ) {
+        //user is going down the list by scrolling up
+        translateY.value = -100;
+        height.value = 0;
+      }
+      lastContentOffset.value = event.contentOffset.y;
+    },
+    onBeginDrag: e => {
+      isScrolling.value = true;
+    },
+    onEndDrag: e => {
+      isScrolling.value = false;
+    },
+  });
+
+  const actionBarStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: withSpring(translateY.value),
+        },
+      ],
+      height: withTiming(height.value, {
+        duration: 800,
+        easing: Easing.inOut(Easing.ease),
+      }),
+    };
+  });
 
   return (
     <ScreenWrapper>
-        <View
-          style={[
-            styles.nameAndDeleteButtonContainer,
-            {backgroundColor: colors[theme].cardColor},
-          ]}>
-          <View style={styles.nameContainer}>
-            <InputComponent
-              value={listName.value}
-              onChangeText={value => setListName({...listName, value})}
-              errorMessage={listName.errorMessage}
-            />
-          </View>
-          <TouchableOpacity onPress={onDeleteCommonListClick} style={styles.deleteButtonContainer}>
-            <MaterialIcons
-              size={30}
-              color={colors[theme].errorColor}
-              name="delete-outline"
-            />
-          </TouchableOpacity>
-        </View>
-      <FlatList
-        data={users}
-        style={{
-          paddingHorizontal: measureMents.leftPadding,
-          marginTop: 20,
-          paddingVertical: measureMents.leftPadding,
-          marginBottom: 20,
-        }}
-        renderItem={({item}) => (
-          <UpdateEachCommonListUser
-            eachUser={item}
-            deleteUser={deleteUser}
-            expandUser={expandUser}
-            onChangeForm={onChangeForm}
-            isUserValid={item.isValidUser}
+      <Animated.View
+        style={[
+          styles.nameAndDeleteButtonContainer,
+          {backgroundColor: colors[theme].cardColor},
+          actionBarStyle,
+        ]}>
+        <View style={styles.nameContainer}>
+          <InputComponent
+            value={listName.value}
+            onChangeText={value => setListName({...listName, value})}
+            errorMessage={listName.errorMessage}
           />
-        )}
-        keyExtractor={item => item.userId.toString()}
-      />
+        </View>
+        <TouchableOpacity
+          onPress={onDeleteCommonListClick}
+          style={styles.deleteButtonContainer}>
+          <MaterialIcons
+            size={30}
+            color={colors[theme].errorColor}
+            name="delete-outline"
+          />
+        </TouchableOpacity>
+      </Animated.View>
+      <Animated.ScrollView scrollEventThrottle={16} onScroll={scrollHandler}>
+        <FlatList
+          data={users}
+          style={{
+            paddingHorizontal: measureMents.leftPadding,
+            marginTop: 20,
+            paddingVertical: measureMents.leftPadding,
+            marginBottom: 20,
+          }}
+          renderItem={({item}) => (
+            <UpdateEachCommonListUser
+              eachUser={item}
+              deleteUser={deleteUser}
+              expandUser={expandUser}
+              onChangeForm={onChangeForm}
+              isUserValid={item.isValidUser}
+            />
+          )}
+          keyExtractor={item => item.userId.toString()}
+        />
+      </Animated.ScrollView>
       {!keyboardStatus ? (
         <View
           style={[
             {
-                paddingBottom: 20, 
-                paddingHorizontal: measureMents.leftPadding
-            }
+              paddingBottom: 20,
+              paddingHorizontal: measureMents.leftPadding,
+            },
           ]}>
           <ButtonComponent
             onPress={onSaveChangesClick}
@@ -432,9 +498,9 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
         />
       </CenterPopupComponent>
       <CenterPopupComponent
-       popupData={deletePopupData}
-       isModalVisible = {deleteListModal}
-       setIsModalVisible= {setDeleteListModal}
+        popupData={deletePopupData}
+        isModalVisible={deleteListModal}
+        setIsModalVisible={setDeleteListModal}
       />
       {showAddUserView && !keyboardStatus ? (
         <View
@@ -498,7 +564,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 20,
-    marginHorizontal: measureMents.leftPadding
+    marginHorizontal: measureMents.leftPadding,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -539,6 +605,6 @@ const styles = StyleSheet.create({
     width: '20%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
 });

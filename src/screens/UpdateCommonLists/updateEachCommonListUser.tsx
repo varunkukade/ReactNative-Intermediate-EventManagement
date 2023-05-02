@@ -1,11 +1,11 @@
-import React, {ReactElement} from 'react';
+import React, {ReactElement, useEffect, useRef} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useAppSelector} from '../../reduxConfig/store';
-import {EachUserFormData} from './createCommonList';
 import {colors, measureMents} from '../../utils/appStyles';
 import {InputComponent, TextComponent} from '../../reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { EachUserFormData } from './UpdateCommonListUsersScreen';
 
 type EachUserComponentProps = {
   eachUser: EachUserFormData;
@@ -16,8 +16,8 @@ type EachUserComponentProps = {
     fieldName: 'userName' | 'userMobileNumber' | 'userEmail',
     id: string | number[],
   ) => void;
-  isUserValid: "" | "YES" | "NO";
-};
+  isUserValid: "" | "YES" | "NO"
+}; 
 
 type ConstantsType = {
   userName: 'userName';
