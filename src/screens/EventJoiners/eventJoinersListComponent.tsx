@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useRef, useState} from 'react';
+import React, {ReactElement, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -17,9 +17,15 @@ import {
   EachPerson,
   getNextEventJoinersAPICall,
   getPeopleAPICall,
-  updatePeopleState,
 } from '../../reduxConfig/slices/peopleSlice';
-import {InputComponent} from '../../reusables';
+import Animated, {
+  Easing,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
 type EventJoinerListProps = {
   onLongPressUser: (data: EachPerson) => void;
@@ -33,9 +39,6 @@ const EventJoinersListComponent = ({
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const theme = useAppSelector(state => state.user.currentUser.theme);
-
-  //useStates
-  const [searchedText, setSearchedText] = useState('');
 
   useEffect(() => {
     dispatch(getPeopleAPICall()).then(res => {
@@ -113,7 +116,6 @@ const EventJoinersListComponent = ({
       dim.height = 100;
     },
   );
-
 
   //show fotter while loading more people
   const getFooter = () => {
@@ -194,41 +196,41 @@ const EventJoinersListComponent = ({
 
   return (
     <>
-        <View>
+      <View>
+        <TextComponent
+          weight="bold"
+          style={{
+            color: colors[theme].textColor,
+            fontSize: 15,
+            marginBottom: 10,
+          }}>
+          Total People:{' '}
+          {peopleData?.getSize() && peopleData?.getSize() > 0
+            ? peopleData?.getSize()
+            : 0}
+        </TextComponent>
           <TextComponent
             weight="bold"
-            style={{
-              color: colors[theme].textColor,
-              fontSize: 15,
-              marginBottom: 10,
-            }}>
-            Total People:{' '}
-            {peopleData?.getSize() && peopleData?.getSize() > 0
-              ? peopleData?.getSize()
-              : 0}
-          </TextComponent>
-          <TextComponent
-            weight="bold"
+            numberOfLines={2}
             style={{
               color: colors[theme].greyColor,
               fontSize: 15,
-              marginBottom: 10,
             }}>
             Note - You can modify/delete user by long pressing it.
           </TextComponent>
-        </View>
+      </View>
       {peopleState.statuses.getPeopleAPICall === 'succeedded' &&
       peopleData?.getSize() > 0 ? (
-        <RecyclerListView
-          rowRenderer={rowRenderer}
-          dataProvider={peopleData}
-          layoutProvider={layoutProvider}
-          initialRenderIndex={0}
-          scrollViewProps={{showsVerticalScrollIndicator: false}}
-          onEndReachedThresholdRelative={0.9}
-          onEndReached={fetchMoreEventJoiners}
-          renderFooter={() => getFooter()}
-        />
+          <RecyclerListView
+            rowRenderer={rowRenderer}
+            dataProvider={peopleData}
+            layoutProvider={layoutProvider}
+            initialRenderIndex={0}
+            scrollViewProps={{showsVerticalScrollIndicator: false, }}
+            onEndReachedThresholdRelative={0.9}
+            onEndReached={fetchMoreEventJoiners}
+            renderFooter={() => getFooter()}
+          />
       ) : peopleState.statuses.getPeopleAPICall === 'loading' ? (
         skelatons.map((eachItem, index) => (
           <View
@@ -304,10 +306,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  searchInput: { 
-    width: "100%",
+  searchInput: {
+    width: '100%',
     borderRadius: 20,
     marginBottom: 15,
-    paddingHorizontal: measureMents.leftPadding
-  }
+    paddingHorizontal: measureMents.leftPadding,
+  },
 });

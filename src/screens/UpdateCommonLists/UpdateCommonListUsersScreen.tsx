@@ -39,7 +39,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { withSpring } from 'react-native-reanimated';
+import {withSpring} from 'react-native-reanimated';
 
 interface EachFormField<T> {
   value: T;
@@ -451,27 +451,27 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
           />
         </TouchableOpacity>
       </Animated.View>
-      <Animated.ScrollView scrollEventThrottle={16} onScroll={scrollHandler}>
-        <FlatList
-          data={users}
-          style={{
-            paddingHorizontal: measureMents.leftPadding,
-            marginTop: 20,
-            paddingVertical: measureMents.leftPadding,
-            marginBottom: 20,
-          }}
-          renderItem={({item}) => (
-            <UpdateEachCommonListUser
-              eachUser={item}
-              deleteUser={deleteUser}
-              expandUser={expandUser}
-              onChangeForm={onChangeForm}
-              isUserValid={item.isValidUser}
-            />
-          )}
-          keyExtractor={item => item.userId.toString()}
-        />
-      </Animated.ScrollView>
+      <Animated.FlatList
+        data={users}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        style={{
+          paddingHorizontal: measureMents.leftPadding,
+          marginTop: 20,
+          paddingVertical: measureMents.leftPadding,
+          marginBottom: 20,
+        }}
+        renderItem={({item}) => (
+          <UpdateEachCommonListUser
+            eachUser={item}
+            deleteUser={deleteUser}
+            expandUser={expandUser}
+            onChangeForm={onChangeForm}
+            isUserValid={item.isValidUser}
+          />
+        )}
+        keyExtractor={item => item.userId.toString()}
+      />
       {!keyboardStatus ? (
         <View
           style={[
