@@ -33,6 +33,7 @@ type PeopleState = {
     addCommonListAPICall: status;
     getCommonListsAPICall: status;
     removeCustomListAPICall: status;
+    updateCommonListAPICall: status;
   };
   loadingMessage: string;
   commonLists: CommonListObject[];
@@ -52,6 +53,7 @@ const initialState: PeopleState = {
     addCommonListAPICall: 'idle',
     getCommonListsAPICall: 'idle',
     removeCustomListAPICall: 'idle',
+    updateCommonListAPICall: 'idle'
   },
   loadingMessage: '',
   commonLists: [],
@@ -197,7 +199,7 @@ export const peopleSlice = createSlice({
         state.statuses.getCommonListsAPICall = 'failed';
       })
       .addCase(removeCustomListAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Deleting the Custom List';
+        state.loadingMessage = 'Deleting the Common List';
         state.statuses.removeCustomListAPICall = 'loading';
       })
       .addCase(removeCustomListAPICall.fulfilled, (state, action) => {
@@ -208,6 +210,16 @@ export const peopleSlice = createSlice({
       })
       .addCase(removeCustomListAPICall.rejected, (state, action) => {
         state.statuses.removeCustomListAPICall = 'failed';
+      })
+      .addCase(updateCommonListAPICall.pending, (state, action) => {
+        state.loadingMessage = 'Updating the Common List';
+        state.statuses.updateCommonListAPICall = 'loading';
+      })
+      .addCase(updateCommonListAPICall.fulfilled, (state, action) => {
+        state.statuses.updateCommonListAPICall = 'succeedded';
+      })
+      .addCase(updateCommonListAPICall.rejected, (state, action) => {
+        state.statuses.updateCommonListAPICall = 'failed';
       });
   },
 });
@@ -253,28 +265,32 @@ export const addPeopleInBatchAPICall = createAsyncThunk<
   //type of successfull returned obj
   MessageType,
   //type of request obj passed to payload creator
-  EachPerson[],
+  Omit<EachPerson, 'userId'>[],
   //type of returned error obj from rejectWithValue
   {
     rejectValue: MessageType;
   }
->('people/addPeopleInBatch', async (users: EachPerson[], thunkAPI) => {
-  try {
-    const batch = firestore().batch();
-    users.forEach(user => {
-      const userRef = firestore().collection(apiUrls.people).doc(); // Create a new document reference
-      batch.set(userRef, user); // Add the user object to the batch
-    });
-    return batch.commit().then(res => {
-      return {message: 'Users added successfully'};
-    });
-  } catch (err: any) {
-    return thunkAPI.rejectWithValue({
-      message:
-        err?.message || 'Failed to add users. Please try again after some time',
-    });
-  }
-});
+>(
+  'people/addPeopleInBatch',
+  async (users: Omit<EachPerson, 'userId'>[], thunkAPI) => {
+    try {
+      const batch = firestore().batch();
+      users.forEach(user => {
+        const userRef = firestore().collection(apiUrls.people).doc(); // Create a new document reference
+        batch.set(userRef, user); // Add the user object to the batch
+      });
+      return batch.commit().then(res => {
+        return {message: 'Users added successfully'};
+      });
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue({
+        message:
+          err?.message ||
+          'Failed to add users. Please try again after some time',
+      });
+    }
+  },
+);
 
 export const removePeopleAPICall = createAsyncThunk<
   //type of successfull returned obj
@@ -515,6 +531,80 @@ export const addCommonListAPICall = createAsyncThunk<
     }
   },
 );
+
+export type UpdateCommonListRequestObj = {
+  commonListName: string;
+  commonListId: string;
+  newlyAddedUsers: Omit<EachPerson, 'userId' | 'eventId'>[];
+  alreadyExistingUsers: Omit<EachPerson, 'eventId'>[];
+  removedUserIds: string[]
+};
+
+export const updateCommonListAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  MessageType,
+  //type of request obj passed to payload creator
+  UpdateCommonListRequestObj,
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>('people/updateCommonList', async (requestObj: UpdateCommonListRequestObj, thunkAPI) => {
+  try {
+    // update a common list name
+    await firestore()
+      .collection(apiUrls.commonList)
+      .doc(requestObj.commonListId)
+      .update({commonListName: requestObj.commonListName});
+
+    const commonListDoc = firestore()
+      .collection(apiUrls.commonList)
+      .doc(requestObj.commonListId);
+
+    // Create a batch instance
+    const batch = firestore().batch();
+
+    // add a multiple documents using batch to the CommonListUsers subcollection within CommonList Collection
+    // Iterate through the array of users and add them to the batch
+    requestObj.newlyAddedUsers.forEach(doc => {
+      const docRef = commonListDoc.collection(apiUrls.commonListUsers).doc();
+      batch.set(docRef, doc);
+    });
+
+    //update already existing users
+    //Iterate through the array of users and update them in the batch
+    requestObj.alreadyExistingUsers.forEach(doc => {
+      const docRef = commonListDoc
+        .collection(apiUrls.commonListUsers)
+        .doc(doc.userId);
+      batch.update(docRef, {
+        userEmail: doc.userEmail,
+        userMobileNumber: doc.userMobileNumber,
+        userName: doc.userName,
+      });
+    });
+
+    //delete the users
+
+    requestObj.removedUserIds.forEach(userId => {
+      const docRef = commonListDoc
+        .collection(apiUrls.commonListUsers)
+        .doc(userId);
+       batch.delete(docRef);
+    });
+
+    //commit all users to the subcollection.
+    return await batch.commit().then(res => {
+      return {message: 'Common List Updated Successfully!'};
+    });
+  } catch (err: any) {
+    return thunkAPI.rejectWithValue({
+      message:
+        err?.message ||
+        'Failed to update common list. Please try again after some time',
+    });
+  }
+});
 
 export type EachUserInCommonList = Omit<EachPerson, 'eventId'> & {
   selected: boolean;

@@ -18,6 +18,7 @@ import {BottomTabParamList} from './bottomTabNavigator';
 import {EachEvent} from '../reduxConfig/slices/eventsSlice';
 import {EachPerson} from '../reduxConfig/slices/peopleSlice';
 import { useAppSelector } from '../reduxConfig/store';
+import { TextComponent } from '../reusables';
 
 export type HomeStackParamList = {
   BottomTabNavigator: undefined | NavigatorScreenParams<BottomTabParamList>;
@@ -148,12 +149,12 @@ function HomeStackNavigator() {
       />
       <HomeStack.Screen
         options={({route, navigation}) => ({
-          headerTitle: `Update ${route.params?.selectedCommonListName}`,
+          headerTitle: '',
           headerShadowVisible: false,
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+          headerStyle: {backgroundColor: colors[theme].lightLavenderColor},
         })}
         name="UpdateCommonListUsersScreen"
         component={UpdateCommonListUsersScreen}

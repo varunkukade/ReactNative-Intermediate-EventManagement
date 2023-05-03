@@ -119,6 +119,8 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     marginVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   commonListSkalatonContainer: {
     alignItems: 'center',

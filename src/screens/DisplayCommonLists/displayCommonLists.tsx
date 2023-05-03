@@ -97,11 +97,11 @@ const DisplayCommonLists = (): ReactElement => {
 
   const addUsersToEvent = () => {
     if (!selectedEventDetails) return null;
-    let requestArr: EachPerson[] = [];
+    let requestArr: Omit<EachPerson, 'userId'>[] = [];
     peopleState.commonLists.forEach(eachCommonList => {
-      let newArr: EachPerson = eachCommonList.users
+      let newArr: Omit<EachPerson, 'userId'>[] = eachCommonList.users
         .filter(eachUser => eachUser.selected)
-        .map(({selected, ...rest}) => {
+        .map(({selected, userId, ...rest}) => {
           return {
             ...rest,
             eventId: selectedEventDetails.eventId,

@@ -1,6 +1,5 @@
 import React, {ReactElement, useState, useCallback, useEffect} from 'react';
 import {
-  FlatList,
   StyleSheet,
   View,
   Keyboard,
@@ -26,10 +25,11 @@ import CenterPopupComponent, {popupData} from '../../reusables/centerPopup';
 import {MAX_BULK_ADDITION} from '../../utils/constants';
 import {
   EachPerson,
-  addCommonListAPICall,
+  UpdateCommonListRequestObj,
+  getCommonListsAPICall,
   removeCustomListAPICall,
+  updateCommonListAPICall,
 } from '../../reduxConfig/slices/peopleSlice';
-import auth from '@react-native-firebase/auth';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Animated, {
@@ -85,6 +85,7 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
   //useStates
   const [users, setUsers] = useState<EachUserFormData[]>([]);
   const [bulkUserCount, setBulkUserCount] = useState('1');
+  const [removedUserIds, setRemovedUserIds] = useState<string[]>([]);
   const [keyboardStatus, setKeyboardStatus] = useState(false);
   const [listName, setListName] = useState({
     value: selectedCommonList?.commonListName || '',
@@ -135,7 +136,7 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
     setUsers([
       ...users,
       {
-        userId: uuid.v4(),
+        userId: uuid.v4() + 'newUser',
         expanded: true,
         userName: {value: '', errorMessage: ''},
         userMobileNumber: {value: '', errorMessage: ''},
@@ -152,19 +153,25 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
 
   const expandUser = useCallback(
     (userId: string | number[]) => {
-      let updatedArr = users.map(eachUser => {
-        if (eachUser.userId === userId)
-          return {...eachUser, expanded: !eachUser.expanded};
-        else return eachUser;
-      });
-      setUsers(updatedArr);
+      let updatedArr;
+      if (typeof userId === 'string') {
+        updatedArr = users.map(eachUser => {
+          if (eachUser.userId === userId)
+            return {...eachUser, expanded: !eachUser.expanded};
+          else return eachUser;
+        });
+        setUsers(updatedArr);
+      }
     },
     [users, setUsers],
   );
 
   const deleteUser = useCallback(
     (userId: string | number[]) => {
-      setUsers(users.filter(eachUser => eachUser.userId !== userId));
+      if (typeof userId === 'string') {
+        setUsers(users.filter(eachUser => eachUser.userId !== userId));
+        if(!userId.includes("newUser")) setRemovedUserIds(prevState => [...prevState, userId]);
+      }
     },
     [setUsers, users],
   );
@@ -243,11 +250,18 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
     } else return false;
   }, []);
 
-  const getRequestObj = useCallback(
-    (listNameValue: string) => {
-      let requestArr: Omit<EachPerson, 'userId' | 'eventId'>[] = [];
-      users.forEach(eachUser => {
-        requestArr.push({
+  const getRequestObj = () => {
+    let newlyAddedUsers: Omit<EachPerson, 'userId' | 'eventId'>[] = [];
+    let alreadyExistingUsers: Omit<
+      EachPerson,
+      'eventId' | 'isPaymentPending' | 'createdAt' | 'paymentMode'
+    >[] = [];
+    users.forEach(eachUser => {
+      if (
+        typeof eachUser.userId === 'string' &&
+        eachUser.userId.includes('newUser')
+      ) {
+        newlyAddedUsers.push({
           userEmail: eachUser.userEmail?.value || '',
           userMobileNumber: eachUser.userMobileNumber?.value || '',
           userName: eachUser.userName.value,
@@ -255,34 +269,38 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
           createdAt: new Date().toString(),
           paymentMode: '',
         });
-      });
-      return {
-        commonListName: listNameValue,
-        createdBy: auth().currentUser?.uid,
-        createdAt: new Date().toString(),
-        users: requestArr,
-      };
-    },
-    [users, auth().currentUser?.uid, new Date().toString()],
-  );
+      } else {
+        if (typeof eachUser.userId === 'string')
+          alreadyExistingUsers.push({
+            userEmail: eachUser.userEmail?.value || '',
+            userMobileNumber: eachUser.userMobileNumber?.value || '',
+            userName: eachUser.userName.value,
+            userId: eachUser.userId,
+          });
+      }
+    });
+    return {
+      commonListName: listName.value,
+      commonListId: selectedCommonList?.commonListId,
+      newlyAddedUsers,
+      alreadyExistingUsers,
+      removedUserIds,
+    } as UpdateCommonListRequestObj;
+  };
 
-  const callApi = useCallback(
-    (listNameValue: string) => {
-      dispatch(addCommonListAPICall(getRequestObj(listNameValue))).then(
-        resp => {
-          if (resp.meta.requestStatus === 'fulfilled') {
-            if (Platform.OS === 'android' && resp.payload)
-              ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-            navigation.pop();
-          } else {
-            if (Platform.OS === 'android' && resp.payload)
-              ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-          }
-        },
-      );
-    },
-    [dispatch, navigation, getRequestObj],
-  );
+  const callApi = () => {
+    dispatch(updateCommonListAPICall(getRequestObj())).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        navigation.pop();
+        dispatch(getCommonListsAPICall({expanded: false}));
+      } else {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  };
 
   const onSaveChangesClick = () => {
     //here loop through all users data and check for name validation
@@ -295,7 +313,7 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
     } else {
       // all fields are valid, submit the form
       updateFormErrors();
-      console.log('no errors');
+      callApi();
     }
   };
 
@@ -326,13 +344,13 @@ const UpdateCommonListUsersScreen = (): ReactElement => {
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
-  }, [route, dispatch, navigation]);
+  }, [route, setDeleteListModal, dispatch, navigation]);
 
   const onConfirmClick = useCallback(() => {
     let updatedUsers = [...users];
     generateArray(parseInt(bulkUserCount)).forEach(() => {
       updatedUsers.push({
-        userId: uuid.v4(),
+        userId: uuid.v4() + 'newUser',
         expanded: true,
         userName: {value: '', errorMessage: ''},
         userMobileNumber: {value: '', errorMessage: ''},
@@ -560,7 +578,7 @@ export default UpdateCommonListUsersScreen;
 
 const styles = StyleSheet.create({
   nameAndDeleteButtonContainer: {
-    paddingVertical: 10,
+    //paddingVertical: 10,
     paddingHorizontal: measureMents.leftPadding,
     flexDirection: 'row',
     alignItems: 'center',
