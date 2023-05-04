@@ -70,7 +70,7 @@ export const peopleSlice = createSlice({
     updateCommonList: (state, action: PayloadAction<CommonListObject[]>) => {
       state.commonLists = JSON.parse(JSON.stringify(action.payload));
     },
-    updatePeopleState: (state, action: PayloadAction<EachPerson[]>) => {
+    updatePeople: (state, action: PayloadAction<EachPerson[]>) => {
       state.people = JSON.parse(JSON.stringify(action.payload));
     },
   },
@@ -101,6 +101,7 @@ export const peopleSlice = createSlice({
       })
       .addCase(getPeopleAPICall.fulfilled, (state, action) => {
         state.people.length = 0;
+        state.originalPeople.length = 0;
         if (action.payload.responseData) {
           state.people = JSON.parse(
             JSON.stringify(action.payload.responseData),
@@ -120,6 +121,7 @@ export const peopleSlice = createSlice({
       .addCase(getNextEventJoinersAPICall.fulfilled, (state, action) => {
         if (action.payload.responseData.length > 0) {
           state.people = state.people.concat(action.payload.responseData);
+          state.originalPeople = state.originalPeople.concat(action.payload.responseData);
         }
         state.statuses.getNextEventJoinersAPICall = 'succeedded';
       })
@@ -132,6 +134,9 @@ export const peopleSlice = createSlice({
       })
       .addCase(removePeopleAPICall.fulfilled, (state, action) => {
         state.people = state.people.filter(
+          eachPerson => eachPerson.userId !== action.meta.arg.userId,
+        );
+        state.originalPeople = state.originalPeople.filter(
           eachPerson => eachPerson.userId !== action.meta.arg.userId,
         );
         state.statuses.removePeopleAPICall = 'succeedded';
@@ -152,6 +157,18 @@ export const peopleSlice = createSlice({
           paymentMode,
         } = action.meta.arg.newUpdate;
         state.people = state.people.map(eachPerson => {
+          if (eachPerson.userId === action.meta.arg.userId) {
+            if (isPaymentPending !== undefined)
+              eachPerson.isPaymentPending = isPaymentPending;
+            if (userName) eachPerson.userName = userName;
+            if (userEmail) eachPerson.userEmail = userEmail;
+            if (userMobileNumber)
+              eachPerson.userMobileNumber = userMobileNumber;
+            if (paymentMode) eachPerson.paymentMode = paymentMode;
+            return eachPerson;
+          } else return eachPerson;
+        });
+        state.originalPeople = state.originalPeople.map(eachPerson => {
           if (eachPerson.userId === action.meta.arg.userId) {
             if (isPaymentPending !== undefined)
               eachPerson.isPaymentPending = isPaymentPending;
@@ -228,7 +245,7 @@ export const {
   reset: resetPeopleState,
   setlastFetchedUserId,
   updateCommonList,
-  updatePeopleState,
+  updatePeople,
 } = peopleSlice.actions;
 export default peopleSlice.reducer;
 

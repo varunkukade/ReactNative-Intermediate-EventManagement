@@ -269,29 +269,38 @@ const EventListComponent = (): ReactElement => {
           return eachEvent;
         });
       } else {
-        let updatedSearchValue = searchedValue.toLowerCase().trim().split(' ').join('')
+        let updatedSearchValue = searchedValue
+          .toLowerCase()
+          .trim()
+          .split(' ')
+          .join('');
         updatedEvents = originalEventState.filter(eachEvent => {
-          if(eachEvent.eventTitle
-            .toLowerCase()
-            .trim()
-            .split(' ')
-            .join('')
-            .includes(updatedSearchValue)) {
-              return true;
-            } else {
-              let eventDateArray = moment(new Date(eachEvent.eventDate)).format('LL').split(" ")
-              //eventDateArray = [ "May", "4", "2023"]
-              let matched = false
-              eventDateArray.forEach((eachElement) => {
-                if(eachElement.toLowerCase().trim().includes(updatedSearchValue)) matched = true;
-              })
-              return matched;
-            }
+          if (
+            eachEvent.eventTitle
+              .toLowerCase()
+              .trim()
+              .split(' ')
+              .join('')
+              .includes(updatedSearchValue)
+          ) {
+            return true;
+          } else {
+            let eventDateArray = moment(new Date(eachEvent.eventDate))
+              .format('LL')
+              .split(' ');
+            //eventDateArray = [ "May", "4", "2023"]
+            let matched = false;
+            eventDateArray.forEach(eachElement => {
+              if (eachElement.toLowerCase().trim().includes(updatedSearchValue))
+                matched = true;
+            });
+            return matched;
+          }
         });
       }
       dispatch(setEvents(updatedEvents));
     }, 1000),
-    [dispatch, originalEventState, events],
+    [dispatch, originalEventState],
   );
 
   const handleEventSearch = (searchedValue: string) => {
@@ -315,16 +324,16 @@ const EventListComponent = (): ReactElement => {
             : 0}
         </TextComponent>
         <View
-          style={[
-            styles.searchInput,
-            {backgroundColor: colors[theme].cardColor},
-          ]}>
-          <InputComponent
-            value={searchedEvent}
-            onChangeText={value => handleEventSearch(value)}
-            placeholder="Search event by title / date / month / year..."
-          />
-        </View>
+            style={[
+              styles.searchInput,
+              {backgroundColor: colors[theme].cardColor},
+            ]}>
+            <InputComponent
+              value={searchedEvent}
+              onChangeText={value => handleEventSearch(value)}
+              placeholder="Search event by title / date / month / year..."
+            />
+          </View>
         {eventState.statuses.getEventAPICall === 'succeedded' &&
         eventsData?.getSize() > 0 ? (
           <RecyclerListView

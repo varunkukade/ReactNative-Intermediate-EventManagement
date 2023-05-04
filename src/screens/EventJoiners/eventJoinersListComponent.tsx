@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from 'react';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -7,18 +7,21 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '../../utils/appStyles';
-import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
+import { colors, measureMents } from '../../utils/appStyles';
+import { RecyclerListView, DataProvider, LayoutProvider } from 'recyclerlistview';
 import TextComponent from '../../reusables/text';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
-import {generateArray} from '../../utils/commonFunctions';
+import { useAppDispatch, useAppSelector } from '../../reduxConfig/store';
+import { generateArray } from '../../utils/commonFunctions';
 import {
   EachPerson,
   getNextEventJoinersAPICall,
   getPeopleAPICall,
+  updatePeople,
 } from '../../reduxConfig/slices/peopleSlice';
-import {InputComponent} from '../../reusables';
+import { InputComponent } from '../../reusables';
+import { debounce } from 'lodash';
+import moment from 'moment';
 
 type EventJoinerListProps = {
   onLongPressUser: (data: EachPerson) => void;
@@ -35,12 +38,16 @@ const EventJoinersListComponent = ({
 
   const skelatons = generateArray(5);
 
+  //useStates
+  const [searchedUser, setSearchedUser] = useState('');
+
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const theme = useAppSelector(state => state.user.currentUser.theme);
   const currentSelectedEvent = useAppSelector(
     state => state.events.currentSelectedEvent,
   );
+  const originalPeople = useAppSelector(state => state.people.originalPeople);
 
   const peopleState = useAppSelector(state => state.people);
   const getPeopleArray = (peopleState: EachPerson[]) => {
@@ -151,7 +158,7 @@ const EventJoinersListComponent = ({
         onLongPress={() => onLongPressUser(data)}
         style={[
           styles.eachEventComponent,
-          {backgroundColor: colors[theme].cardColor},
+          { backgroundColor: colors[theme].cardColor },
         ]}>
         <View style={styles.secondSection}>
           <TextComponent
@@ -185,6 +192,54 @@ const EventJoinersListComponent = ({
     );
   };
 
+  const showSearchedUsers = useCallback(
+    debounce(searchedValue => {
+      let updatedPeople;
+      if (searchedValue === '') {
+        updatedPeople = originalPeople.map(eachPeople => {
+          return eachPeople;
+        });
+      } else {
+        let updatedSearchValue = searchedValue
+          .toLowerCase()
+          .trim()
+          .split(' ')
+          .join('');
+        updatedPeople = originalPeople.filter(eachPeople => {
+          if (
+            eachPeople.userName
+              .toLowerCase()
+              .trim()
+              .split(' ')
+              .join('')
+              .includes(updatedSearchValue) ||
+            eachPeople.userMobileNumber
+              .toLowerCase()
+              .trim()
+              .split(' ')
+              .join('')
+              .includes(updatedSearchValue) ||
+            eachPeople.userEmail
+              .toLowerCase()
+              .trim()
+              .split(' ')
+              .join('')
+              .includes(updatedSearchValue)
+          ) {
+            return true;
+          }
+        });
+      }
+      dispatch(updatePeople(updatedPeople));
+    }, 1000),
+    [dispatch, originalPeople],
+  );
+
+  const handleUserSearch = (searchedValue: string) => {
+    setSearchedUser(searchedValue);
+    showSearchedUsers(searchedValue);
+  };
+
   return (
     <>
       <View>
@@ -193,31 +248,34 @@ const EventJoinersListComponent = ({
           style={{
             color: colors[theme].textColor,
             fontSize: 15,
-            marginBottom: 10,
+            marginBottom: 5
           }}>
           Total People:{' '}
           {peopleData?.getSize() && peopleData?.getSize() > 0
             ? peopleData?.getSize()
             : 0}
         </TextComponent>
-        <TextComponent
-          weight="bold"
-          numberOfLines={2}
-          style={{
-            color: colors[theme].greyColor,
-            fontSize: 15,
-          }}>
-          Note - You can modify/delete user by long pressing it.
-        </TextComponent>
       </View>
+      <View
+            style={[
+              styles.searchInput,
+              { backgroundColor: colors[theme].cardColor },
+            ]}>
+            <InputComponent
+              value={searchedUser}
+              onChangeText={value => handleUserSearch(value)}
+              placeholder="Search user by name / cell number / email..."
+            />
+          </View>
+
       {peopleState.statuses.getPeopleAPICall === 'succeedded' &&
-      peopleData?.getSize() > 0 ? (
+        peopleData?.getSize() > 0 ? (
         <RecyclerListView
           rowRenderer={rowRenderer}
           dataProvider={peopleData}
           layoutProvider={layoutProvider}
           initialRenderIndex={0}
-          scrollViewProps={{showsVerticalScrollIndicator: false}}
+          scrollViewProps={{ showsVerticalScrollIndicator: false }}
           onEndReachedThresholdRelative={0.9}
           onEndReached={fetchMoreEventJoiners}
           renderFooter={() => getFooter()}
@@ -228,7 +286,7 @@ const EventJoinersListComponent = ({
             key={index}
             style={[
               styles.eventLoadingSkelaton,
-              {backgroundColor: colors[theme].lavenderColor},
+              { backgroundColor: colors[theme].lavenderColor },
             ]}
           />
         ))
@@ -236,7 +294,7 @@ const EventJoinersListComponent = ({
         <View
           style={[
             styles.eventLoadingSkelaton,
-            {marginTop: 30, backgroundColor: colors[theme].lavenderColor},
+            { marginTop: 30, backgroundColor: colors[theme].lavenderColor },
           ]}>
           <TextComponent weight="bold">
             'Failed to fetch users. Please try again after some time'
@@ -246,9 +304,9 @@ const EventJoinersListComponent = ({
         <View
           style={[
             styles.eventLoadingSkelaton,
-            {marginTop: 30, backgroundColor: colors[theme].lavenderColor},
+            { marginTop: 30, backgroundColor: colors[theme].lavenderColor },
           ]}>
-          <TextComponent style={{color: colors[theme].greyColor}} weight="bold">
+          <TextComponent style={{ color: colors[theme].greyColor }} weight="bold">
             No Records Found!
           </TextComponent>
         </View>
@@ -296,5 +354,11 @@ const styles = StyleSheet.create({
   footerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  searchInput: {
+    borderRadius: 20,
+    marginBottom: 15,
+    paddingHorizontal: measureMents.leftPadding - 5,
+    alignSelf: 'center',
   },
 });
