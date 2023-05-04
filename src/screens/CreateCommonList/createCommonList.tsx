@@ -344,7 +344,7 @@ const CreateCommonList = (): ReactElement => {
               fontSize: 15,
               color: colors[theme].textColor,
               textAlign: 'left',
-              marginBottom: 20,
+              marginBottom: 5,
             }}
             weight="semibold">
             Create common list of people here and while adding people to any
@@ -361,7 +361,6 @@ const CreateCommonList = (): ReactElement => {
         data={users}
         style={{
           paddingHorizontal: measureMents.leftPadding,
-          marginTop: 20,
           paddingVertical: measureMents.leftPadding,
           marginBottom: 20,
         }}

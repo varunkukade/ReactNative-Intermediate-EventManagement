@@ -18,14 +18,7 @@ import {
   getNextEventJoinersAPICall,
   getPeopleAPICall,
 } from '../../reduxConfig/slices/peopleSlice';
-import Animated, {
-  Easing,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import {InputComponent} from '../../reusables';
 
 type EventJoinerListProps = {
   onLongPressUser: (data: EachPerson) => void;
@@ -36,9 +29,41 @@ const EventJoinersListComponent = ({
   onLongPressUser,
   type,
 }: EventJoinerListProps): ReactElement => {
+  let dataProvider = new DataProvider((r1, r2) => {
+    return r1 !== r2;
+  });
+
+  const skelatons = generateArray(5);
+
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const theme = useAppSelector(state => state.user.currentUser.theme);
+  const currentSelectedEvent = useAppSelector(
+    state => state.events.currentSelectedEvent,
+  );
+
+  const peopleState = useAppSelector(state => state.people);
+  const getPeopleArray = (peopleState: EachPerson[]) => {
+    if (type === 'all')
+      return peopleState.filter(
+        eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
+      );
+    else if (type === 'pending')
+      return peopleState.filter(
+        eachPerson =>
+          eachPerson.isPaymentPending &&
+          eachPerson.eventId === currentSelectedEvent?.eventId,
+      );
+    else
+      return peopleState.filter(
+        eachPerson =>
+          !eachPerson.isPaymentPending &&
+          eachPerson.eventId === currentSelectedEvent?.eventId,
+      );
+  };
+  const peopleData = dataProvider.cloneWithRows(
+    getPeopleArray(peopleState.people),
+  );
 
   useEffect(() => {
     dispatch(getPeopleAPICall()).then(res => {
@@ -71,40 +96,6 @@ const EventJoinersListComponent = ({
       }
     });
   };
-
-  let dataProvider = new DataProvider((r1, r2) => {
-    return r1 !== r2;
-  });
-
-  const skelatons = generateArray(5);
-
-  const getPeopleArray = (peopleState: EachPerson[]) => {
-    if (type === 'all')
-      return peopleState.filter(
-        eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
-      );
-    else if (type === 'pending')
-      return peopleState.filter(
-        eachPerson =>
-          eachPerson.isPaymentPending &&
-          eachPerson.eventId === currentSelectedEvent?.eventId,
-      );
-    else
-      return peopleState.filter(
-        eachPerson =>
-          !eachPerson.isPaymentPending &&
-          eachPerson.eventId === currentSelectedEvent?.eventId,
-      );
-  };
-
-  const currentSelectedEvent = useAppSelector(
-    state => state.events.currentSelectedEvent,
-  );
-
-  const peopleState = useAppSelector(state => state.people);
-  const peopleData = dataProvider.cloneWithRows(
-    getPeopleArray(peopleState.people),
-  );
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
   let layoutProvider = new LayoutProvider(
@@ -209,28 +200,28 @@ const EventJoinersListComponent = ({
             ? peopleData?.getSize()
             : 0}
         </TextComponent>
-          <TextComponent
-            weight="bold"
-            numberOfLines={2}
-            style={{
-              color: colors[theme].greyColor,
-              fontSize: 15,
-            }}>
-            Note - You can modify/delete user by long pressing it.
-          </TextComponent>
+        <TextComponent
+          weight="bold"
+          numberOfLines={2}
+          style={{
+            color: colors[theme].greyColor,
+            fontSize: 15,
+          }}>
+          Note - You can modify/delete user by long pressing it.
+        </TextComponent>
       </View>
       {peopleState.statuses.getPeopleAPICall === 'succeedded' &&
       peopleData?.getSize() > 0 ? (
-          <RecyclerListView
-            rowRenderer={rowRenderer}
-            dataProvider={peopleData}
-            layoutProvider={layoutProvider}
-            initialRenderIndex={0}
-            scrollViewProps={{showsVerticalScrollIndicator: false, }}
-            onEndReachedThresholdRelative={0.9}
-            onEndReached={fetchMoreEventJoiners}
-            renderFooter={() => getFooter()}
-          />
+        <RecyclerListView
+          rowRenderer={rowRenderer}
+          dataProvider={peopleData}
+          layoutProvider={layoutProvider}
+          initialRenderIndex={0}
+          scrollViewProps={{showsVerticalScrollIndicator: false}}
+          onEndReachedThresholdRelative={0.9}
+          onEndReached={fetchMoreEventJoiners}
+          renderFooter={() => getFooter()}
+        />
       ) : peopleState.statuses.getPeopleAPICall === 'loading' ? (
         skelatons.map((eachItem, index) => (
           <View
@@ -305,11 +296,5 @@ const styles = StyleSheet.create({
   footerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  searchInput: {
-    width: '100%',
-    borderRadius: 20,
-    marginBottom: 15,
-    paddingHorizontal: measureMents.leftPadding,
   },
 });

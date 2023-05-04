@@ -27,6 +27,7 @@ export type EachEvent = {
 
 type EventsState = {
   events: EachEvent[];
+  originalEvents: EachEvent[];
   lastFetchedEventId: string;
   currentSelectedEvent: EachEvent | null;
   statuses: {
@@ -41,6 +42,7 @@ type EventsState = {
 
 const initialState: EventsState = {
   events: [],
+  originalEvents: [],
   lastFetchedEventId: 'null',
   currentSelectedEvent: null,
   statuses: {
@@ -64,6 +66,9 @@ export const eventsSlice = createSlice({
     setLastFetchedEventId: (state, action: PayloadAction<string>) => {
       state.lastFetchedEventId = JSON.parse(JSON.stringify(action.payload));
     },
+    setEvents: (state, action: PayloadAction<EachEvent[]>) => {
+      state.events = JSON.parse(JSON.stringify(action.payload));
+    },
   },
   extraReducers(builder) {
     builder
@@ -83,8 +88,16 @@ export const eventsSlice = createSlice({
       .addCase(getEventsAPICall.fulfilled, (state, action) => {
         const currentUser = auth().currentUser;
         state.events.length = 0;
+        state.originalEvents.length = 0;
         if (action.payload.responseData.length > 0) {
           state.events = JSON.parse(
+            JSON.stringify(
+              action.payload.responseData.filter(
+                eachEvent => eachEvent.createdBy === currentUser?.uid,
+              ),
+            ),
+          );
+          state.originalEvents = JSON.parse(
             JSON.stringify(
               action.payload.responseData.filter(
                 eachEvent => eachEvent.createdBy === currentUser?.uid,
@@ -107,6 +120,11 @@ export const eventsSlice = createSlice({
               eachEvent => eachEvent.createdBy === auth().currentUser?.uid,
             ),
           );
+          state.originalEvents = state.originalEvents.concat(
+            action.payload.responseData.filter(
+              eachEvent => eachEvent.createdBy === auth().currentUser?.uid,
+            ),
+          );
         }
         state.statuses.getNextEventsAPICall = 'succeedded';
       })
@@ -119,6 +137,9 @@ export const eventsSlice = createSlice({
       })
       .addCase(removeEventAPICall.fulfilled, (state, action) => {
         state.events = state.events.filter(
+          eachEvent => eachEvent.eventId !== action.meta.arg.eventId,
+        );
+        state.originalEvents = state.originalEvents.filter(
           eachEvent => eachEvent.eventId !== action.meta.arg.eventId,
         );
         state.statuses.removeEventAPICall = 'succeedded';
@@ -143,6 +164,18 @@ export const eventsSlice = createSlice({
             return eachEvent;
           } else return eachEvent;
         });
+        state.originalEvents = state.originalEvents.map(eachEvent => {
+          if (eachEvent.eventId === action.meta.arg.eventId) {
+              eachEvent.eventTitle = eventTitle;
+              eachEvent.eventDesc = eventDesc;
+              eachEvent.eventDate = eventDate;
+              eachEvent.eventFees = eventFees;
+              eachEvent.eventLocation = eventLocation;
+              eachEvent.eventTime = eventTime;
+            return eachEvent;
+          } else return eachEvent;
+        });
+        
         state.statuses.updateEventAPICall = 'succeedded';
       })
       .addCase(updateEventAPICall.rejected, (state, action) => {
@@ -156,6 +189,7 @@ export const {
   setSelectedEvent,
   reset: resetEventState,
   setLastFetchedEventId,
+  setEvents
 } = eventsSlice.actions;
 
 export const addEventAPICall = createAsyncThunk<

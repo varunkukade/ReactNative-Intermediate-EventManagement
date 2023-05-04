@@ -1,5 +1,5 @@
-import React, {ReactElement} from 'react';
-import { StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {ReactElement, useEffect, useState} from 'react';
+import {Keyboard, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {MemoizedEventListComponent} from './eventListComponent';
 import {MemoizedWelcomeComponent} from './welcomeComponent';
 import {colors, measureMents} from '../../utils/appStyles';
@@ -8,7 +8,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {HomeStackParamList} from '../../navigation/homeStackNavigator';
 import ScreenWrapper from '../screenWrapper';
-import { useAppSelector } from '../../reduxConfig/store';
+import {useAppSelector} from '../../reduxConfig/store';
 
 const HomeScreen = (): ReactElement => {
   //navigation state
@@ -17,11 +17,26 @@ const HomeScreen = (): ReactElement => {
     'BottomTabNavigator'
   > = useNavigation();
 
-  const theme = useAppSelector(state => state.user.currentUser.theme)
-    
+  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const [isKeyboardOpened, setIsKeyboardOpened] = useState(false);
+
   const onAddEventClick = () => {
     navigation.navigate('AddEventScreen');
   };
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardOpened(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardOpened(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
   return (
     <>
       <ScreenWrapper>
@@ -30,12 +45,17 @@ const HomeScreen = (): ReactElement => {
           <MemoizedEventListComponent />
         </View>
       </ScreenWrapper>
-      <TouchableOpacity
-        onPress={onAddEventClick}
-        activeOpacity={0.7}
-        style={[styles.addEventButton, { backgroundColor: colors[theme].commonPrimaryColor}]}>
-        <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
-      </TouchableOpacity>
+      {!isKeyboardOpened ? (
+        <TouchableOpacity
+          onPress={onAddEventClick}
+          activeOpacity={0.7}
+          style={[
+            styles.addEventButton,
+            {backgroundColor: colors[theme].commonPrimaryColor},
+          ]}>
+          <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
+        </TouchableOpacity>
+      ) : null}
     </>
   );
 };
