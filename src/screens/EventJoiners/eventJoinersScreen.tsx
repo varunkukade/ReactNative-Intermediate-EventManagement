@@ -1,5 +1,6 @@
 import React, {ReactElement, useCallback, useEffect, useState} from 'react';
 import {
+  Keyboard,
   Platform,
   StyleSheet,
   ToastAndroid,
@@ -49,6 +50,7 @@ const EventJoinersScreen = ({
 
   //useStates
   const [longPressedUser, setLongPressedUser] = useState<EachPerson | null>(null);
+  const [isKeyboardOpened, setIsKeyboardOpened] = useState(false);
 
   //modal states
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -71,6 +73,19 @@ const EventJoinersScreen = ({
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const theme = useAppSelector(state => state.user.currentUser.theme)
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardOpened(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardOpened(false);
+    });
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  },[])
 
   const onLongPressUser = React.useCallback(
     (user: EachPerson) => {
@@ -293,7 +308,7 @@ const EventJoinersScreen = ({
           type={type}
         />
       </View>
-      {type === 'all' ? (
+      {type === 'all' && !isKeyboardOpened ? (
         <TouchableOpacity
           activeOpacity={0.7}
           style={[styles.addEventButton, { backgroundColor: colors[theme].commonPrimaryColor}]}

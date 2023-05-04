@@ -21,7 +21,6 @@ import {
 } from '../../reduxConfig/slices/peopleSlice';
 import { InputComponent } from '../../reusables';
 import { debounce } from 'lodash';
-import moment from 'moment';
 
 type EventJoinerListProps = {
   onLongPressUser: (data: EachPerson) => void;
@@ -248,7 +247,7 @@ const EventJoinersListComponent = ({
           style={{
             color: colors[theme].textColor,
             fontSize: 15,
-            marginBottom: 5
+            marginBottom: 10
           }}>
           Total People:{' '}
           {peopleData?.getSize() && peopleData?.getSize() > 0
