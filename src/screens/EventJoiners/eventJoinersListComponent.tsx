@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import React, {ReactElement, useCallback, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -7,20 +7,20 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { colors, measureMents } from '../../utils/appStyles';
-import { RecyclerListView, DataProvider, LayoutProvider } from 'recyclerlistview';
+import {colors, measureMents} from '../../utils/appStyles';
+import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import TextComponent from '../../reusables/text';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import { useAppDispatch, useAppSelector } from '../../reduxConfig/store';
-import { generateArray } from '../../utils/commonFunctions';
+import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
+import {generateArray} from '../../utils/commonFunctions';
 import {
   EachPerson,
   getNextEventJoinersAPICall,
   getPeopleAPICall,
   updatePeople,
 } from '../../reduxConfig/slices/peopleSlice';
-import { InputComponent } from '../../reusables';
-import { debounce } from 'lodash';
+import {InputComponent} from '../../reusables';
+import {debounce} from 'lodash';
 
 type EventJoinerListProps = {
   onLongPressUser: (data: EachPerson) => void;
@@ -157,7 +157,7 @@ const EventJoinersListComponent = ({
         onLongPress={() => onLongPressUser(data)}
         style={[
           styles.eachEventComponent,
-          { backgroundColor: colors[theme].cardColor },
+          {backgroundColor: colors[theme].cardColor},
         ]}>
         <View style={styles.secondSection}>
           <TextComponent
@@ -247,7 +247,7 @@ const EventJoinersListComponent = ({
           style={{
             color: colors[theme].textColor,
             fontSize: 15,
-            marginBottom: 10
+            marginBottom: 10,
           }}>
           Total People:{' '}
           {peopleData?.getSize() && peopleData?.getSize() > 0
@@ -255,26 +255,28 @@ const EventJoinersListComponent = ({
             : 0}
         </TextComponent>
       </View>
-      <View
-            style={[
-              styles.searchInput,
-              { backgroundColor: colors[theme].cardColor },
-            ]}>
-            <InputComponent
-              value={searchedUser}
-              onChangeText={value => handleUserSearch(value)}
-              placeholder="Search user by name / cell number / email..."
-            />
-          </View>
+      {type === 'all' ? (
+        <View
+          style={[
+            styles.searchInput,
+            {backgroundColor: colors[theme].cardColor},
+          ]}>
+          <InputComponent
+            value={searchedUser}
+            onChangeText={value => handleUserSearch(value)}
+            placeholder="Search user by name / cell number / email..."
+          />
+        </View>
+      ) : null}
 
       {peopleState.statuses.getPeopleAPICall === 'succeedded' &&
-        peopleData?.getSize() > 0 ? (
+      peopleData?.getSize() > 0 ? (
         <RecyclerListView
           rowRenderer={rowRenderer}
           dataProvider={peopleData}
           layoutProvider={layoutProvider}
           initialRenderIndex={0}
-          scrollViewProps={{ showsVerticalScrollIndicator: false }}
+          scrollViewProps={{showsVerticalScrollIndicator: false}}
           onEndReachedThresholdRelative={0.9}
           onEndReached={fetchMoreEventJoiners}
           renderFooter={() => getFooter()}
@@ -285,7 +287,7 @@ const EventJoinersListComponent = ({
             key={index}
             style={[
               styles.eventLoadingSkelaton,
-              { backgroundColor: colors[theme].lavenderColor },
+              {backgroundColor: colors[theme].lavenderColor},
             ]}
           />
         ))
@@ -293,7 +295,7 @@ const EventJoinersListComponent = ({
         <View
           style={[
             styles.eventLoadingSkelaton,
-            { marginTop: 30, backgroundColor: colors[theme].lavenderColor },
+            {marginTop: 30, backgroundColor: colors[theme].lavenderColor},
           ]}>
           <TextComponent weight="bold">
             'Failed to fetch users. Please try again after some time'
@@ -303,9 +305,9 @@ const EventJoinersListComponent = ({
         <View
           style={[
             styles.eventLoadingSkelaton,
-            { marginTop: 30, backgroundColor: colors[theme].lavenderColor },
+            {marginTop: 30, backgroundColor: colors[theme].lavenderColor},
           ]}>
-          <TextComponent style={{ color: colors[theme].greyColor }} weight="bold">
+          <TextComponent style={{color: colors[theme].greyColor}} weight="bold">
             No Records Found!
           </TextComponent>
         </View>
