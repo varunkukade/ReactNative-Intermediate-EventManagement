@@ -47,6 +47,8 @@ const EventJoinersListComponent = ({
     state => state.events.currentSelectedEvent,
   );
   const originalPeople = useAppSelector(state => state.people.originalPeople);
+  const pendingPeople = useAppSelector(state => state.people.pendingPeople);
+  const completedPeople = useAppSelector(state => state.people.completedPeople)
 
   const peopleState = useAppSelector(state => state.people);
   const getPeopleArray = (peopleState: EachPerson[]) => {
@@ -55,15 +57,13 @@ const EventJoinersListComponent = ({
         eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
       );
     else if (type === 'pending')
-      return peopleState.filter(
+      return pendingPeople.filter(
         eachPerson =>
-          eachPerson.isPaymentPending &&
           eachPerson.eventId === currentSelectedEvent?.eventId,
       );
     else
-      return peopleState.filter(
+      return completedPeople.filter(
         eachPerson =>
-          !eachPerson.isPaymentPending &&
           eachPerson.eventId === currentSelectedEvent?.eventId,
       );
   };
