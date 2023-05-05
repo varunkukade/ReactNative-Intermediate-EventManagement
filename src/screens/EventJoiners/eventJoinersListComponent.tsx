@@ -277,7 +277,7 @@ const EventJoinersListComponent = ({
           layoutProvider={layoutProvider}
           initialRenderIndex={0}
           scrollViewProps={{showsVerticalScrollIndicator: false}}
-          onEndReachedThresholdRelative={0.9}
+          onEndReachedThresholdRelative={0.1}
           onEndReached={fetchMoreEventJoiners}
           renderFooter={() => getFooter()}
         />
