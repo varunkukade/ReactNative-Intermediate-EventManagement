@@ -16,7 +16,10 @@ import {generateArray} from '../../utils/commonFunctions';
 import {
   EachPerson,
   getNextEventJoinersAPICall,
+  getNextSearchedEventJoinersAPICall,
   getPeopleAPICall,
+  getSearchedPeopleAPICall,
+  setlastFetchedUserId,
   updatePeople,
 } from '../../reduxConfig/slices/peopleSlice';
 import {InputComponent} from '../../reusables';
@@ -48,7 +51,7 @@ const EventJoinersListComponent = ({
   );
   const originalPeople = useAppSelector(state => state.people.originalPeople);
   const pendingPeople = useAppSelector(state => state.people.pendingPeople);
-  const completedPeople = useAppSelector(state => state.people.completedPeople)
+  const completedPeople = useAppSelector(state => state.people.completedPeople);
 
   const peopleState = useAppSelector(state => state.people);
   const getPeopleArray = (peopleState: EachPerson[]) => {
@@ -58,13 +61,11 @@ const EventJoinersListComponent = ({
       );
     else if (type === 'pending')
       return pendingPeople.filter(
-        eachPerson =>
-          eachPerson.eventId === currentSelectedEvent?.eventId,
+        eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
       );
     else
       return completedPeople.filter(
-        eachPerson =>
-          eachPerson.eventId === currentSelectedEvent?.eventId,
+        eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
       );
   };
   const peopleData = dataProvider.cloneWithRows(
@@ -80,27 +81,41 @@ const EventJoinersListComponent = ({
     });
   }, []);
 
+  const handleResponse = (resp: any) => {
+    if (resp.payload && resp.meta.requestStatus === 'rejected') {
+      if (Platform.OS === 'android')
+        ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
+    }
+    if (
+      resp.payload &&
+      resp.meta.requestStatus === 'fulfilled' &&
+      resp.payload.successMessagetype === 'noMoreUsers'
+    ) {
+      if (Platform.OS === 'android')
+        ToastAndroid.showWithGravity(
+          resp.payload?.message,
+          ToastAndroid.SHORT,
+          ToastAndroid.CENTER,
+        );
+    }
+  };
+
   const fetchMoreEventJoiners = () => {
     //onEndReachedThresholdRelative = 0.1 means if user has scrolled and if end of visible content is within the 10% from end of list, then load more items.
     if (peopleState.statuses.getNextEventJoinersAPICall === 'loading') return;
-    dispatch(getNextEventJoinersAPICall()).then(resp => {
-      if (resp.payload && resp.meta.requestStatus === 'rejected') {
-        if (Platform.OS === 'android')
-          ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
-      }
-      if (
-        resp.payload &&
-        resp.meta.requestStatus === 'fulfilled' &&
-        resp.payload.successMessagetype === 'noMoreUsers'
-      ) {
-        if (Platform.OS === 'android')
-          ToastAndroid.showWithGravity(
-            resp.payload?.message,
-            ToastAndroid.SHORT,
-            ToastAndroid.CENTER,
-          );
-      }
-    });
+    if (searchedUser === '') {
+      dispatch(getNextEventJoinersAPICall()).then(resp => {
+        handleResponse(resp);
+      });
+    } else {
+      dispatch(
+        getNextSearchedEventJoinersAPICall({
+          searchedValue: searchedUser.toLowerCase().trim().split(' ').join(''),
+        }),
+      ).then(resp => {
+        handleResponse(resp);
+      });
+    }
   };
 
   //layout provider helps recycler view to get the dimensions straight ahead and avoid the expensive calculation
@@ -198,45 +213,45 @@ const EventJoinersListComponent = ({
         updatedPeople = originalPeople.map(eachPeople => {
           return eachPeople;
         });
+        dispatch(updatePeople(updatedPeople));
+        dispatch(
+          setlastFetchedUserId(updatedPeople[updatedPeople.length - 1].userId),
+        );
       } else {
-        let updatedSearchValue = searchedValue
-          .toLowerCase()
-          .trim()
-          .split(' ')
-          .join('');
-        updatedPeople = originalPeople.filter(eachPeople => {
-          if (
-            eachPeople.userName
-              .toLowerCase()
-              .trim()
-              .split(' ')
-              .join('')
-              .includes(updatedSearchValue) ||
-            eachPeople.userMobileNumber
-              .toLowerCase()
-              .trim()
-              .split(' ')
-              .join('')
-              .includes(updatedSearchValue) ||
-            eachPeople.userEmail
-              .toLowerCase()
-              .trim()
-              .split(' ')
-              .join('')
-              .includes(updatedSearchValue)
-          ) {
-            return true;
-          }
-        });
+        // updatedPeople = originalPeople.filter(eachPeople => {
+        //   if (
+        //     eachPeople.userName
+        //       .toLowerCase()
+        //       .trim()
+        //       .split(' ')
+        //       .join('')
+        //       .includes(updatedSearchValue) ||
+        //     eachPeople.userMobileNumber
+        //       .toLowerCase()
+        //       .trim()
+        //       .split(' ')
+        //       .join('')
+        //       .includes(updatedSearchValue) ||
+        //     eachPeople.userEmail
+        //       .toLowerCase()
+        //       .trim()
+        //       .split(' ')
+        //       .join('')
+        //       .includes(updatedSearchValue)
+        //   ) {
+        //     return true;
+        //   }
+        // });
+        //dispatch(updatePeople(updatedPeople));
+        dispatch(getSearchedPeopleAPICall({searchedValue}));
       }
-      dispatch(updatePeople(updatedPeople));
     }, 1000),
     [dispatch, originalPeople],
   );
 
   const handleUserSearch = (searchedValue: string) => {
     setSearchedUser(searchedValue);
-    showSearchedUsers(searchedValue);
+    showSearchedUsers(searchedValue.toLowerCase().trim().split(' ').join(''));
   };
 
   return (
