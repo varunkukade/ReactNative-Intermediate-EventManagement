@@ -1,5 +1,13 @@
-import React, {ReactElement, useEffect} from 'react';
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {ReactElement, useEffect, useState} from 'react';
+import {
+  FlatList,
+  Platform,
+  RefreshControl,
+  StyleSheet,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {colors, measureMents} from '../../utils/appStyles';
 import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
 import ScreenWrapper from '../screenWrapper';
@@ -7,20 +15,23 @@ import {generateArray} from '../../utils/commonFunctions';
 import {getCommonListsAPICall} from '../../reduxConfig/slices/peopleSlice';
 import UpdateEachCommonList from './updateEachCommonList';
 import {TextComponent} from '../../reusables';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { HomeStackParamList } from '../../navigation/homeStackNavigator';
-import { useNavigation } from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {HomeStackParamList} from '../../navigation/homeStackNavigator';
+import {useNavigation} from '@react-navigation/native';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 
 const DisplayCommonLists = (): ReactElement => {
-     //navigation and route state
+  //navigation and route state
   const navigation: NativeStackNavigationProp<
-  HomeStackParamList,
-  'UpdateCommonListScreen'
-> = useNavigation();
+    HomeStackParamList,
+    'UpdateCommonListScreen'
+  > = useNavigation();
 
   //recycler view states
   const skelatons = generateArray(5);
+
+  //useStates
+  const [refreshing, setRefreshing] = useState(false);
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
@@ -28,7 +39,15 @@ const DisplayCommonLists = (): ReactElement => {
   const theme = useAppSelector(state => state.user.currentUser.theme);
 
   useEffect(() => {
-    dispatch(getCommonListsAPICall({expanded: false}));
+    dispatch(getCommonListsAPICall({expanded: false})).then((resp) => {
+      if (resp.payload && resp.meta.requestStatus === 'rejected') {
+        if (Platform.OS === 'android')
+          ToastAndroid.show(
+            resp.payload?.message,
+            ToastAndroid.SHORT,
+          );
+      }
+    })
   }, []);
 
   return (
@@ -51,6 +70,24 @@ const DisplayCommonLists = (): ReactElement => {
             paddingVertical: measureMents.leftPadding,
             marginBottom: 20,
           }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={async () => {
+                setRefreshing(true);
+                dispatch(getCommonListsAPICall({expanded: false})).then((resp) => {
+                  if (resp.payload && resp.meta.requestStatus === 'rejected') {
+                    if (Platform.OS === 'android')
+                      ToastAndroid.show(
+                        resp.payload?.message,
+                        ToastAndroid.SHORT,
+                      );
+                  }
+                  setRefreshing(false);
+                })
+              }}
+            />
+          }
           renderItem={({item}) => (
             <UpdateEachCommonList eachCommonList={item} />
           )}
@@ -102,7 +139,10 @@ const DisplayCommonLists = (): ReactElement => {
       <TouchableOpacity
         onPress={() => navigation.navigate('CreateCommonList')}
         activeOpacity={0.7}
-        style={[styles.addCustomListButton, { backgroundColor: colors[theme].commonPrimaryColor}]}>
+        style={[
+          styles.addCustomListButton,
+          {backgroundColor: colors[theme].commonPrimaryColor},
+        ]}>
         <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
       </TouchableOpacity>
     </ScreenWrapper>
@@ -120,7 +160,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginVertical: 15,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   commonListSkalatonContainer: {
     alignItems: 'center',

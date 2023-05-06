@@ -5,6 +5,7 @@ import {
   View,
   ToastAndroid,
   Platform,
+  RefreshControl,
 } from 'react-native';
 import {colors, measureMents} from '../../utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
@@ -61,6 +62,8 @@ const EventListComponent = (): ReactElement => {
     null,
   );
   const [searchedEvent, setSearchedEvent] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
   //modal states
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeletePopupVisible, setIsDeletePopupVisible] = useState(false);
@@ -323,7 +326,8 @@ const EventListComponent = (): ReactElement => {
             ? eventsData?.getSize()
             : 0}
         </TextComponent>
-        <View
+        {eventState.statuses.getEventAPICall === 'succeedded' ? (
+          <View
             style={[
               styles.searchInput,
               {backgroundColor: colors[theme].cardColor},
@@ -334,6 +338,7 @@ const EventListComponent = (): ReactElement => {
               placeholder="Search event by title / date / month / year..."
             />
           </View>
+        ) : null}
         {eventState.statuses.getEventAPICall === 'succeedded' &&
         eventsData?.getSize() > 0 ? (
           <RecyclerListView
@@ -341,7 +346,35 @@ const EventListComponent = (): ReactElement => {
             dataProvider={eventsData}
             layoutProvider={layoutProvider}
             initialRenderIndex={0}
-            scrollViewProps={{showsVerticalScrollIndicator: false}}
+            scrollViewProps={{
+              showsVerticalScrollIndicator: false,
+              refreshControl: (
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={async () => {
+                    setRefreshing(true);
+                    if (searchedEvent) {
+                      showSearchedEvents(searchedEvent);
+                      setRefreshing(false);
+                    } else {
+                      dispatch(getEventsAPICall()).then(resp => {
+                        if (
+                          resp.payload &&
+                          resp.meta.requestStatus === 'rejected'
+                        ) {
+                          if (Platform.OS === 'android')
+                            ToastAndroid.show(
+                              resp.payload?.message,
+                              ToastAndroid.SHORT,
+                            );
+                        }
+                        setRefreshing(false);
+                      });
+                    }
+                  }}
+                />
+              ),
+            }}
             onEndReachedThresholdRelative={0.1}
             onEndReached={fetchMoreEvents}
             renderFooter={() => getFooter()}

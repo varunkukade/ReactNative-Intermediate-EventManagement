@@ -2,6 +2,7 @@ import React, {ReactElement, useCallback, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Platform,
+  RefreshControl,
   StyleSheet,
   ToastAndroid,
   TouchableOpacity,
@@ -40,6 +41,7 @@ const EventJoinersListComponent = ({
 
   //useStates
   const [searchedUser, setSearchedUser] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
@@ -260,7 +262,34 @@ const EventJoinersListComponent = ({
           dataProvider={peopleData}
           layoutProvider={layoutProvider}
           initialRenderIndex={0}
-          scrollViewProps={{showsVerticalScrollIndicator: false}}
+          scrollViewProps={{
+            showsVerticalScrollIndicator: false,
+            refreshControl: (
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={async () => {
+                  setRefreshing(true)
+                  if(searchedUser){
+                    dispatch(getSearchedPeopleAPICall({searchedValue: searchedUser.trim().split(' ').join('')})).then(res => {
+                      if (res.meta.requestStatus === 'rejected' && res.payload) {
+                        if (Platform.OS === 'android')
+                          ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+                      }
+                      setRefreshing(false)
+                    });
+                  }else {
+                    dispatch(getPeopleAPICall()).then(res => {
+                      if (res.meta.requestStatus === 'rejected' && res.payload) {
+                        if (Platform.OS === 'android')
+                          ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
+                      }
+                      setRefreshing(false)
+                    });
+                  }
+                }}
+              />
+            )
+          }}
           onEndReachedThresholdRelative={0.1}
           onEndReached={fetchMoreEventJoiners}
           renderFooter={() => getFooter()}

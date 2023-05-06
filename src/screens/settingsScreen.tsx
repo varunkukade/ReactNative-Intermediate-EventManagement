@@ -1,6 +1,7 @@
 import React, {useState, useCallback} from 'react';
 import {
   Platform,
+  ScrollView,
   StyleSheet,
   ToastAndroid,
   TouchableHighlight,
@@ -15,14 +16,18 @@ import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/rootStackNavigator';
-import {logoutAPICall, resetUserState, setTheme} from '../reduxConfig/slices/userSlice';
+import {
+  logoutAPICall,
+  resetUserState,
+  setTheme,
+} from '../reduxConfig/slices/userSlice';
 import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {setAsyncStorage} from '../utils/commonFunctions';
 import {resetEventState} from '../reduxConfig/slices/eventsSlice';
 import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
 import {ScreenWrapper} from '.';
-import { VERSION_CONST } from '../utils/constants';
+import {VERSION_CONST} from '../utils/constants';
 
 const SettingsScreen = () => {
   //dispatch and selectors
@@ -39,7 +44,7 @@ const SettingsScreen = () => {
   //modal states
   const [isLogoutPopupVisible, setIsLogoutPopupVisible] = useState(false);
 
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector(state => state.user.currentUser.theme);
 
   const onCancelClick = useCallback(() => {
     setIsLogoutPopupVisible(false);
@@ -59,7 +64,7 @@ const SettingsScreen = () => {
           ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
         //Navigation state object - https://reactnavigation.org/docs/rootNavigation-state/
         resetReduxState();
-        setAsyncStorage('isAuthenticated','false');
+        setAsyncStorage('isAuthenticated', 'false');
         rootNavigation.reset({
           index: 0,
           routes: [
@@ -93,9 +98,9 @@ const SettingsScreen = () => {
     homeStackNavigation.navigate('UpdateProfileScreen');
   }, [homeStackNavigation]);
 
-  const onUpdateCommonListPress = useCallback(()=> {
+  const onUpdateCommonListPress = useCallback(() => {
     homeStackNavigation.navigate('UpdateCommonListScreen');
-  }, [homeStackNavigation])
+  }, [homeStackNavigation]);
 
   const onResetPasswordPress = useCallback(() => {
     rootNavigation.navigate('AuthStack', {
@@ -105,10 +110,10 @@ const SettingsScreen = () => {
   }, [rootNavigation]);
 
   const changeTheme = useCallback(() => {
-    if (theme === 'light'){
-      dispatch(setTheme('dark'))
-    }else {
-      dispatch(setTheme('light'))
+    if (theme === 'light') {
+      dispatch(setTheme('dark'));
+    } else {
+      dispatch(setTheme('light'));
     }
   }, [theme, dispatch]);
 
@@ -216,19 +221,58 @@ const SettingsScreen = () => {
 
   return (
     <ScreenWrapper>
-      <View style={styles.welcomeMessage}>
-        <TextComponent
-          style={{fontSize: 20, color: colors[theme].whiteColor}}
-          weight="bold">
-          Settings
-        </TextComponent>
-      </View>
-      <View style={[styles.mainContainer, { backgroundColor: colors[theme].cardColor}]}>
-        {actions.map((eachAction, index) => (
-          <View key={index}>
-            {eachAction.id === 4 ? (
-              <TouchableHighlight underlayColor='transparent' onPress={eachAction.onPress}>
-                <View style={[styles.eachAction, { backgroundColor: colors[theme].lightLavenderColor }]}>
+        <View style={styles.welcomeMessage}>
+          <TextComponent
+            style={{fontSize: 20, color: colors[theme].whiteColor}}
+            weight="bold">
+            Settings
+          </TextComponent>
+        </View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+        <View
+          style={[
+            styles.mainContainer,
+            {backgroundColor: colors[theme].cardColor},
+          ]}>
+          {actions.map((eachAction, index) => (
+            <View key={index}>
+              {eachAction.id === 4 ? (
+                <TouchableHighlight
+                  underlayColor="transparent"
+                  onPress={eachAction.onPress}>
+                  <View
+                    style={[
+                      styles.eachAction,
+                      {backgroundColor: colors[theme].lightLavenderColor},
+                    ]}>
+                    <View style={styles.secondSection}>
+                      <TextComponent
+                        weight="semibold"
+                        style={{
+                          color: colors[theme].textColor,
+                          fontSize: 16,
+                        }}>
+                        {eachAction.label}
+                      </TextComponent>
+                    </View>
+                    <View style={styles.thirdSection}>
+                      <TextComponent
+                        style={{color: colors[theme].textColor}}
+                        weight="bold">
+                        {theme === 'light' ? 'Off' : 'On'}
+                      </TextComponent>
+                      {eachAction.rightIcon()}
+                    </View>
+                  </View>
+                </TouchableHighlight>
+              ) : (
+                <TouchableOpacity
+                  activeOpacity={0.5}
+                  onPress={eachAction.onPress}
+                  style={[
+                    styles.eachAction,
+                    {backgroundColor: colors[theme].lightLavenderColor},
+                  ]}>
                   <View style={styles.secondSection}>
                     <TextComponent
                       weight="semibold"
@@ -240,41 +284,19 @@ const SettingsScreen = () => {
                     </TextComponent>
                   </View>
                   <View style={styles.thirdSection}>
-                    <TextComponent
-                      style={{color: colors[theme].textColor}}
-                      weight="bold">
-                      {theme === 'light' ? 'Off' : 'On'}
-                    </TextComponent>
                     {eachAction.rightIcon()}
                   </View>
-                </View>
-              </TouchableHighlight>
-            ) : (
-              <TouchableOpacity
-                activeOpacity={0.5}
-                onPress={eachAction.onPress}
-                style={[styles.eachAction, { backgroundColor: colors[theme].lightLavenderColor }]}>
-                <View style={styles.secondSection}>
-                  <TextComponent
-                    weight="semibold"
-                    style={{
-                      color: colors[theme].textColor,
-                      fontSize: 16,
-                    }}>
-                    {eachAction.label}
-                  </TextComponent>
-                </View>
-                <View style={styles.thirdSection}>
-                  {eachAction.rightIcon()}
-                </View>
-              </TouchableOpacity>
-            )}
-          </View>
-        ))}
-        <TextComponent style={{textAlign: 'center', color: colors[theme].textColor}} weight="bold">
-          {VERSION_CONST}
-        </TextComponent>
-      </View>
+                </TouchableOpacity>
+              )}
+            </View>
+          ))}
+          <TextComponent
+            style={{textAlign: 'center', color: colors[theme].textColor}}
+            weight="bold">
+            {VERSION_CONST}
+          </TextComponent>
+        </View>
+      </ScrollView>
       <CenterPopupComponent
         popupData={logoutPopupData}
         isModalVisible={isLogoutPopupVisible}
@@ -337,5 +359,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignSelf: 'center',
     marginTop: 20,
-  }
+  },
 });

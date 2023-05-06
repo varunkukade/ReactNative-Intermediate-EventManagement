@@ -1,5 +1,5 @@
-import React, {ReactElement, useCallback, useEffect} from 'react';
-import {FlatList, Platform, StyleSheet, ToastAndroid, View} from 'react-native';
+import React, {ReactElement, useCallback, useEffect, useState} from 'react';
+import {FlatList, Platform, RefreshControl, StyleSheet, ToastAndroid, View} from 'react-native';
 import {colors, measureMents} from '../../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../../navigation/homeStackNavigator';
@@ -35,11 +35,21 @@ const DisplayCommonLists = (): ReactElement => {
     state => state.events.currentSelectedEvent,
   );
   const peopleState = useAppSelector(state => state.people);
-
   const theme = useAppSelector(state => state.user.currentUser.theme);
 
+  //useStates
+  const [refreshing, setRefreshing] = useState(false);
+
   useEffect(() => {
-    dispatch(getCommonListsAPICall({expanded: true}));
+    dispatch(getCommonListsAPICall({expanded: true})).then((resp) => {
+      if (resp.payload && resp.meta.requestStatus === 'rejected') {
+        if (Platform.OS === 'android')
+          ToastAndroid.show(
+            resp.payload?.message,
+            ToastAndroid.SHORT,
+          );
+      }
+    })
   }, []);
 
   const expandCommonList = useCallback(
@@ -167,6 +177,24 @@ const DisplayCommonLists = (): ReactElement => {
               onAllUsersSelected={onAllUsersSelected}
             />
           )}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={async () => {
+                setRefreshing(true);
+                dispatch(getCommonListsAPICall({expanded: true})).then((resp) => {
+                  if (resp.payload && resp.meta.requestStatus === 'rejected') {
+                    if (Platform.OS === 'android')
+                      ToastAndroid.show(
+                        resp.payload?.message,
+                        ToastAndroid.SHORT,
+                      );
+                  }
+                  setRefreshing(false);
+                })
+              }}
+            />
+          }
           keyExtractor={item => item.commonListId.toString()}
         />
       ) : peopleState.statuses.getCommonListsAPICall === 'loading' ? (
