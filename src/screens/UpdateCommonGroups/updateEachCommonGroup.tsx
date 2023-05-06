@@ -21,10 +21,10 @@ const UpdateEachCommonList = ({
   //navigation and route state
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
-    'UpdateCommonListScreen'
+    'UpdateCommonGroupsScreen'
   > = useNavigation();
   const onSingleUserPress = () => {
-    navigation.navigate('UpdateCommonListUsersScreen', {
+    navigation.navigate('UpdateCommonGroupsUsersScreen', {
       selectedCommonListId: eachCommonList.commonListId,
       selectedCommonListName: eachCommonList.commonListName,
     });

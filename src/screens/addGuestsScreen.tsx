@@ -61,14 +61,14 @@ export type EachPaymentMethod = {
   selected: boolean;
 };
 
-const AddPeopleScreen = (): ReactElement => {
+const AddGuestsScreen = (): ReactElement => {
   //navigation and route state
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
-    'AddPeopleScreen'
+    'AddGuestsScreen'
   > = useNavigation();
 
-  const route: RouteProp<HomeStackParamList, 'AddPeopleScreen'> = useRoute();
+  const route: RouteProp<HomeStackParamList, 'AddGuestsScreen'> = useRoute();
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
@@ -212,7 +212,7 @@ const AddPeopleScreen = (): ReactElement => {
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
         setEventForm(initialEventForm);
         dispatch(getPeopleAPICall());
-        navigation.navigate('EventJoinersScreen');
+        navigation.navigate('GuestListScreen');
       } else {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -326,7 +326,7 @@ const AddPeopleScreen = (): ReactElement => {
           {!longPressedUser ? (
             <>
               <TouchableOpacity
-                onPress={() => navigation.navigate('DisplayCommonList')}
+                onPress={() => navigation.navigate('DisplayCommonGroups')}
                 activeOpacity={0.6}>
                 <TextComponent
                   weight="semibold"
@@ -337,11 +337,11 @@ const AddPeopleScreen = (): ReactElement => {
                     textAlign: 'center',
                   }}>
                   {' '}
-                  Add People from common list 👉🏻
+                  Add users from common group 👉🏻
                 </TextComponent>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('CreateCommonList')}
+                onPress={() => navigation.navigate('CreateCommonGroup')}
                 activeOpacity={0.6}>
                 <TextComponent
                   weight="semibold"
@@ -352,7 +352,7 @@ const AddPeopleScreen = (): ReactElement => {
                     textAlign: 'center',
                   }}>
                   {' '}
-                  Create new common list of people 👉🏻
+                  Create new common group of users 👉🏻
                 </TextComponent>
               </TouchableOpacity>
             </>
@@ -363,7 +363,7 @@ const AddPeopleScreen = (): ReactElement => {
   );
 };
 
-export default AddPeopleScreen;
+export default AddGuestsScreen;
 
 const styles = StyleSheet.create({
   mainContainer: {

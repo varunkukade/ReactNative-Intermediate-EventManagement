@@ -28,12 +28,12 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       case 'All':
       case 'Pending':
       case 'Completed':
-      case 'AddPeopleScreen':
-      case 'CreateCommonList':
-      case 'DisplayCommonList': 
-      case 'UpdateCommonListScreen':
-      case 'UpdateCommonListUsersScreen': 
-      case 'EventJoinersScreen':
+      case 'AddGuestsScreen':
+      case 'CreateCommonGroup':
+      case 'DisplayCommonGroups': 
+      case 'UpdateCommonGroupsScreen':
+      case 'UpdateCommonGroupsUsersScreen': 
+      case 'GuestListScreen':
         return colors[theme].lightLavenderColor;
 
       default:
@@ -56,12 +56,12 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       case 'All':
       case 'Pending':
       case 'Completed':
-      case 'AddPeopleScreen':
-      case 'CreateCommonList':
-      case 'DisplayCommonList':
-      case 'UpdateCommonListScreen':
-      case 'UpdateCommonListUsersScreen':
-      case 'EventJoinersScreen':
+      case 'AddGuestsScreen':
+      case 'CreateCommonGroup':
+      case 'DisplayCommonGroups':
+      case 'UpdateCommonGroupsScreen':
+      case 'UpdateCommonGroupsUsersScreen':
+      case 'GuestListScreen':
         let content = theme === "dark" ? "light-content" : "dark-content"
         return content;
 

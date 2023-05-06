@@ -25,14 +25,14 @@ import BottomHalfPopupComponent, {
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import CenterPopupComponent, {popupData} from '../../reusables/centerPopup';
 import {RadioButtonComponent} from '../../reusables';
-import {EachPaymentMethod} from '../addPeopleScreen';
-import {MemoizedEventJoinerListComponent} from './eventJoinersListComponent';
+import {EachPaymentMethod} from '../addGuestsScreen';
+import {MemoizedGuestListComponent} from './guestListComponent';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 import ScreenWrapper from '../screenWrapper';
 
-const EventJoinersScreen = (): ReactElement => {
+const GuestListScreen = (): ReactElement => {
   //navigation
-  const Navigation: NativeStackNavigationProp<HomeStackParamList, 'EventJoinersScreen'> =
+  const Navigation: NativeStackNavigationProp<HomeStackParamList, 'GuestListScreen'> =
     useNavigation();
 
   //useStates
@@ -91,7 +91,7 @@ const EventJoinersScreen = (): ReactElement => {
   const onEditUserClick = () => {
     setIsModalVisible(!isModalVisible)
     setTimeout(()=> {
-      if(longPressedUser) Navigation.navigate("AddPeopleScreen", { longPressedUser });
+      if(longPressedUser) Navigation.navigate("AddGuestsScreen", { longPressedUser });
     }, 400)
   }
 
@@ -289,7 +289,7 @@ const EventJoinersScreen = (): ReactElement => {
   return (
     <ScreenWrapper>
       <View style={styles.eventListContainer}>
-        <MemoizedEventJoinerListComponent
+        <MemoizedGuestListComponent
           onLongPressUser={onLongPressUser}
         />
       </View>
@@ -297,7 +297,7 @@ const EventJoinersScreen = (): ReactElement => {
         <TouchableOpacity
           activeOpacity={0.7}
           style={[styles.addEventButton, { backgroundColor: colors[theme].commonPrimaryColor}]}
-          onPress={() => Navigation.navigate('AddPeopleScreen')}>
+          onPress={() => Navigation.navigate('AddGuestsScreen')}>
           <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
         </TouchableOpacity>
       ) : null}
@@ -342,7 +342,7 @@ const EventJoinersScreen = (): ReactElement => {
   );
 };
 
-export default EventJoinersScreen;
+export default GuestListScreen;
 
 const styles = StyleSheet.create({
   eventListContainer: {

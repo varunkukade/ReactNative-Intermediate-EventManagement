@@ -13,7 +13,7 @@ import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
 import ScreenWrapper from '../screenWrapper';
 import {generateArray} from '../../utils/commonFunctions';
 import {getCommonListsAPICall} from '../../reduxConfig/slices/peopleSlice';
-import UpdateEachCommonList from './updateEachCommonList';
+import UpdateEachCommonList from './updateEachCommonGroup';
 import {TextComponent} from '../../reusables';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../../navigation/homeStackNavigator';
@@ -24,7 +24,7 @@ const DisplayCommonLists = (): ReactElement => {
   //navigation and route state
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
-    'UpdateCommonListScreen'
+    'UpdateCommonGroupsScreen'
   > = useNavigation();
 
   //recycler view states
@@ -59,7 +59,7 @@ const DisplayCommonLists = (): ReactElement => {
           paddingHorizontal: measureMents.leftPadding,
         }}
         weight="semibold">
-        Common List Count: {peopleState.commonLists.length}
+        Common Group Count: {peopleState.commonLists.length}
       </TextComponent>
       {peopleState.statuses.getCommonListsAPICall === 'succeedded' &&
       peopleState.commonLists.length > 0 ? (
@@ -114,7 +114,7 @@ const DisplayCommonLists = (): ReactElement => {
             <TextComponent
               style={{color: colors[theme].textColor}}
               weight="bold">
-              Failed to fetch common lists. Please try again after some time
+              Failed to fetch common groups. Please try again after some time.
             </TextComponent>
           </View>
         </View>
@@ -131,13 +131,13 @@ const DisplayCommonLists = (): ReactElement => {
             <TextComponent
               style={{color: colors[theme].textColor, fontSize: 16}}
               weight="bold">
-              No Common Lists Found!
+              No Common Groups Found!
             </TextComponent>
           </View>
         </View>
       )}
       <TouchableOpacity
-        onPress={() => navigation.navigate('CreateCommonList')}
+        onPress={() => navigation.navigate('CreateCommonGroup')}
         activeOpacity={0.7}
         style={[
           styles.addCustomListButton,

@@ -152,10 +152,10 @@ const EventDetailsScreen = (): ReactElement | null => {
             </>
           ) : null}
           <ButtonComponent
-            onPress={() => navigation.navigate('EventJoinersScreen')}
+            onPress={() => navigation.navigate('GuestListScreen')}
             containerStyle={{marginBottom: 30}}>
             {' '}
-            Go to People list 🚀
+            Go to Guest list 🚀
           </ButtonComponent>
         </View>
       </ScrollView>

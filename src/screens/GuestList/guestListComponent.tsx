@@ -30,7 +30,7 @@ type EventJoinerListProps = {
   onLongPressUser: (data: EachPerson) => void;
 };
 
-const EventJoinersListComponent = ({
+const GuestListComponent = ({
   onLongPressUser,
 }: EventJoinerListProps): ReactElement => {
   let dataProvider = new DataProvider((r1, r2) => {
@@ -233,7 +233,7 @@ const EventJoinersListComponent = ({
             fontSize: 15,
             marginBottom: 10,
           }}>
-          Total People:{' '}
+          Total Guests:{' '}
           {peopleData?.getSize() && peopleData?.getSize() > 0
             ? peopleData?.getSize()
             : 0}
@@ -249,7 +249,7 @@ const EventJoinersListComponent = ({
           <InputComponent
             value={searchedUser}
             onChangeText={value => handleUserSearch(value)}
-            placeholder="Search user by name"
+            placeholder="Search guest by name..."
           />
         </View>
         ): null
@@ -311,7 +311,7 @@ const EventJoinersListComponent = ({
             {marginTop: 30, backgroundColor: colors[theme].lavenderColor},
           ]}>
           <TextComponent weight="bold">
-            'Failed to fetch users. Please try again after some time'
+            'Failed to fetch guests. Please try again after some time'
           </TextComponent>
         </View>
       ) : (
@@ -329,8 +329,8 @@ const EventJoinersListComponent = ({
   );
 };
 
-export const MemoizedEventJoinerListComponent = React.memo(
-  EventJoinersListComponent,
+export const MemoizedGuestListComponent = React.memo(
+  GuestListComponent,
 );
 
 const styles = StyleSheet.create({

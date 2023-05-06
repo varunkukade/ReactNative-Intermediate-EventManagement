@@ -15,15 +15,15 @@ import {
   getPeopleAPICall,
   updateCommonList,
 } from '../../reduxConfig/slices/peopleSlice';
-import DisplayEachCommonList from './displayEachCommonList';
+import DisplayEachCommonList from './displayEachCommonGroup';
 
-const DisplayCommonLists = (): ReactElement => {
+const DisplayCommonGroups = (): ReactElement => {
   //recycler view states
   const skelatons = generateArray(2);
   //navigation and route state
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
-    'CreateCommonList'
+    'CreateCommonGroup'
   > = useNavigation();
 
   //dispatch and selectors
@@ -136,7 +136,7 @@ const DisplayCommonLists = (): ReactElement => {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
         dispatch(getPeopleAPICall());
-        navigation.navigate('EventJoinersScreen');
+        navigation.navigate('GuestListScreen');
       } else {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -156,7 +156,7 @@ const DisplayCommonLists = (): ReactElement => {
           }}
           weight="semibold">
           {
-            peopleState.commonLists.length === 0 ? `First create common list of people and then you can select people from it to add in ${currentSelectedEvent?.eventTitle}` : `Select people that you want to add in ${currentSelectedEvent?.eventTitle}`
+            peopleState.commonLists.length === 0 ? `First create common group of users and then you can select users from it to add in ${currentSelectedEvent?.eventTitle} event.` : `Select users that you want to add in ${currentSelectedEvent?.eventTitle} as a guests.`
           }
         </TextComponent>
       </View>
@@ -222,7 +222,7 @@ const DisplayCommonLists = (): ReactElement => {
             {marginTop: 30, height: 100, backgroundColor: colors[theme].lavenderColor},
           ]}>
           <TextComponent style={{color: colors[theme].textColor}} weight="bold">
-            Failed to fetch common lists. Please try again after some time
+            Failed to fetch common groups. Please try again after some time
           </TextComponent>
         </View>
       ) : (
@@ -234,7 +234,7 @@ const DisplayCommonLists = (): ReactElement => {
           <TextComponent
             style={{color: colors[theme].textColor, fontSize: 16}}
             weight="bold">
-            No Common Lists Found!
+            No Common Groups Found!
           </TextComponent>
         </View>
       )}
@@ -245,7 +245,7 @@ const DisplayCommonLists = (): ReactElement => {
             onPress={addUsersToEvent}>
               {
                 isAtleastOneUserSelected() ? (
-                  `ADD ${getSelectedCount()} People`
+                  `ADD ${getSelectedCount()} USERS`
                 ): `ADD`
               }
           </ButtonComponent>
@@ -255,7 +255,7 @@ const DisplayCommonLists = (): ReactElement => {
   );
 };
 
-export default DisplayCommonLists;
+export default DisplayCommonGroups;
 
 const styles = StyleSheet.create({
   description: {

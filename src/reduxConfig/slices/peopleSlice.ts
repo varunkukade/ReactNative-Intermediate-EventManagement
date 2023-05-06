@@ -81,7 +81,7 @@ export const peopleSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(addPeopleAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Adding User To Event';
+        state.loadingMessage = 'Adding guest To Event...';
         state.statuses.addPeopleAPICall = 'loading';
       })
       .addCase(addPeopleAPICall.fulfilled, (state, action) => {
@@ -91,7 +91,7 @@ export const peopleSlice = createSlice({
         state.statuses.addPeopleAPICall = 'failed';
       })
       .addCase(addPeopleInBatchAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Adding Users To Event';
+        state.loadingMessage = 'Adding guests To Event...';
         state.statuses.addPeopleInBatchAPICall = 'loading';
       })
       .addCase(addPeopleInBatchAPICall.fulfilled, (state, action) => {
@@ -135,7 +135,7 @@ export const peopleSlice = createSlice({
         state.statuses.getNextEventJoinersAPICall = 'failed';
       })
       .addCase(removePeopleAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Deleting the user';
+        state.loadingMessage = 'Deleting the guest...';
         state.statuses.removePeopleAPICall = 'loading';
       })
       .addCase(removePeopleAPICall.fulfilled, (state, action) => {
@@ -151,7 +151,7 @@ export const peopleSlice = createSlice({
         state.statuses.removePeopleAPICall = 'failed';
       })
       .addCase(updatePeopleAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Updating User Status';
+        state.loadingMessage = 'Updating guest Status...';
         state.statuses.updatePeopleAPICall = 'loading';
       })
       .addCase(updatePeopleAPICall.fulfilled, (state, action) => {
@@ -195,7 +195,7 @@ export const peopleSlice = createSlice({
         state.statuses.updatePeopleAPICall = 'failed';
       })
       .addCase(addCommonListAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Creating Common List...';
+        state.loadingMessage = 'Creating Common Group...';
         state.statuses.addCommonListAPICall = 'loading';
       })
       .addCase(addCommonListAPICall.fulfilled, (state, action) => {
@@ -205,7 +205,7 @@ export const peopleSlice = createSlice({
         state.statuses.addCommonListAPICall = 'failed';
       })
       .addCase(getCommonListsAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Fetching Common Lists...';
+        state.loadingMessage = 'Fetching Common Groups...';
         state.statuses.getCommonListsAPICall = 'loading';
       })
       .addCase(getCommonListsAPICall.fulfilled, (state, action) => {
@@ -225,7 +225,7 @@ export const peopleSlice = createSlice({
         state.statuses.getCommonListsAPICall = 'failed';
       })
       .addCase(removeCustomListAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Deleting the Common List';
+        state.loadingMessage = 'Deleting the Common Group...';
         state.statuses.removeCustomListAPICall = 'loading';
       })
       .addCase(removeCustomListAPICall.fulfilled, (state, action) => {
@@ -238,7 +238,7 @@ export const peopleSlice = createSlice({
         state.statuses.removeCustomListAPICall = 'failed';
       })
       .addCase(updateCommonListAPICall.pending, (state, action) => {
-        state.loadingMessage = 'Updating the Common List';
+        state.loadingMessage = 'Updating the Common Group...';
         state.statuses.updateCommonListAPICall = 'loading';
       })
       .addCase(updateCommonListAPICall.fulfilled, (state, action) => {

@@ -1,6 +1,5 @@
 import React, {ReactElement, useState, useCallback, useEffect} from 'react';
 import {
-  FlatList,
   StyleSheet,
   View,
   Keyboard,
@@ -11,12 +10,12 @@ import {
 import {colors, measureMents} from '../../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../../navigation/homeStackNavigator';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
 import {ButtonComponent, InputComponent, TextComponent} from '../../reusables';
 import ScreenWrapper from '../screenWrapper';
 import uuid from 'react-native-uuid';
-import EachUserComponent from './eachUserComponent';
+import UpdateEachCommonListUser from './updateEachCommonGroupUser';
 import {
   emailValidation,
   generateArray,
@@ -26,11 +25,21 @@ import CenterPopupComponent, {popupData} from '../../reusables/centerPopup';
 import {MAX_BULK_ADDITION} from '../../utils/constants';
 import {
   EachPerson,
-  addCommonListAPICall,
+  UpdateCommonListRequestObj,
   getCommonListsAPICall,
+  removeCustomListAPICall,
+  updateCommonListAPICall,
 } from '../../reduxConfig/slices/peopleSlice';
-import auth from '@react-native-firebase/auth';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Animated, {
+  Easing,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import {withSpring} from 'react-native-reanimated';
 
 interface EachFormField<T> {
   value: T;
@@ -53,37 +62,46 @@ export type EachPaymentMethod = {
   selected: boolean;
 };
 
-const CreateCommonList = (): ReactElement => {
+const UpdateCommonGroupsUsersScreen = (): ReactElement => {
   //navigation and route state
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
-    'CreateCommonList'
+    'UpdateCommonGroupsUsersScreen'
   > = useNavigation();
+
+  const route: RouteProp<HomeStackParamList, 'UpdateCommonGroupsUsersScreen'> =
+    useRoute();
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const theme = useAppSelector(state => state.user.currentUser.theme);
+  const selectedCommonList = useAppSelector(state =>
+    state.people.commonLists.find(
+      eachCommonList =>
+        eachCommonList.commonListId === route.params?.selectedCommonListId,
+    ),
+  );
 
   //useStates
-  const [users, setUsers] = useState<EachUserFormData[]>([
-    {
-      userId: uuid.v4(),
-      expanded: true,
-      userName: {value: '', errorMessage: ''},
-      userMobileNumber: {value: '', errorMessage: ''},
-      userEmail: {value: '', errorMessage: ''},
-      isValidUser: '',
-    },
-  ]);
-  const [bulkUserModal, setBulkUserModal] = useState(false);
+  const [users, setUsers] = useState<EachUserFormData[]>([]);
   const [bulkUserCount, setBulkUserCount] = useState('1');
+  const [removedUserIds, setRemovedUserIds] = useState<string[]>([]);
   const [keyboardStatus, setKeyboardStatus] = useState(false);
-  const [listNameModal, setListNameModal] = useState(false);
   const [listName, setListName] = useState({
-    value: '',
+    value: selectedCommonList?.commonListName || '',
     errorMessage: '',
   });
   const [showAddUserView, setShowAddUserView] = useState(false);
+
+  //modal states
+  const [bulkUserModal, setBulkUserModal] = useState(false);
+  const [deleteListModal, setDeleteListModal] = useState(false);
+
+  //UI thread values
+  const translateY = useSharedValue(0);
+  const height = useSharedValue(100);
+  const lastContentOffset = useSharedValue(0);
+  const isScrolling = useSharedValue(false);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -99,11 +117,26 @@ const CreateCommonList = (): ReactElement => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!selectedCommonList) return;
+    let newArr: EachUserFormData[] = selectedCommonList?.users.map(eachUser => {
+      return {
+        userId: eachUser.userId,
+        expanded: true,
+        userName: {value: eachUser.userName, errorMessage: ''},
+        userMobileNumber: {value: eachUser.userMobileNumber, errorMessage: ''},
+        userEmail: {value: eachUser.userEmail, errorMessage: ''},
+        isValidUser: 'YES',
+      };
+    });
+    setUsers(newArr);
+  }, [selectedCommonList]);
+
   const onAddUserClick = () => {
     setUsers([
       ...users,
       {
-        userId: uuid.v4(),
+        userId: uuid.v4() + 'newUser',
         expanded: true,
         userName: {value: '', errorMessage: ''},
         userMobileNumber: {value: '', errorMessage: ''},
@@ -120,19 +153,25 @@ const CreateCommonList = (): ReactElement => {
 
   const expandUser = useCallback(
     (userId: string | number[]) => {
-      let updatedArr = users.map(eachUser => {
-        if (eachUser.userId === userId)
-          return {...eachUser, expanded: !eachUser.expanded};
-        else return eachUser;
-      });
-      setUsers(updatedArr);
+      let updatedArr;
+      if (typeof userId === 'string') {
+        updatedArr = users.map(eachUser => {
+          if (eachUser.userId === userId)
+            return {...eachUser, expanded: !eachUser.expanded};
+          else return eachUser;
+        });
+        setUsers(updatedArr);
+      }
     },
     [users, setUsers],
   );
 
   const deleteUser = useCallback(
     (userId: string | number[]) => {
-      setUsers(users.filter(eachUser => eachUser.userId !== userId));
+      if (typeof userId === 'string') {
+        setUsers(users.filter(eachUser => eachUser.userId !== userId));
+        if(!userId.includes("newUser")) setRemovedUserIds(prevState => [...prevState, userId]);
+      }
     },
     [setUsers, users],
   );
@@ -211,44 +250,59 @@ const CreateCommonList = (): ReactElement => {
     } else return false;
   }, []);
 
-  const getRequestObj = useCallback((listNameValue: string) => {
-    let requestArr: Omit<EachPerson, 'userId' | 'eventId'>[] = [];
+  const getRequestObj = () => {
+    let newlyAddedUsers: Omit<EachPerson, 'userId' | 'eventId'>[] = [];
+    let alreadyExistingUsers: Omit<
+      EachPerson,
+      'eventId' | 'isPaymentPending' | 'createdAt' | 'paymentMode'
+    >[] = [];
     users.forEach(eachUser => {
-      requestArr.push({
-        userEmail: eachUser.userEmail?.value || '',
-        userMobileNumber: eachUser.userMobileNumber?.value || '',
-        userName: eachUser.userName.value,
-        isPaymentPending: true,
-        createdAt: new Date().toString(),
-        paymentMode: '',
-      });
+      if (
+        typeof eachUser.userId === 'string' &&
+        eachUser.userId.includes('newUser')
+      ) {
+        newlyAddedUsers.push({
+          userEmail: eachUser.userEmail?.value || '',
+          userMobileNumber: eachUser.userMobileNumber?.value || '',
+          userName: eachUser.userName.value,
+          isPaymentPending: true,
+          createdAt: new Date().toString(),
+          paymentMode: '',
+        });
+      } else {
+        if (typeof eachUser.userId === 'string')
+          alreadyExistingUsers.push({
+            userEmail: eachUser.userEmail?.value || '',
+            userMobileNumber: eachUser.userMobileNumber?.value || '',
+            userName: eachUser.userName.value,
+            userId: eachUser.userId,
+          });
+      }
     });
     return {
-      commonListName: listNameValue,
-      createdBy: auth().currentUser?.uid,
-      createdAt: new Date().toString(),
-      users: requestArr,
-    };
-  },[users,auth().currentUser?.uid, new Date().toString()])
+      commonListName: listName.value,
+      commonListId: selectedCommonList?.commonListId,
+      newlyAddedUsers,
+      alreadyExistingUsers,
+      removedUserIds,
+    } as UpdateCommonListRequestObj;
+  };
 
-  const callApi = useCallback(
-    (listNameValue: string) => {
-      dispatch(addCommonListAPICall(getRequestObj(listNameValue))).then(resp => {
-        if (resp.meta.requestStatus === 'fulfilled') {
-          if (Platform.OS === 'android' && resp.payload)
-            ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-          navigation.pop();
-          dispatch(getCommonListsAPICall({ expanded: false }))
-        } else {
-          if (Platform.OS === 'android' && resp.payload)
-            ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-        }
-      });
-    },
-    [dispatch, navigation, getRequestObj],
-  );
+  const callApi = () => {
+    dispatch(updateCommonListAPICall(getRequestObj())).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        navigation.pop();
+        dispatch(getCommonListsAPICall({expanded: false}));
+      } else {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  };
 
-  const onCreateListClick = () => {
+  const onSaveChangesClick = () => {
     //here loop through all users data and check for name validation
     const allFieldsValid = users.every(user => {
       return isUserValid(user);
@@ -259,7 +313,7 @@ const CreateCommonList = (): ReactElement => {
     } else {
       // all fields are valid, submit the form
       updateFormErrors();
-      setListNameModal(true);
+      callApi();
     }
   };
 
@@ -268,26 +322,35 @@ const CreateCommonList = (): ReactElement => {
     setBulkUserCount('1');
   }, [setBulkUserModal, setBulkUserCount]);
 
-  const onListNameCancelClick = useCallback(() => {
-    setListNameModal(false);
-    setListName({value: '', errorMessage: ''});
-  }, [setListNameModal, setListName]);
+  const onDeleteCancelClick = useCallback(() => {
+    setDeleteListModal(false);
+  }, [setDeleteListModal]);
 
-  const onListNameConfirmClick = useCallback(() => {
-    if (listName.value) {
-      setListName({...listName, errorMessage: ''});
-      setListNameModal(false);
-      callApi(listName.value);
-    } else {
-      setListName({...listName, errorMessage: 'List Name cannot be empty.'});
-    }
-  }, [listName, setListName, setListNameModal, callApi]);
+  const onDeleteConfirmClick = useCallback(() => {
+    if (!route.params?.selectedCommonListId) return;
+    setDeleteListModal(false);
+    //delete this list from common list and pop back to previous screen
+    dispatch(
+      removeCustomListAPICall({
+        customListId: route.params?.selectedCommonListId,
+      }),
+    ).then(resp => {
+      if (resp.meta.requestStatus === 'fulfilled') {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        navigation.pop();
+      } else {
+        if (Platform.OS === 'android' && resp.payload)
+          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+      }
+    });
+  }, [route, setDeleteListModal, dispatch, navigation]);
 
   const onConfirmClick = useCallback(() => {
     let updatedUsers = [...users];
     generateArray(parseInt(bulkUserCount)).forEach(() => {
       updatedUsers.push({
-        userId: uuid.v4(),
+        userId: uuid.v4() + 'newUser',
         expanded: true,
         userName: {value: '', errorMessage: ''},
         userMobileNumber: {value: '', errorMessage: ''},
@@ -302,7 +365,7 @@ const CreateCommonList = (): ReactElement => {
   //create new instance of this function only when dependencies change
   const addBulkUserPopupData = useCallback((): popupData => {
     return {
-      header: 'Add Bulk Users',
+      header: 'Add Users in Bulk',
       description: 'Enter the no of users to add in bulk.',
       onCancelClick: onCancelClick,
       onConfirmClick: onConfirmClick,
@@ -310,14 +373,14 @@ const CreateCommonList = (): ReactElement => {
   }, [onCancelClick, onConfirmClick]);
 
   //create new instance of this function only when dependencies change
-  const listNamePopupData = useCallback((): popupData => {
+  const deletePopupData = useCallback((): popupData => {
     return {
-      header: 'Final Step',
-      description: 'Name the list',
-      onCancelClick: onListNameCancelClick,
-      onConfirmClick: onListNameConfirmClick,
+      header: `Delete ${route.params?.selectedCommonListName} ?`,
+      description: 'Are you sure to delete this group? This cannot be undone.',
+      onCancelClick: onDeleteCancelClick,
+      onConfirmClick: onDeleteConfirmClick,
     };
-  }, [onListNameCancelClick, onListNameConfirmClick]);
+  }, [onDeleteCancelClick, onDeleteConfirmClick, route]);
 
   const getBulkCountErrorMessage = () => {
     return bulkUserCount &&
@@ -325,7 +388,7 @@ const CreateCommonList = (): ReactElement => {
       parseInt(bulkUserCount) <= MAX_BULK_ADDITION
       ? ''
       : bulkUserCount === ''
-      ? 'User Count cannot be empty.'
+      ? 'Users Count cannot be empty.'
       : parseInt(bulkUserCount) > MAX_BULK_ADDITION
       ? `Max cap is ${MAX_BULK_ADDITION}.`
       : 'Invalid Count.';
@@ -335,37 +398,89 @@ const CreateCommonList = (): ReactElement => {
     setShowAddUserView(!showAddUserView);
   };
 
+  const onDeleteCommonListClick = () => {
+    setDeleteListModal(true);
+  };
+
+  const scrollHandler = useAnimatedScrollHandler({
+    //this hook automatically makes every fun inside as worklet
+    onScroll: event => {
+      if (
+        lastContentOffset.value > event.contentOffset.y &&
+        isScrolling.value
+      ) {
+        //user is going up the list by scrolling down, show the header.
+        translateY.value = 0;
+        height.value = 100;
+      } else if (
+        lastContentOffset.value < event.contentOffset.y &&
+        isScrolling.value
+      ) {
+        //user is going down the list by scrolling up, hide the header.
+        translateY.value = -100;
+        height.value = 0;
+      }
+      lastContentOffset.value = event.contentOffset.y;
+    },
+    onBeginDrag: e => {
+      isScrolling.value = true;
+    },
+    onEndDrag: e => {
+      isScrolling.value = false;
+    },
+  });
+
+  const actionBarStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: withSpring(translateY.value),
+        },
+      ],
+      height: withTiming(height.value, {
+        duration: 800,
+        easing: Easing.inOut(Easing.ease),
+      }),
+    };
+  });
+
   return (
     <ScreenWrapper>
-      {!keyboardStatus ? (
-        <View style={styles.description}>
-          <TextComponent
-            style={{
-              fontSize: 15,
-              color: colors[theme].textColor,
-              textAlign: 'left',
-              marginBottom: 5,
-            }}
-            weight="semibold">
-            Create common list of people here and while adding people to any
-            event you can select people from this list.
-          </TextComponent>
-          <TextComponent
-            style={{color: colors[theme].textColor, marginTop: 10}}
-            weight="semibold">
-            Total Users Added: {users.length}
-          </TextComponent>
+      <Animated.View
+        style={[
+          styles.nameAndDeleteButtonContainer,
+          {backgroundColor: colors[theme].cardColor},
+          actionBarStyle,
+        ]}>
+        <View style={styles.nameContainer}>
+          <InputComponent
+            value={listName.value}
+            onChangeText={value => setListName({...listName, value})}
+            errorMessage={listName.errorMessage}
+          />
         </View>
-      ) : null}
-      <FlatList
+        <TouchableOpacity
+          onPress={onDeleteCommonListClick}
+          style={styles.deleteButtonContainer}>
+          <MaterialIcons
+            size={30}
+            color={colors[theme].errorColor}
+            name="delete-outline"
+          />
+        </TouchableOpacity>
+      </Animated.View>
+      <Animated.FlatList
         data={users}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
         style={{
           paddingHorizontal: measureMents.leftPadding,
+          marginTop: 20,
           paddingVertical: measureMents.leftPadding,
           marginBottom: 20,
         }}
         renderItem={({item}) => (
-          <EachUserComponent
+          <UpdateEachCommonListUser
             eachUser={item}
             deleteUser={deleteUser}
             expandUser={expandUser}
@@ -376,11 +491,17 @@ const CreateCommonList = (): ReactElement => {
         keyExtractor={item => item.userId.toString()}
       />
       {!keyboardStatus ? (
-        <View style={[styles.description, {paddingBottom: 20}]}>
+        <View
+          style={[
+            {
+              paddingBottom: 20,
+              paddingHorizontal: measureMents.leftPadding,
+            },
+          ]}>
           <ButtonComponent
-            onPress={onCreateListClick}
+            onPress={onSaveChangesClick}
             isDisabled={users.length === 0}>
-            CREATE LIST
+            Save Changes
           </ButtonComponent>
         </View>
       ) : null}
@@ -396,15 +517,10 @@ const CreateCommonList = (): ReactElement => {
         />
       </CenterPopupComponent>
       <CenterPopupComponent
-        popupData={listNamePopupData}
-        isModalVisible={listNameModal}
-        setIsModalVisible={setListNameModal}>
-        <InputComponent
-          value={listName.value}
-          onChangeText={value => setListName({...listName, value})}
-          errorMessage={listName.errorMessage}
-        />
-      </CenterPopupComponent>
+        popupData={deletePopupData}
+        isModalVisible={deleteListModal}
+        setIsModalVisible={setDeleteListModal}
+      />
       {showAddUserView && !keyboardStatus ? (
         <View
           style={[
@@ -438,7 +554,7 @@ const CreateCommonList = (): ReactElement => {
             <TextComponent
               style={{color: colors[theme].blackColor}}
               weight="semibold">
-              Add Bulk User
+              Add Users in Bulk
             </TextComponent>
           </TouchableOpacity>
         </View>
@@ -458,12 +574,16 @@ const CreateCommonList = (): ReactElement => {
   );
 };
 
-export default CreateCommonList;
+export default UpdateCommonGroupsUsersScreen;
 
 const styles = StyleSheet.create({
-  description: {
-    paddingTop: 10,
+  nameAndDeleteButtonContainer: {
+    //paddingVertical: 10,
     paddingHorizontal: measureMents.leftPadding,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 20,
+    marginHorizontal: measureMents.leftPadding,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -494,5 +614,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 0.5,
     paddingHorizontal: '10%',
+  },
+  nameContainer: {
+    width: '80%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteButtonContainer: {
+    width: '20%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
 });

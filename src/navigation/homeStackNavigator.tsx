@@ -2,14 +2,14 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {
   AddEventScreen,
-  AddPeopleScreen,
-  CreateCommonList,
-  DisplayCommonLists,
+  AddGuestsScreen,
+  CreateCommonGroup,
+  DisplayCommonGroups,
   EventDetailsScreen,
   UpdateProfileScreen,
-  UpdateCommonListScreen,
-  UpdateCommonListUsersScreen,
-  EventJoinersScreen
+  UpdateCommonGroupsScreen,
+  UpdateCommonGroupsUsersScreen,
+  GuestListScreen
 } from '../screens/index';
 import {colors, fontStyles} from '../utils/appStyles';
 import {BottomTabNavigator} from '.';
@@ -23,13 +23,13 @@ export type HomeStackParamList = {
   BottomTabNavigator: undefined | NavigatorScreenParams<BottomTabParamList>;
   AddEventScreen: undefined | {longPressedEvent: EachEvent};
   EventDetailsScreen: undefined;
-  EventJoinersScreen: undefined;
-  AddPeopleScreen: undefined | {longPressedUser: EachPerson};
+  GuestListScreen: undefined;
+  AddGuestsScreen: undefined | {longPressedUser: EachPerson};
   UpdateProfileScreen: undefined;
-  CreateCommonList: undefined;
-  DisplayCommonList: undefined;
-  UpdateCommonListScreen: undefined;
-  UpdateCommonListUsersScreen: undefined | {selectedCommonListId: string, selectedCommonListName: string};
+  CreateCommonGroup: undefined;
+  DisplayCommonGroups: undefined;
+  UpdateCommonGroupsScreen: undefined;
+  UpdateCommonGroupsUsersScreen: undefined | {selectedCommonListId: string, selectedCommonListName: string};
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -75,27 +75,27 @@ function HomeStackNavigator() {
       />
       <HomeStack.Screen
         options={({route, navigation}) => ({
-          headerTitle: 'Event joiners',
+          headerTitle: 'Guest List',
           headerShadowVisible: false,
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
           headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
         })}
-        name="EventJoinersScreen"
-        component={EventJoinersScreen}
+        name="GuestListScreen"
+        component={GuestListScreen}
       />
       <HomeStack.Screen
         options={({route, navigation}) => ({
-          headerTitle: 'Add People to event',
+          headerTitle: 'Add Guests to event',
           headerShadowVisible: false,
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
           headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
         })}
-        name="AddPeopleScreen"
-        component={AddPeopleScreen}
+        name="AddGuestsScreen"
+        component={AddGuestsScreen}
       />
       <HomeStack.Screen
         options={({route, navigation}) => ({
@@ -112,39 +112,39 @@ function HomeStackNavigator() {
       />
       <HomeStack.Screen
         options={({route, navigation}) => ({
-          headerTitle: 'Create Common List',
+          headerTitle: 'Create Common Group',
           headerShadowVisible: false,
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
           headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
         })}
-        name="CreateCommonList"
-        component={CreateCommonList}
+        name="CreateCommonGroup"
+        component={CreateCommonGroup}
       />
       <HomeStack.Screen
         options={({route, navigation}) => ({
-          headerTitle: 'Common Lists',
+          headerTitle: 'Common Groups',
           headerShadowVisible: false,
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
           headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
         })}
-        name="DisplayCommonList"
-        component={DisplayCommonLists}
+        name="DisplayCommonGroups"
+        component={DisplayCommonGroups}
       />
       <HomeStack.Screen
         options={({route, navigation}) => ({
-          headerTitle: 'Update Common lists',
+          headerTitle: 'Update Common Groups',
           headerShadowVisible: false,
           headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
           headerTitleAlign: 'center',
           headerBackVisible: true,
           headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
         })}
-        name="UpdateCommonListScreen"
-        component={UpdateCommonListScreen}
+        name="UpdateCommonGroupsScreen"
+        component={UpdateCommonGroupsScreen}
       />
       <HomeStack.Screen
         options={({route, navigation}) => ({
@@ -155,8 +155,8 @@ function HomeStackNavigator() {
           headerBackVisible: true,
           headerStyle: {backgroundColor: colors[theme].lightLavenderColor},
         })}
-        name="UpdateCommonListUsersScreen"
-        component={UpdateCommonListUsersScreen}
+        name="UpdateCommonGroupsUsersScreen"
+        component={UpdateCommonGroupsUsersScreen}
       />
     </HomeStack.Navigator>
   );

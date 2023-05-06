@@ -99,7 +99,7 @@ const SettingsScreen = () => {
   }, [homeStackNavigation]);
 
   const onUpdateCommonListPress = useCallback(() => {
-    homeStackNavigation.navigate('UpdateCommonListScreen');
+    homeStackNavigation.navigate('UpdateCommonGroupsScreen');
   }, [homeStackNavigation]);
 
   const onResetPasswordPress = useCallback(() => {
@@ -158,7 +158,7 @@ const SettingsScreen = () => {
     },
     {
       id: 3,
-      label: 'Update Common Lists',
+      label: 'Update Common Groups',
       icon: () => (
         <EntypoIcons
           size={30}
