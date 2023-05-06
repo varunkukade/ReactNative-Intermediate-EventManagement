@@ -16,7 +16,7 @@ const RadioButtonComponent = ({ onPress, selected, children }: RadioButtonCompon
   return (
     <View style={styles.radioButtonContainer}>
       <TouchableOpacity onPress={onPress} style={[styles.radioButton, { borderColor: colors[theme].blackColor}]}>
-        {selected ? <View style={[styles.radioButtonIcon, { backgroundColor: colors[theme].cardColor}]} /> : null}
+        {selected ? <View style={[styles.radioButtonIcon, { backgroundColor: colors[theme].commonPrimaryColor}]} /> : null}
       </TouchableOpacity>
       <TouchableOpacity onPress={onPress}>
         <TextComponent style={[styles.radioButtonText, {color: colors[theme].textColor}]} weight='semibold'>{children}</TextComponent>

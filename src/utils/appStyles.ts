@@ -18,6 +18,7 @@ export const colors = {
         errorColor:"#ff3333",
         iconLightPinkColor:"#FC8EAC",
         lightLavenderColor: "rgb(245, 245, 255)",
+        greenColor: '#32CD32',
         ...commonColors
     },
     "dark": {
@@ -31,6 +32,7 @@ export const colors = {
         errorColor:"#ff3333",
         iconLightPinkColor:"#FC8EAC",
         lightLavenderColor: "#121212",
+        greenColor: '#32CD32',
         ...commonColors
     },
 }

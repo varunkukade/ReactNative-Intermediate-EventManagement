@@ -18,7 +18,6 @@ const EventDetailsScreen = (): ReactElement | null => {
     HomeStackParamList,
     'EventDetailsScreen'
   > = useNavigation();
-  const route: RouteProp<HomeStackParamList, 'EventDetailsScreen'> = useRoute();
 
   //selectors
   const selectedEventDetails = useAppSelector(
@@ -153,7 +152,7 @@ const EventDetailsScreen = (): ReactElement | null => {
             </>
           ) : null}
           <ButtonComponent
-            onPress={() => navigation.navigate('EventJoinersTopTab')}
+            onPress={() => navigation.navigate('EventJoinersScreen')}
             containerStyle={{marginBottom: 30}}>
             {' '}
             Go to People list 🚀

@@ -27,12 +27,10 @@ import {debounce} from 'lodash';
 
 type EventJoinerListProps = {
   onLongPressUser: (data: EachPerson) => void;
-  type: string;
 };
 
 const EventJoinersListComponent = ({
   onLongPressUser,
-  type,
 }: EventJoinerListProps): ReactElement => {
   let dataProvider = new DataProvider((r1, r2) => {
     return r1 !== r2;
@@ -50,23 +48,12 @@ const EventJoinersListComponent = ({
     state => state.events.currentSelectedEvent,
   );
   const originalPeople = useAppSelector(state => state.people.originalPeople);
-  const pendingPeople = useAppSelector(state => state.people.pendingPeople);
-  const completedPeople = useAppSelector(state => state.people.completedPeople);
 
   const peopleState = useAppSelector(state => state.people);
   const getPeopleArray = (peopleState: EachPerson[]) => {
-    if (type === 'all')
-      return peopleState.filter(
-        eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
-      );
-    else if (type === 'pending')
-      return pendingPeople.filter(
-        eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
-      );
-    else
-      return completedPeople.filter(
-        eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
-      );
+    return peopleState.filter(
+      eachPerson => eachPerson.eventId === currentSelectedEvent?.eventId,
+    );
   };
   const peopleData = dataProvider.cloneWithRows(
     getPeopleArray(peopleState.people),
@@ -110,7 +97,7 @@ const EventJoinersListComponent = ({
     } else {
       dispatch(
         getNextSearchedEventJoinersAPICall({
-          searchedValue: searchedUser.toLowerCase().trim().split(' ').join(''),
+          searchedValue: searchedUser.trim().split(' ').join(''),
         }),
       ).then(resp => {
         handleResponse(resp);
@@ -174,7 +161,7 @@ const EventJoinersListComponent = ({
           styles.eachEventComponent,
           {backgroundColor: colors[theme].cardColor},
         ]}>
-        <View style={styles.secondSection}>
+        <View style={styles.firstSection}>
           <TextComponent
             numberOfLines={2}
             weight="normal"
@@ -194,6 +181,11 @@ const EventJoinersListComponent = ({
               +91 {data.userMobileNumber}
             </TextComponent>
           ) : null}
+        </View>
+        <View style={styles.secondSection}>
+         <TextComponent weight='normal' style={{ color: data.isPaymentPending ? colors[theme].errorColor : colors[theme].greenColor}}>
+           { `Payment ${data.isPaymentPending ? 'Pending' : 'Completed'}` }
+         </TextComponent>
         </View>
         <View style={styles.thirdSection}>
           <EntypoIcons
@@ -218,31 +210,6 @@ const EventJoinersListComponent = ({
           setlastFetchedUserId(updatedPeople[updatedPeople.length - 1].userId),
         );
       } else {
-        // updatedPeople = originalPeople.filter(eachPeople => {
-        //   if (
-        //     eachPeople.userName
-        //       .toLowerCase()
-        //       .trim()
-        //       .split(' ')
-        //       .join('')
-        //       .includes(updatedSearchValue) ||
-        //     eachPeople.userMobileNumber
-        //       .toLowerCase()
-        //       .trim()
-        //       .split(' ')
-        //       .join('')
-        //       .includes(updatedSearchValue) ||
-        //     eachPeople.userEmail
-        //       .toLowerCase()
-        //       .trim()
-        //       .split(' ')
-        //       .join('')
-        //       .includes(updatedSearchValue)
-        //   ) {
-        //     return true;
-        //   }
-        // });
-        //dispatch(updatePeople(updatedPeople));
         dispatch(getSearchedPeopleAPICall({searchedValue}));
       }
     }, 1000),
@@ -251,7 +218,7 @@ const EventJoinersListComponent = ({
 
   const handleUserSearch = (searchedValue: string) => {
     setSearchedUser(searchedValue);
-    showSearchedUsers(searchedValue.toLowerCase().trim().split(' ').join(''));
+    showSearchedUsers(searchedValue.trim().split(' ').join(''));
   };
 
   return (
@@ -270,8 +237,9 @@ const EventJoinersListComponent = ({
             : 0}
         </TextComponent>
       </View>
-      {type === 'all' ? (
-        <View
+      {
+        peopleState.statuses.getPeopleAPICall === 'succeedded' ? (
+          <View
           style={[
             styles.searchInput,
             {backgroundColor: colors[theme].cardColor},
@@ -279,10 +247,11 @@ const EventJoinersListComponent = ({
           <InputComponent
             value={searchedUser}
             onChangeText={value => handleUserSearch(value)}
-            placeholder="Search user by name / cell number / email..."
+            placeholder="Search user by name"
           />
         </View>
-      ) : null}
+        ): null
+      }
 
       {peopleState.statuses.getPeopleAPICall === 'succeedded' &&
       peopleData?.getSize() > 0 ? (
@@ -356,13 +325,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: measureMents.leftPadding,
   },
-  secondSection: {
-    width: '80%',
+  firstSection: {
+    width: '50%',
     height: '100%',
     justifyContent: 'space-evenly',
   },
+  secondSection: {
+    width: '25%',
+    height: '100%',
+    justifyContent: 'space-evenly',
+    alignItems: "center"
+  },
   thirdSection: {
-    width: '20%',
+    width: '25%',
     height: '100%',
     alignItems: 'flex-end',
     justifyContent: 'center',

@@ -212,7 +212,7 @@ const AddPeopleScreen = (): ReactElement => {
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
         setEventForm(initialEventForm);
         dispatch(getPeopleAPICall());
-        navigation.navigate('EventJoinersTopTab');
+        navigation.navigate('EventJoinersScreen');
       } else {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -221,11 +221,11 @@ const AddPeopleScreen = (): ReactElement => {
   };
 
   const onFormSubmit = (): void => {
-    const {userMobileNumber, userName} =
-      eventForm;
+    const {userMobileNumber, userName} = eventForm;
     if (
-      mobileNumbervalidation(userMobileNumber.value).isValid &&
-      userName.value
+      (!userMobileNumber?.value.trim() ||
+        mobileNumbervalidation(userMobileNumber.value.trim()).isValid) &&
+      userName.value.trim()
     ) {
       if (selectedEventDetails) {
         setFormErrors('empty');
@@ -237,17 +237,23 @@ const AddPeopleScreen = (): ReactElement => {
       }
     } else {
       //set the errors if exist
+      const newUserMobileNumber =
+        !userMobileNumber?.value.trim() ||
+        mobileNumbervalidation(userMobileNumber.value.trim()).isValid
+          ? {...userMobileNumber, errorMessage: ''}
+          : {
+              ...userMobileNumber,
+              errorMessage: mobileNumbervalidation(
+                userMobileNumber.value.trim(),
+              ).errorMessage,
+            };
       setFormErrors('', {
         ...eventForm,
         userName: {
           ...userName,
           errorMessage: userName.value ? '' : 'User Name cannot be empty.',
         },
-        userMobileNumber: {
-          ...userMobileNumber,
-          errorMessage: mobileNumbervalidation(userMobileNumber.value)
-            .errorMessage,
-        },
+        userMobileNumber: newUserMobileNumber
       });
     }
   };
@@ -284,7 +290,6 @@ const AddPeopleScreen = (): ReactElement => {
             }
             label="Enter Mobile Number"
             keyboardType="numeric"
-            required
             errorMessage={eventForm.userMobileNumber.errorMessage}
             placeholder="9028476756"
           />

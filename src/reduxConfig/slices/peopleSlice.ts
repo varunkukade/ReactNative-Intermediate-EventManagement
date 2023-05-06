@@ -1,9 +1,4 @@
-import {
-  PayloadAction,
-  createAsyncThunk,
-  createSlice,
-  isPending,
-} from '@reduxjs/toolkit';
+import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import apiUrls from '../apiUrls';
 import firestore from '@react-native-firebase/firestore';
 import {MessageType} from './eventsSlice';
@@ -27,8 +22,6 @@ export type EachPerson = {
 type PeopleState = {
   people: EachPerson[];
   originalPeople: EachPerson[];
-  pendingPeople: EachPerson[];
-  completedPeople: EachPerson[];
   lastFetchedUserId: string;
   statuses: {
     addPeopleAPICall: status;
@@ -42,6 +35,7 @@ type PeopleState = {
     removeCustomListAPICall: status;
     updateCommonListAPICall: status;
     getSearchedPeopleAPICall: status;
+    getNextSearchedEventJoinersAPICall: status;
   };
   loadingMessage: string;
   commonLists: CommonListObject[];
@@ -51,8 +45,6 @@ const initialState: PeopleState = {
   people: [],
   originalPeople: [],
   lastFetchedUserId: '',
-  pendingPeople: [],
-  completedPeople: [],
   statuses: {
     addPeopleAPICall: 'idle',
     addPeopleInBatchAPICall: 'idle',
@@ -65,6 +57,7 @@ const initialState: PeopleState = {
     removeCustomListAPICall: 'idle',
     updateCommonListAPICall: 'idle',
     getSearchedPeopleAPICall: 'idle',
+    getNextSearchedEventJoinersAPICall: 'idle',
   },
   loadingMessage: '',
   commonLists: [],
@@ -113,28 +106,12 @@ export const peopleSlice = createSlice({
       .addCase(getPeopleAPICall.fulfilled, (state, action) => {
         state.people.length = 0;
         state.originalPeople.length = 0;
-        state.pendingPeople.length = 0;
-        state.completedPeople.length = 0;
         if (action.payload.responseData) {
           state.people = JSON.parse(
             JSON.stringify(action.payload.responseData),
           );
           state.originalPeople = JSON.parse(
             JSON.stringify(action.payload.responseData),
-          );
-          state.completedPeople = JSON.parse(
-            JSON.stringify(
-              action.payload.responseData.filter(
-                eachperson => !eachperson.isPaymentPending,
-              ),
-            ),
-          );
-          state.pendingPeople = JSON.parse(
-            JSON.stringify(
-              action.payload.responseData.filter(
-                eachperson => eachperson.isPaymentPending,
-              ),
-            ),
           );
         }
         state.statuses.getPeopleAPICall = 'succeedded';
@@ -151,16 +128,6 @@ export const peopleSlice = createSlice({
           state.originalPeople = state.originalPeople.concat(
             action.payload.responseData,
           );
-          state.completedPeople = state.completedPeople.concat(
-            action.payload.responseData.filter(
-              eachperson => !eachperson.isPaymentPending,
-            ),
-          );
-          state.pendingPeople = state.pendingPeople.concat(
-            action.payload.responseData.filter(
-              eachperson => eachperson.isPaymentPending,
-            ),
-          );
         }
         state.statuses.getNextEventJoinersAPICall = 'succeedded';
       })
@@ -176,12 +143,6 @@ export const peopleSlice = createSlice({
           eachPerson => eachPerson.userId !== action.meta.arg.userId,
         );
         state.originalPeople = state.originalPeople.filter(
-          eachPerson => eachPerson.userId !== action.meta.arg.userId,
-        );
-        state.completedPeople = state.completedPeople.filter(
-          eachPerson => eachPerson.userId !== action.meta.arg.userId,
-        );
-        state.pendingPeople = state.pendingPeople.filter(
           eachPerson => eachPerson.userId !== action.meta.arg.userId,
         );
         state.statuses.removePeopleAPICall = 'succeedded';
@@ -204,21 +165,6 @@ export const peopleSlice = createSlice({
         let user = state.originalPeople.find(
           eachUser => eachUser.userId === action.meta.arg.userId,
         );
-        if (typeof isPaymentPending === 'boolean' && user) {
-          //user moved to pending tab.
-          user.isPaymentPending = isPaymentPending;
-          if (isPaymentPending) {
-            state.pendingPeople.push(user);
-            state.completedPeople = state.completedPeople.filter(
-              eachPerson => eachPerson.userId !== action.meta.arg.userId,
-            );
-          } else {
-            state.completedPeople.push(user);
-            state.pendingPeople = state.pendingPeople.filter(
-              eachPerson => eachPerson.userId !== action.meta.arg.userId,
-            );
-          }
-        }
         state.people = state.people.map(eachPerson => {
           if (eachPerson.userId === action.meta.arg.userId) {
             if (typeof isPaymentPending === 'boolean')
@@ -315,6 +261,21 @@ export const peopleSlice = createSlice({
       })
       .addCase(getSearchedPeopleAPICall.rejected, (state, action) => {
         state.statuses.getSearchedPeopleAPICall = 'failed';
+      })
+      .addCase(getNextSearchedEventJoinersAPICall.pending, (state, action) => {
+        state.statuses.getNextSearchedEventJoinersAPICall = 'loading';
+      })
+      .addCase(
+        getNextSearchedEventJoinersAPICall.fulfilled,
+        (state, action) => {
+          if (action.payload.responseData.length > 0) {
+            state.people = state.people.concat(action.payload.responseData);
+          }
+          state.statuses.getNextSearchedEventJoinersAPICall = 'succeedded';
+        },
+      )
+      .addCase(getNextSearchedEventJoinersAPICall.rejected, (state, action) => {
+        state.statuses.getNextSearchedEventJoinersAPICall = 'failed';
       });
   },
 });
@@ -862,8 +823,9 @@ export const getSearchedPeopleAPICall = createAsyncThunk<
     try {
       return await firestore()
         .collection(apiUrls.people)
-        .where('userName', '>=', requestObj.searchedValue)
         .orderBy('userName')
+        .startAt(requestObj.searchedValue)
+        .endAt(requestObj.searchedValue + '\uf8ff')
         .limit(PAGINATION_CONSTANT)
         .get()
         .then(querySnapshot => {
@@ -923,9 +885,9 @@ export const getNextSearchedEventJoinersAPICall = createAsyncThunk<
         .get();
       return await firestore()
         .collection(apiUrls.people)
-        .where('userName', '>=', requestObj.searchedValue)
-        .orderBy('userName')
         .startAfter(lastDocFetched)
+        .startAt(requestObj.searchedValue)
+        .endAt(requestObj.searchedValue + '\uf8ff')
         .limit(PAGINATION_CONSTANT)
         .get()
         .then(querySnapshot => {

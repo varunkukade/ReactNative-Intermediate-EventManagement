@@ -24,28 +24,15 @@ import BottomHalfPopupComponent, {
 } from '../../reusables/bottomHalfPopup';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import CenterPopupComponent, {popupData} from '../../reusables/centerPopup';
-import {TopTabParamList} from '../../navigation/topTabsNavigator';
 import {RadioButtonComponent} from '../../reusables';
 import {EachPaymentMethod} from '../addPeopleScreen';
 import {MemoizedEventJoinerListComponent} from './eventJoinersListComponent';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 import ScreenWrapper from '../screenWrapper';
 
-type EventJoinersScreenProps = {
-  type: 'all' | 'pending' | 'completed';
-};
-
-const EventJoinersScreen = ({
-  type,
-  ...props
-}: EventJoinersScreenProps): ReactElement => {
+const EventJoinersScreen = (): ReactElement => {
   //navigation
-  const navigation: NativeStackNavigationProp<
-    HomeStackParamList,
-    'EventJoinersTopTab'
-  > = useNavigation();
-
-  const TopTabNavigation: NativeStackNavigationProp<TopTabParamList, 'All'> =
+  const Navigation: NativeStackNavigationProp<HomeStackParamList, 'EventJoinersScreen'> =
     useNavigation();
 
   //useStates
@@ -104,7 +91,7 @@ const EventJoinersScreen = ({
   const onEditUserClick = () => {
     setIsModalVisible(!isModalVisible)
     setTimeout(()=> {
-      if(longPressedUser) navigation.navigate("AddPeopleScreen", { longPressedUser });
+      if(longPressedUser) Navigation.navigate("AddPeopleScreen", { longPressedUser });
     }, 400)
   }
 
@@ -159,9 +146,8 @@ const EventJoinersScreen = ({
     dispatch(updatePeopleAPICall(requestObj)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
         if (isPending) {
-          TopTabNavigation.navigate('Completed');
           setPaymentModes(initialPaymentModes);
-        } else TopTabNavigation.navigate('Pending');
+        }
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       } else {
@@ -169,7 +155,7 @@ const EventJoinersScreen = ({
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
-  },[dispatch, TopTabNavigation, setPaymentModes, initialPaymentModes])
+  },[dispatch, Navigation, setPaymentModes, initialPaymentModes])
 
   const onConfirmMoveClick = React.useCallback(() => {
     //update people list with updated value of isPending.
@@ -305,14 +291,13 @@ const EventJoinersScreen = ({
       <View style={styles.eventListContainer}>
         <MemoizedEventJoinerListComponent
           onLongPressUser={onLongPressUser}
-          type={type}
         />
       </View>
-      {type === 'all' && !isKeyboardOpened ? (
+      {!isKeyboardOpened ? (
         <TouchableOpacity
           activeOpacity={0.7}
           style={[styles.addEventButton, { backgroundColor: colors[theme].commonPrimaryColor}]}
-          onPress={() => navigation.navigate('AddPeopleScreen')}>
+          onPress={() => Navigation.navigate('AddPeopleScreen')}>
           <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
         </TouchableOpacity>
       ) : null}

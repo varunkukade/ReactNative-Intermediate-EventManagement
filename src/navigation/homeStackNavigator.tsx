@@ -8,23 +8,22 @@ import {
   EventDetailsScreen,
   UpdateProfileScreen,
   UpdateCommonListScreen,
-  UpdateCommonListUsersScreen
+  UpdateCommonListUsersScreen,
+  EventJoinersScreen
 } from '../screens/index';
 import {colors, fontStyles} from '../utils/appStyles';
-import EventJoinersTopTabs from './topTabsNavigator';
 import {BottomTabNavigator} from '.';
 import {NavigatorScreenParams} from '@react-navigation/native';
 import {BottomTabParamList} from './bottomTabNavigator';
 import {EachEvent} from '../reduxConfig/slices/eventsSlice';
 import {EachPerson} from '../reduxConfig/slices/peopleSlice';
 import { useAppSelector } from '../reduxConfig/store';
-import { TextComponent } from '../reusables';
 
 export type HomeStackParamList = {
   BottomTabNavigator: undefined | NavigatorScreenParams<BottomTabParamList>;
   AddEventScreen: undefined | {longPressedEvent: EachEvent};
   EventDetailsScreen: undefined;
-  EventJoinersTopTab: undefined;
+  EventJoinersScreen: undefined;
   AddPeopleScreen: undefined | {longPressedUser: EachPerson};
   UpdateProfileScreen: undefined;
   CreateCommonList: undefined;
@@ -83,8 +82,8 @@ function HomeStackNavigator() {
           headerBackVisible: true,
           headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
         })}
-        name="EventJoinersTopTab"
-        component={EventJoinersTopTabs}
+        name="EventJoinersScreen"
+        component={EventJoinersScreen}
       />
       <HomeStack.Screen
         options={({route, navigation}) => ({
