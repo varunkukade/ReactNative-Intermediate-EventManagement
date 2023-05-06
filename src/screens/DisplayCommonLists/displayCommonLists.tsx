@@ -95,6 +95,17 @@ const DisplayCommonLists = (): ReactElement => {
     return isAtleastOneUserSelected;
   };
 
+  const getSelectedCount = () => {
+    let count = 0;
+    peopleState.commonLists.map(eachCommonList => {
+      let innerCount = eachCommonList.users.reduce((prevValue, currentValue) => {
+        return prevValue + (currentValue.selected ? 1 : 0);
+      }, 0);
+      count = count + innerCount
+    });
+    return count;
+  }
+
   const addUsersToEvent = () => {
     if (!selectedEventDetails) return null;
     let requestArr: Omit<EachPerson, 'userId'>[] = [];
@@ -115,7 +126,7 @@ const DisplayCommonLists = (): ReactElement => {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
         dispatch(getPeopleAPICall());
-        navigation.navigate('EventJoinersTopTab');
+        navigation.navigate('EventJoinersScreen');
       } else {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -130,14 +141,12 @@ const DisplayCommonLists = (): ReactElement => {
           style={{
             fontSize: 15,
             color: colors[theme].textColor,
-            textAlign: 'center',
+            
             marginBottom: 20,
           }}
           weight="semibold">
-          
           {
-            peopleState.commonLists.length === 0 ? `First create common list of people and then you can select people from it to add in ${currentSelectedEvent?.eventTitle}` : `Select people that you want to add in
-            ${currentSelectedEvent?.eventTitle}`
+            peopleState.commonLists.length === 0 ? `First create common list of people and then you can select people from it to add in ${currentSelectedEvent?.eventTitle}` : `Select people that you want to add in ${currentSelectedEvent?.eventTitle}`
           }
         </TextComponent>
       </View>
@@ -206,7 +215,11 @@ const DisplayCommonLists = (): ReactElement => {
           <ButtonComponent
             isDisabled={!isAtleastOneUserSelected()}
             onPress={addUsersToEvent}>
-            Submit
+              {
+                isAtleastOneUserSelected() ? (
+                  `ADD ${getSelectedCount()} People`
+                ): `ADD`
+              }
           </ButtonComponent>
         </View>
       ) : null}
