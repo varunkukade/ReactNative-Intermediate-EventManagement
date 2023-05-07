@@ -1,6 +1,6 @@
 import React, {ReactElement, useCallback, useEffect, useState} from 'react';
 import {
-    FlatList,
+  FlatList,
   Platform,
   RefreshControl,
   StyleSheet,
@@ -29,20 +29,11 @@ import {
   getDeviceContactsAPICall,
   getPeopleAPICall,
   updateContacts,
-  updateSelected,
 } from '../reduxConfig/slices/peopleSlice';
-import Animated, {
-  Easing,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
-import { debounce } from 'lodash';
-import moment from 'moment';
+import {debounce} from 'lodash';
 
 const PROFILE_PICTURE_SIZE = 43;
+const ITEM_HEIGHT = 80
 
 const SelectContactScreen = (): ReactElement => {
   const skelatons = generateArray(8);
@@ -64,6 +55,7 @@ const SelectContactScreen = (): ReactElement => {
   //useStates
   const [refreshing, setRefreshing] = useState(false);
   const [searchedValue, setSearchedValue] = useState('');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     dispatch(getDeviceContactsAPICall()).then(resp => {
@@ -73,13 +65,7 @@ const SelectContactScreen = (): ReactElement => {
       }
     });
     return () => {
-      let updatedContacts = peopleState.contacts.map(eachContact => {
-        return {
-          ...eachContact,
-          selected: false,
-        };
-      });
-      dispatch(updateContacts(updatedContacts));
+      setSelectedIds([])
     };
   }, []);
 
@@ -87,16 +73,16 @@ const SelectContactScreen = (): ReactElement => {
     if (!currentSelectedEvent) return null;
     let requestArr: Omit<EachPerson, 'userId'>[] = [];
     peopleState.originalContacts.forEach(eachContact => {
-      if(eachContact.selected)
-      requestArr.push({
-        userEmail: eachContact.contactEmailAddress || '',
-        userMobileNumber: eachContact.contactPhoneNumber || '',
-        userName: eachContact.contactName,
-        eventId: currentSelectedEvent.eventId,
-        isPaymentPending: true,
-        paymentMode: '',
-        createdAt: new Date().toString(),
-      });
+      if (isSelected(eachContact.contactId))
+        requestArr.push({
+          userEmail: eachContact.contactEmailAddress || '',
+          userMobileNumber: eachContact.contactPhoneNumber || '',
+          userName: eachContact.contactName,
+          eventId: currentSelectedEvent.eventId,
+          isPaymentPending: true,
+          paymentMode: '',
+          createdAt: new Date().toString(),
+        });
     });
     dispatch(addPeopleInBatchAPICall(requestArr)).then(resp => {
       if (resp.meta.requestStatus === 'fulfilled') {
@@ -111,8 +97,19 @@ const SelectContactScreen = (): ReactElement => {
     });
   };
 
-  const onContactSelected = (value: boolean, id: string) => {
-    dispatch(updateSelected({value, id}));
+  const onContactSelected = (value: boolean, contactId: string) => {
+    setSelectedIds((prevIds) => {
+        const index = prevIds.indexOf(contactId);
+        if (value && index === -1) {
+          return [...prevIds, contactId];
+        } else if (!value && index !== -1) {
+          const newIds = [...prevIds];
+          newIds.splice(index, 1);
+          return newIds;
+        } else {
+          return prevIds;
+        }   
+    })
   };
 
   const getSkalatonName = (fullName: string) => {
@@ -125,12 +122,8 @@ const SelectContactScreen = (): ReactElement => {
   };
 
   const getSelectedCount = () => {
-    let count = 0;
-    peopleState.originalContacts.forEach(eachContact => {
-      if (eachContact.selected) count += 1;
-    });
-    return count;
-  }
+    return selectedIds.length;
+  };
 
   const showSearchedContacts = useCallback(
     debounce(searchedValue => {
@@ -156,12 +149,14 @@ const SelectContactScreen = (): ReactElement => {
               .includes(updatedSearchValue)
           ) {
             return true;
-          } else if(eachContact.contactPhoneNumber &&
+          } else if (
+            eachContact.contactPhoneNumber &&
             eachContact.contactPhoneNumber
               .trim()
               .split(' ')
               .join('')
-              .includes(updatedSearchValue)){
+              .includes(updatedSearchValue)
+          ) {
             return true;
           }
         });
@@ -176,8 +171,19 @@ const SelectContactScreen = (): ReactElement => {
     showSearchedContacts(searchedValue);
   };
 
+  const isSelected = (contactId: string) => {
+    if(selectedIds.length === 0) return false;
+    else {
+        if(selectedIds.find((eachId) => eachId === contactId)) return true;
+        else return false;
+    }
+  }
 
-  const renderEachContact = (item: EachContact) => {
+  type RenderEachComponentProps = {
+    item: EachContact
+  }
+
+  const RenderEachContact = React.memo(({item}: RenderEachComponentProps) => {
     return (
       <View>
         <TouchableOpacity
@@ -190,7 +196,7 @@ const SelectContactScreen = (): ReactElement => {
             },
           ]}
           activeOpacity={0.7}
-          onPress={() => onContactSelected(!item.selected, item.contactId)}>
+          onPress={() => onContactSelected(!isSelected(item.contactId),item.contactId)}>
           <View style={styles.avatar}>
             {item.contactAvatar === '' ? (
               <View
@@ -235,14 +241,14 @@ const SelectContactScreen = (): ReactElement => {
           </View>
           <View style={styles.checkBoxContainer}>
             <CheckboxComponent
-              value={item.selected}
+              value={isSelected(item.contactId)}
               onValueChange={value => onContactSelected(value, item.contactId)}
             />
           </View>
         </TouchableOpacity>
       </View>
     );
-  };
+  });
 
   return (
     <ScreenWrapper>
@@ -253,10 +259,17 @@ const SelectContactScreen = (): ReactElement => {
         ]}>
         <InputComponent
           value={searchedValue}
-          placeholder='Search through name / cell no...'
+          placeholder="Search through name / cell no..."
           onChangeText={value => handleContactSearch(value)}
         />
       </View>
+      {peopleState.statuses.getDeviceContactsAPICall === 'succeedded' &&
+      peopleState.contacts.length > 0 ? (
+        <TextComponent style={{color: colors[theme].textColor, marginHorizontal: measureMents.leftPadding, marginTop: 7}} weight="normal">
+          {`Total Contacts: ${peopleState.contacts.length}`}
+        </TextComponent>
+      ) : null}
+
       {peopleState.statuses.getDeviceContactsAPICall === 'succeedded' &&
       peopleState.contacts.length > 0 ? (
         <FlatList
@@ -266,12 +279,15 @@ const SelectContactScreen = (): ReactElement => {
             paddingVertical: measureMents.leftPadding,
             marginBottom: 20,
           }}
-          renderItem={({item}) => renderEachContact(item)}
+          initialNumToRender={8}
+          renderItem={({item}) => <RenderEachContact item={item}/>}
+          extraData={selectedIds}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={async () => {
                 setRefreshing(true);
+                setSearchedValue('');
                 dispatch(getDeviceContactsAPICall()).then(resp => {
                   if (resp.payload && resp.meta.requestStatus === 'rejected') {
                     if (Platform.OS === 'android')
@@ -293,7 +309,7 @@ const SelectContactScreen = (): ReactElement => {
             key={index}
             style={[
               styles.contactsSkalaton,
-              {backgroundColor: colors[theme].lavenderColor, height: 60},
+              {backgroundColor: colors[theme].lavenderColor, height: ITEM_HEIGHT},
             ]}
           />
         ))
@@ -354,7 +370,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    marginBottom: measureMents.leftPadding,
+    marginTop: measureMents.leftPadding,
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: measureMents.leftPadding,
@@ -369,6 +385,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: measureMents.leftPadding,
     paddingVertical: measureMents.leftPadding,
     width: '100%',
+    height: ITEM_HEIGHT,
     flexDirection: 'row',
   },
   textComponentContainer: {
