@@ -21,19 +21,20 @@ export type EachPerson = {
 };
 
 export type EachContact = {
-   contactName: string;
-   contactPhoneNumber: string;
-   contactEmailAddress: string;
-   contactAvatar: string;
-   contactId: string;
-   selected: boolean;
-}
+  contactName: string;
+  contactPhoneNumber: string;
+  contactEmailAddress: string;
+  contactAvatar: string;
+  contactId: string;
+  selected: boolean;
+};
 
 type PeopleState = {
   people: EachPerson[];
   originalPeople: EachPerson[];
   lastFetchedUserId: string;
-  contacts: EachContact[]
+  contacts: EachContact[];
+  originalContacts: EachContact[];
   statuses: {
     addPeopleAPICall: status;
     addPeopleInBatchAPICall: status;
@@ -58,6 +59,7 @@ const initialState: PeopleState = {
   originalPeople: [],
   lastFetchedUserId: '',
   contacts: [],
+  originalContacts: [],
   statuses: {
     addPeopleAPICall: 'idle',
     addPeopleInBatchAPICall: 'idle',
@@ -71,7 +73,7 @@ const initialState: PeopleState = {
     updateCommonListAPICall: 'idle',
     getSearchedPeopleAPICall: 'idle',
     getNextSearchedEventJoinersAPICall: 'idle',
-    getDeviceContactsAPICall: 'idle'
+    getDeviceContactsAPICall: 'idle',
   },
   loadingMessage: '',
   commonLists: [],
@@ -93,6 +95,27 @@ export const peopleSlice = createSlice({
     },
     updateContacts: (state, action: PayloadAction<EachContact[]>) => {
       state.contacts = JSON.parse(JSON.stringify(action.payload));
+    },
+    updateSelected: (
+      state,
+      action: PayloadAction<{value: boolean; id: string}>,
+    ) => {
+      state.contacts = state.contacts.map(eachContact => {
+        if (eachContact.contactId === action.payload.id) {
+          return {
+            ...eachContact,
+            selected: action.payload.value,
+          };
+        } else return eachContact;
+      });
+      state.originalContacts = state.originalContacts.map(eachContact => {
+        if (eachContact.contactId === action.payload.id) {
+          return {
+            ...eachContact,
+            selected: action.payload.value,
+          };
+        } else return eachContact;
+      });
     },
   },
   extraReducers(builder) {
@@ -296,12 +319,19 @@ export const peopleSlice = createSlice({
       })
       .addCase(getDeviceContactsAPICall.pending, (state, action) => {
         state.statuses.getDeviceContactsAPICall = 'loading';
-        state.loadingMessage = "Fetching contacts...."
+        state.loadingMessage = 'Fetching contacts....';
       })
       .addCase(getDeviceContactsAPICall.fulfilled, (state, action) => {
         state.contacts.length = 0;
-        if (action.payload.responseData && action.payload.responseData.length > 0) {
+        state.originalContacts.length = 0;
+        if (
+          action.payload.responseData &&
+          action.payload.responseData.length > 0
+        ) {
           state.contacts = JSON.parse(
+            JSON.stringify(action.payload.responseData),
+          );
+          state.originalContacts = JSON.parse(
             JSON.stringify(action.payload.responseData),
           );
         }
@@ -318,7 +348,8 @@ export const {
   setlastFetchedUserId,
   updateCommonList,
   updatePeople,
-  updateContacts
+  updateContacts,
+  updateSelected,
 } = peopleSlice.actions;
 export default peopleSlice.reducer;
 
@@ -975,41 +1006,32 @@ export const getDeviceContactsAPICall = createAsyncThunk<
   {
     rejectValue: MessageType;
   }
->(
-  'events/getDeviceContacts',
-  async (_, thunkAPI) => {
-    let responseArr: EachContact[] = [];
-    try {
-      return await Contacts.getAll()
-      .then((contacts) => {
-          //return the resolved promise with data.
-          contacts.forEach((eachContact) => {
-            responseArr.push({
-              contactName: eachContact.displayName,
-              contactId: eachContact.recordID,
-              contactAvatar: eachContact.thumbnailPath || "",
-              contactPhoneNumber: eachContact.phoneNumbers[0].number,
-              contactEmailAddress: eachContact.emailAddresses[0].email,
-              selected: false
-            })
-            console.log(eachContact.displayName)
-            console.log(eachContact.phoneNumbers)
-            console.log(eachContact.emailAddresses)
-            console.log(eachContact.thumbnailPath)
-            console.log(eachContact.recordID)
-          })
-          return {
-            responseData: responseArr,
-            message: 'Contacts fetched successfully',
-          };
-      })
-    } catch (err: any) {
-      return thunkAPI.rejectWithValue({
-        message:
-          err?.message ||
-          'Failed to fetch contacts. Please try again after some time',
+>('events/getDeviceContacts', async (_, thunkAPI) => {
+  let responseArr: EachContact[] = [];
+  try {
+    return await Contacts.getAll().then(contacts => {
+      //return the resolved promise with data.
+      contacts.forEach(eachContact => {
+        if (eachContact.displayName)
+          responseArr.push({
+            contactName: eachContact.displayName,
+            contactId: eachContact.recordID,
+            contactAvatar: eachContact.thumbnailPath || '',
+            contactPhoneNumber: eachContact.phoneNumbers[0].number || '',
+            contactEmailAddress: eachContact.emailAddresses[0].email || '',
+            selected: false,
+          });
       });
-    }
-  },
-);
-
+      return {
+        responseData: responseArr,
+        message: 'Contacts fetched successfully',
+      };
+    });
+  } catch (err: any) {
+    return thunkAPI.rejectWithValue({
+      message:
+        err?.message ||
+        'Failed to fetch contacts. Please try again after some time',
+    });
+  }
+});

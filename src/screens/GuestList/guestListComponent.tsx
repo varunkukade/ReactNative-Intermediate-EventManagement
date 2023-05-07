@@ -180,7 +180,7 @@ const GuestListComponent = ({
                 color: colors[theme].textColor,
                 fontSize: 15,
               }}>
-              +91 {data.userMobileNumber}
+              {data.userMobileNumber}
             </TextComponent>
           ) : null}
         </View>

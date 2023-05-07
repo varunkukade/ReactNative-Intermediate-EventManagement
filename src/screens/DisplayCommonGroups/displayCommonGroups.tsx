@@ -32,9 +32,6 @@ const DisplayCommonGroups = (): ReactElement => {
   const currentSelectedEvent = useAppSelector(
     state => state.events.currentSelectedEvent,
   );
-  const selectedEventDetails = useAppSelector(
-    state => state.events.currentSelectedEvent,
-  );
   const peopleState = useAppSelector(state => state.people);
   const theme = useAppSelector(state => state.user.currentUser.theme);
 
@@ -118,7 +115,7 @@ const DisplayCommonGroups = (): ReactElement => {
   }
 
   const addUsersToEvent = () => {
-    if (!selectedEventDetails) return null;
+    if (!currentSelectedEvent) return null;
     let requestArr: Omit<EachPerson, 'userId'>[] = [];
     peopleState.commonLists.forEach(eachCommonList => {
       let newArr: Omit<EachPerson, 'userId'>[] = eachCommonList.users
@@ -126,7 +123,7 @@ const DisplayCommonGroups = (): ReactElement => {
         .map(({selected, userId, ...rest}) => {
           return {
             ...rest,
-            eventId: selectedEventDetails.eventId,
+            eventId: currentSelectedEvent.eventId,
             createdAt: new Date().toString(),
           };
         });
