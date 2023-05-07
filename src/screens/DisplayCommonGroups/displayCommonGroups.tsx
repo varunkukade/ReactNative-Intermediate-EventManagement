@@ -1,5 +1,5 @@
 import React, {ReactElement, useCallback, useEffect, useState} from 'react';
-import {FlatList, Platform, RefreshControl, StyleSheet, ToastAndroid, View} from 'react-native';
+import {FlatList, Platform, RefreshControl, StyleSheet, ToastAndroid, TouchableOpacity, View} from 'react-native';
 import {colors, measureMents} from '../../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../../navigation/homeStackNavigator';
@@ -16,6 +16,7 @@ import {
   updateCommonList,
 } from '../../reduxConfig/slices/peopleSlice';
 import DisplayEachCommonList from './displayEachCommonGroup';
+import EntypoIcons from 'react-native-vector-icons/Entypo';
 
 const DisplayCommonGroups = (): ReactElement => {
   //recycler view states
@@ -234,7 +235,7 @@ const DisplayCommonGroups = (): ReactElement => {
           <TextComponent
             style={{color: colors[theme].textColor, fontSize: 16}}
             weight="bold">
-            No Common Groups Found!
+            No records found!
           </TextComponent>
         </View>
       )}
@@ -251,6 +252,15 @@ const DisplayCommonGroups = (): ReactElement => {
           </ButtonComponent>
         </View>
       ) : null}
+      <TouchableOpacity
+        onPress={() => navigation.navigate('CreateCommonGroup')}
+        activeOpacity={0.7}
+        style={[
+          styles.addCustomListButton,
+          {backgroundColor: colors[theme].commonPrimaryColor},
+        ]}>
+        <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
+      </TouchableOpacity>
     </ScreenWrapper>
   );
 };
@@ -282,5 +292,15 @@ const styles = StyleSheet.create({
   addButton: {
     paddingHorizontal: measureMents.leftPadding,
     paddingBottom: 20,
+  },
+  addCustomListButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 80,
+    right: 25,
   },
 });
