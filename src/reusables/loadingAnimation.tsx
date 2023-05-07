@@ -63,7 +63,8 @@ const LoadingAnimation = () => {
       peopleSliceStatuses.addCommonListAPICall === LOADING ||
       peopleSliceStatuses.getCommonListsAPICall === LOADING || 
       peopleSliceStatuses.removeCustomListAPICall === LOADING ||
-      peopleSliceStatuses.updateCommonListAPICall === LOADING
+      peopleSliceStatuses.updateCommonListAPICall === LOADING ||
+      peopleSliceStatuses.getDeviceContactsAPICall === LOADING
     )
       return peopleSlice.loadingMessage;
   }
@@ -87,7 +88,8 @@ const LoadingAnimation = () => {
       peopleSliceStatuses.addCommonListAPICall === LOADING ||
       peopleSliceStatuses.getCommonListsAPICall === LOADING || 
       peopleSliceStatuses.removeCustomListAPICall === LOADING ||
-      peopleSliceStatuses.updateCommonListAPICall === LOADING
+      peopleSliceStatuses.updateCommonListAPICall === LOADING ||
+      peopleSliceStatuses.getDeviceContactsAPICall === LOADING
     );
   }
 

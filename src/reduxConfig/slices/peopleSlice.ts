@@ -5,6 +5,7 @@ import {MessageType} from './eventsSlice';
 import {RootState, store} from '../store';
 import {PAGINATION_CONSTANT} from '../../utils/constants';
 import auth from '@react-native-firebase/auth';
+import Contacts from 'react-native-contacts';
 
 type status = 'idle' | 'succeedded' | 'failed' | 'loading';
 
@@ -19,10 +20,20 @@ export type EachPerson = {
   createdAt: string;
 };
 
+export type EachContact = {
+   contactName: string;
+   contactPhoneNumber: string;
+   contactEmailAddress: string;
+   contactAvatar: string;
+   contactId: string;
+   selected: boolean;
+}
+
 type PeopleState = {
   people: EachPerson[];
   originalPeople: EachPerson[];
   lastFetchedUserId: string;
+  contacts: EachContact[]
   statuses: {
     addPeopleAPICall: status;
     addPeopleInBatchAPICall: status;
@@ -36,6 +47,7 @@ type PeopleState = {
     updateCommonListAPICall: status;
     getSearchedPeopleAPICall: status;
     getNextSearchedEventJoinersAPICall: status;
+    getDeviceContactsAPICall: status;
   };
   loadingMessage: string;
   commonLists: CommonListObject[];
@@ -45,6 +57,7 @@ const initialState: PeopleState = {
   people: [],
   originalPeople: [],
   lastFetchedUserId: '',
+  contacts: [],
   statuses: {
     addPeopleAPICall: 'idle',
     addPeopleInBatchAPICall: 'idle',
@@ -58,6 +71,7 @@ const initialState: PeopleState = {
     updateCommonListAPICall: 'idle',
     getSearchedPeopleAPICall: 'idle',
     getNextSearchedEventJoinersAPICall: 'idle',
+    getDeviceContactsAPICall: 'idle'
   },
   loadingMessage: '',
   commonLists: [],
@@ -76,6 +90,9 @@ export const peopleSlice = createSlice({
     },
     updatePeople: (state, action: PayloadAction<EachPerson[]>) => {
       state.people = JSON.parse(JSON.stringify(action.payload));
+    },
+    updateContacts: (state, action: PayloadAction<EachContact[]>) => {
+      state.contacts = JSON.parse(JSON.stringify(action.payload));
     },
   },
   extraReducers(builder) {
@@ -276,6 +293,22 @@ export const peopleSlice = createSlice({
       )
       .addCase(getNextSearchedEventJoinersAPICall.rejected, (state, action) => {
         state.statuses.getNextSearchedEventJoinersAPICall = 'failed';
+      })
+      .addCase(getDeviceContactsAPICall.pending, (state, action) => {
+        state.statuses.getDeviceContactsAPICall = 'loading';
+        state.loadingMessage = "Fetching contacts...."
+      })
+      .addCase(getDeviceContactsAPICall.fulfilled, (state, action) => {
+        state.contacts.length = 0;
+        if (action.payload.responseData && action.payload.responseData.length > 0) {
+          state.contacts = JSON.parse(
+            JSON.stringify(action.payload.responseData),
+          );
+        }
+        state.statuses.getDeviceContactsAPICall = 'succeedded';
+      })
+      .addCase(getDeviceContactsAPICall.rejected, (state, action) => {
+        state.statuses.getDeviceContactsAPICall = 'failed';
       });
   },
 });
@@ -285,6 +318,7 @@ export const {
   setlastFetchedUserId,
   updateCommonList,
   updatePeople,
+  updateContacts
 } = peopleSlice.actions;
 export default peopleSlice.reducer;
 
@@ -928,3 +962,54 @@ export const getNextSearchedEventJoinersAPICall = createAsyncThunk<
     }
   },
 );
+
+export const getDeviceContactsAPICall = createAsyncThunk<
+  //type of successfull returned obj
+  {
+    responseData: EachContact[];
+    message: string;
+  },
+  //type of request obj passed to payload creator
+  undefined,
+  //type of returned error obj from rejectWithValue
+  {
+    rejectValue: MessageType;
+  }
+>(
+  'events/getDeviceContacts',
+  async (_, thunkAPI) => {
+    let responseArr: EachContact[] = [];
+    try {
+      return await Contacts.getAll()
+      .then((contacts) => {
+          //return the resolved promise with data.
+          contacts.forEach((eachContact) => {
+            responseArr.push({
+              contactName: eachContact.displayName,
+              contactId: eachContact.recordID,
+              contactAvatar: eachContact.thumbnailPath || "",
+              contactPhoneNumber: eachContact.phoneNumbers[0].number,
+              contactEmailAddress: eachContact.emailAddresses[0].email,
+              selected: false
+            })
+            console.log(eachContact.displayName)
+            console.log(eachContact.phoneNumbers)
+            console.log(eachContact.emailAddresses)
+            console.log(eachContact.thumbnailPath)
+            console.log(eachContact.recordID)
+          })
+          return {
+            responseData: responseArr,
+            message: 'Contacts fetched successfully',
+          };
+      })
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue({
+        message:
+          err?.message ||
+          'Failed to fetch contacts. Please try again after some time',
+      });
+    }
+  },
+);
+

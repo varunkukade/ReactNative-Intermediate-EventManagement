@@ -1,23 +1,37 @@
-import React, {ReactElement, useCallback, useEffect, useState} from 'react';
-import {FlatList, Platform, RefreshControl, StyleSheet, ToastAndroid, View, } from 'react-native';
+import React, {ReactElement, useEffect, useState} from 'react';
+import {
+  FlatList,
+  Platform,
+  RefreshControl,
+  StyleSheet,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
-import {ButtonComponent, TextComponent} from '../reusables';
+import {
+  ButtonComponent,
+  CheckboxComponent,
+  ImageComponent,
+  TextComponent,
+} from '../reusables';
 import ScreenWrapper from './screenWrapper';
 import {generateArray} from '../utils/commonFunctions';
 import {
-  EachPerson,
-  addPeopleInBatchAPICall,
-  getCommonListsAPICall,
-  getPeopleAPICall,
-  updateCommonList,
+  EachContact,
+  getDeviceContactsAPICall,
+  updateContacts,
 } from '../reduxConfig/slices/peopleSlice';
 
+const PROFILE_PICTURE_SIZE = 43;
+
 const SelectContactScreen = (): ReactElement => {
-   
+  const skelatons = generateArray(8);
+
   //navigation and route state
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
@@ -26,13 +40,210 @@ const SelectContactScreen = (): ReactElement => {
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
+  const peopleState = useAppSelector(state => state.people);
+  const theme = useAppSelector(state => state.user.currentUser.theme);
 
   //useStates
+  const [refreshing, setRefreshing] = useState(false);
 
-  
+  useEffect(() => {
+    dispatch(getDeviceContactsAPICall()).then(resp => {
+        if (resp.payload && resp.meta.requestStatus === 'rejected') {
+          if (Platform.OS === 'android')
+            ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
+        }
+      });
+    return () => {
+      let updatedContacts = peopleState.contacts.map(eachContact => {
+        return {
+          ...eachContact,
+          selected: false,
+        };
+      });
+      dispatch(updateContacts(updatedContacts));
+    };
+  }, []);
+
+  const addContactsToEvent = () => {
+    console.log('hii');
+  };
+
+  const onContactSelected = (value: boolean, id: string) => {
+    let updatedContacts = peopleState.contacts.map(eachContact => {
+      if (eachContact.contactId === id) {
+        return {
+          ...eachContact,
+          selected: value,
+        };
+      } else return eachContact;
+    });
+    dispatch(updateContacts(updatedContacts));
+  };
+
+  const getSkalatonName = (fullName: string) => {
+    let arr = fullName.split(' ');
+    if (arr.length > 1) {
+      return arr[0][0].toUpperCase() + arr[1][0].toUpperCase();
+    } else {
+      return arr[0][0].toUpperCase();
+    }
+  };
+
+  const getSelectedCount = () => {
+    let count = 0;
+    peopleState.contacts.forEach((eachContact) => {
+     if(eachContact.selected) count += 1;
+    })
+    return count;
+  }
+
+  const renderEachContact = (item: EachContact) => {
+    return (
+      <View>
+        <TouchableOpacity
+          style={[
+            styles.mainContainer,
+            {
+              backgroundColor: colors[theme].cardColor,
+              borderRadius: 20,
+              marginBottom: measureMents.leftPadding,
+            },
+          ]}
+          activeOpacity={0.7}
+          onPress={() => onContactSelected(!item.selected, item.contactId)}>
+          <View style={styles.avatar}>
+            {item.contactAvatar === '' ? (
+              <View
+                style={[
+                  styles.profilePicSkaleton,
+                  {
+                    backgroundColor: colors[theme].lightLavenderColor,
+                    alignSelf: 'flex-start',
+                  },
+                ]}>
+                <TextComponent
+                  style={{color: colors[theme].textColor}}
+                  weight="semibold">
+                  {getSkalatonName(item.contactName)}
+                </TextComponent>
+              </View>
+            ) : (
+              <ImageComponent
+                source={{uri: item.contactAvatar}}
+                style={{
+                  width: PROFILE_PICTURE_SIZE,
+                  height: PROFILE_PICTURE_SIZE,
+                  borderRadius: PROFILE_PICTURE_SIZE / 2,
+                  alignSelf: 'flex-start',
+                }}
+              />
+            )}
+          </View>
+          <View style={styles.textComponentContainer}>
+            <TextComponent
+              weight="semibold"
+              style={{color: colors[theme].textColor}}>
+              {item.contactName}
+            </TextComponent>
+            {item.contactPhoneNumber ? (
+              <TextComponent
+                weight="semibold"
+                style={{color: colors[theme].greyColor, marginTop: 5}}>
+                {item.contactPhoneNumber}
+              </TextComponent>
+            ) : null}
+          </View>
+          <View style={styles.checkBoxContainer}>
+            <CheckboxComponent
+              value={item.selected}
+              onValueChange={value => onContactSelected(value, item.contactId)}
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <ScreenWrapper>
-     
+      {peopleState.statuses.getDeviceContactsAPICall === 'succeedded' &&
+      peopleState.contacts.length > 0 ? (
+        <FlatList
+          data={peopleState.contacts}
+          style={{
+            paddingHorizontal: measureMents.leftPadding,
+            paddingVertical: measureMents.leftPadding,
+            marginBottom: 20,
+          }}
+          renderItem={({item}) => renderEachContact(item)}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={async () => {
+                setRefreshing(true);
+                dispatch(getDeviceContactsAPICall()).then(resp => {
+                  if (resp.payload && resp.meta.requestStatus === 'rejected') {
+                    if (Platform.OS === 'android')
+                      ToastAndroid.show(
+                        resp.payload?.message,
+                        ToastAndroid.SHORT,
+                      );
+                  }
+                  setRefreshing(false);
+                });
+              }}
+            />
+          }
+          keyExtractor={item => item.contactId.toString()}
+        />
+      ) : peopleState.statuses.getDeviceContactsAPICall === 'loading' ? (
+        skelatons.map((eachItem, index) => (
+          <View
+            key={index}
+            style={[
+              styles.contactsSkalaton,
+              {backgroundColor: colors[theme].lavenderColor, height: 60},
+            ]}
+          />
+        ))
+      ) : peopleState.statuses.getDeviceContactsAPICall === 'failed' ? (
+        <View
+          style={[
+            styles.contactsSkalaton,
+            {
+              marginTop: 30,
+              height: 100,
+              backgroundColor: colors[theme].lavenderColor,
+            },
+          ]}>
+          <TextComponent style={{color: colors[theme].textColor}} weight="bold">
+            Failed to fetch contacts. Please try again after some time
+          </TextComponent>
+        </View>
+      ) : (
+        <View
+          style={[
+            styles.contactsSkalaton,
+            {
+              marginTop: 30,
+              height: 60,
+              backgroundColor: colors[theme].lavenderColor,
+            },
+          ]}>
+          <TextComponent
+            style={{color: colors[theme].textColor, fontSize: 16}}
+            weight="bold">
+            No records found!
+          </TextComponent>
+        </View>
+      )}
+      {peopleState.statuses.getDeviceContactsAPICall === 'succeedded' && peopleState.contacts.length > 0 ? (
+        <View style={styles.addButton}>
+          <ButtonComponent isDisabled={getSelectedCount() > 0 ? false : true} onPress={addContactsToEvent}>
+            {getSelectedCount() === 0 ? "ADD" : getSelectedCount() === 1 ? `Add 1 User` : `Add ${getSelectedCount()} Users` }
+          </ButtonComponent>
+        </View>
+      ) : null}
     </ScreenWrapper>
   );
 };
@@ -40,5 +251,45 @@ const SelectContactScreen = (): ReactElement => {
 export default SelectContactScreen;
 
 const styles = StyleSheet.create({
-
+  contactsSkalaton: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    marginBottom: measureMents.leftPadding,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: measureMents.leftPadding,
+  },
+  addButton: {
+    paddingHorizontal: measureMents.leftPadding,
+    paddingBottom: 20,
+  },
+  mainContainer: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: measureMents.leftPadding,
+    paddingVertical: measureMents.leftPadding,
+    width: '100%',
+    flexDirection: 'row',
+  },
+  textComponentContainer: {
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    width: '72%',
+    flexDirection: 'column',
+  },
+  checkBoxContainer: {
+    width: '10%',
+  },
+  avatar: {
+    width: '18%',
+  },
+  profilePicSkaleton: {
+    width: PROFILE_PICTURE_SIZE,
+    height: PROFILE_PICTURE_SIZE,
+    borderRadius: PROFILE_PICTURE_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
