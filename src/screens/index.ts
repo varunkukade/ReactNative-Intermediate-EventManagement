@@ -13,3 +13,4 @@ export {default as CreateCommonGroup} from './CreateCommonGroup/createCommonGrou
 export {default as DisplayCommonGroups} from './DisplayCommonGroups/displayCommonGroups'
 export {default as UpdateCommonGroupsScreen} from './UpdateCommonGroups/UpdateCommonGroupsScreen'
 export {default as UpdateCommonGroupsUsersScreen} from './UpdateCommonGroups/UpdateCommonGroupsUsersScreen'
+export {default as SelectContactScreen} from './selectContactScreen'

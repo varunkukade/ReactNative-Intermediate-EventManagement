@@ -9,7 +9,8 @@ import {
   UpdateProfileScreen,
   UpdateCommonGroupsScreen,
   UpdateCommonGroupsUsersScreen,
-  GuestListScreen
+  GuestListScreen,
+  SelectContactScreen
 } from '../screens/index';
 import {colors, fontStyles} from '../utils/appStyles';
 import {BottomTabNavigator} from '.';
@@ -30,6 +31,7 @@ export type HomeStackParamList = {
   DisplayCommonGroups: undefined;
   UpdateCommonGroupsScreen: undefined;
   UpdateCommonGroupsUsersScreen: undefined | {selectedCommonListId: string, selectedCommonListName: string};
+  SelectContactScreen: undefined;
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -157,6 +159,18 @@ function HomeStackNavigator() {
         })}
         name="UpdateCommonGroupsUsersScreen"
         component={UpdateCommonGroupsUsersScreen}
+      />
+      <HomeStack.Screen
+        options={({route, navigation}) => ({
+          headerTitle: 'Contacts Selection',
+          headerShadowVisible: false,
+          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleAlign: 'center',
+          headerBackVisible: true,
+          headerStyle: {backgroundColor: colors[theme].lightLavenderColor},
+        })}
+        name="SelectContactScreen"
+        component={SelectContactScreen}
       />
     </HomeStack.Navigator>
   );

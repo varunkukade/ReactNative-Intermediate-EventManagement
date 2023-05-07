@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from 'react';
+import React, {ReactElement, useCallback, useState} from 'react';
 import {
   Platform,
   ScrollView,
@@ -6,6 +6,8 @@ import {
   ToastAndroid,
   TouchableOpacity,
   View,
+  PermissionsAndroid,
+  Linking
 } from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -28,6 +30,7 @@ import {
   updatePeopleAPICallRequest,
 } from '../reduxConfig/slices/peopleSlice';
 import ScreenWrapper from './screenWrapper';
+import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
 
 type ConstantsType = {
   userName: 'userName';
@@ -117,6 +120,7 @@ const AddGuestsScreen = (): ReactElement => {
         : false,
     },
   ]);
+  const [permissionModal, setPermissionModal] = useState(false)
 
   const onChangeForm = (
     value: string | boolean,
@@ -267,6 +271,42 @@ const AddGuestsScreen = (): ReactElement => {
     setPaymentModes(updatedState);
   };
 
+  const checkIfPermissionsGiven = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        navigation.navigate('SelectContactScreen')
+      } else {
+        setPermissionModal(true);
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const onConfirmClick = useCallback(()=> {
+    setPermissionModal(false)
+    Linking.openSettings();
+  }, [Linking])
+
+  const onCancelClick = useCallback(() => {
+    setPermissionModal(false)
+  }, [setPermissionModal]);
+
+  //create new instance of this function only when dependencies change
+  const permissionPopupData = useCallback((): popupData => {
+    return {
+      header: 'Permission required!',
+      description: 'Permission is required to acccess Contacts. Please first give permissions from Settings.',
+      onCancelClick: onCancelClick,
+      onConfirmClick: onConfirmClick,
+      confirmButtonText: "Go to Settings",
+      cancelButtonText: "Cancel"
+    };
+  }, [onCancelClick, onConfirmClick]);
+
   return (
     <ScreenWrapper>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -337,11 +377,11 @@ const AddGuestsScreen = (): ReactElement => {
                     textAlign: 'center',
                   }}>
                   {' '}
-                  Add users from common group 👉🏻
+                  Add from common group 👉🏻
                 </TextComponent>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('CreateCommonGroup')}
+                onPress={checkIfPermissionsGiven}
                 activeOpacity={0.6}>
                 <TextComponent
                   weight="semibold"
@@ -352,11 +392,15 @@ const AddGuestsScreen = (): ReactElement => {
                     textAlign: 'center',
                   }}>
                   {' '}
-                  Create new common group of users 👉🏻
+                  Add from contacts 👉🏻
                 </TextComponent>
               </TouchableOpacity>
             </>
           ) : null}
+          <CenterPopupComponent
+        popupData={permissionPopupData}
+        isModalVisible={permissionModal}
+        setIsModalVisible={setPermissionModal}/>
         </View>
       </ScrollView>
     </ScreenWrapper>
