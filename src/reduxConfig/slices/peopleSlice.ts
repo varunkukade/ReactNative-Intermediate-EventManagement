@@ -374,13 +374,13 @@ export const addPeopleAPICall = createAsyncThunk<
         .collection(apiUrls.people)
         .add(requestObject)
         .then(res => {
-          return {message: 'User added successfully'};
+          return {message: 'Guest added successfully'};
         });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
         message:
           err?.message ||
-          'Failed to add user. Please try again after some time',
+          'Failed to add guest. Please try again after some time',
       });
     }
   },
@@ -405,13 +405,13 @@ export const addPeopleInBatchAPICall = createAsyncThunk<
         batch.set(userRef, user); // Add the user object to the batch
       });
       return batch.commit().then(res => {
-        return {message: 'Users added successfully'};
+        return {message: 'Guests added successfully'};
       });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
         message:
           err?.message ||
-          'Failed to add users. Please try again after some time',
+          'Failed to add guests. Please try again after some time',
       });
     }
   },
@@ -437,13 +437,13 @@ export const removePeopleAPICall = createAsyncThunk<
       .doc(requestObj.userId)
       .delete()
       .then(res => {
-        return {message: 'User removed successfully'};
+        return {message: 'Guest removed successfully'};
       });
   } catch (err: any) {
     return thunkAPI.rejectWithValue({
       message:
         err?.message ||
-        'Failed to remove user. Please try again after some time',
+        'Failed to remove guest. Please try again after some time',
     });
   }
 });
@@ -482,14 +482,14 @@ export const getPeopleAPICall = createAsyncThunk<
         //return the resolved promise with data.
         return {
           responseData: responseArr,
-          message: 'Users fetched successfully',
+          message: 'Guests fetched successfully',
         };
       });
   } catch (err: any) {
     return thunkAPI.rejectWithValue({
       message:
         err?.message ||
-        'Failed to fetch users. Please try again after some time',
+        'Failed to fetch guests. Please try again after some time',
     });
   }
 });
@@ -520,14 +520,14 @@ export const updatePeopleAPICall = createAsyncThunk<
         .update(requestObj.newUpdate)
         .then(res => {
           return {
-            message: 'User updated successfully!',
+            message: 'Guest updated successfully!',
           };
         });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
         message:
           err?.message ||
-          'Failed to update user. Please try again after some time',
+          'Failed to update guest. Please try again after some time',
       });
     }
   },
@@ -580,14 +580,14 @@ export const getNextEventJoinersAPICall = createAsyncThunk<
             //return the resolved promise with data.
             return {
               responseData: responseArr,
-              message: 'Users fetched successfully',
+              message: 'Guests fetched successfully',
               successMessagetype: 'moreUsersExist',
             } as SuccessType;
           } else {
             //return the resolved promise with data.
             return {
               responseData: [],
-              message: 'No More Event Joiners',
+              message: 'No More Guests',
               successMessagetype: 'noMoreUsers',
             } as SuccessType;
           }
@@ -597,7 +597,7 @@ export const getNextEventJoinersAPICall = createAsyncThunk<
       return rejectWithValue({
         message:
           err?.message ||
-          'Failed to fetch more users. Please try again after some time',
+          'Failed to fetch more guests. Please try again after some time',
         failureType: 'failure',
       } as MessageType);
     }
@@ -645,13 +645,13 @@ export const addCommonListAPICall = createAsyncThunk<
       });
 
       return await batch.commit().then(res => {
-        return {message: 'Common List Created Successfully!'};
+        return {message: 'Common Group Created Successfully!'};
       });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
         message:
           err?.message ||
-          'Failed to create common list. Please try again after some time',
+          'Failed to create common group. Please try again after some time',
       });
     }
   },
@@ -722,13 +722,13 @@ export const updateCommonListAPICall = createAsyncThunk<
 
       //commit all users to the subcollection.
       return await batch.commit().then(res => {
-        return {message: 'Common List Updated Successfully!'};
+        return {message: 'Common Group Updated Successfully!'};
       });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
         message:
           err?.message ||
-          'Failed to update common list. Please try again after some time',
+          'Failed to update common group. Please try again after some time',
       });
     }
   },
@@ -813,14 +813,14 @@ export const getCommonListsAPICall = createAsyncThunk<
       //return the resolved promise with data.
       return {
         responseData: res,
-        message: 'Common Lists fetched successfully',
+        message: 'Common Groups fetched successfully',
       };
     });
   } catch (err: any) {
     return thunkAPI.rejectWithValue({
       message:
         err?.message ||
-        'Failed to fetch common list. Please try again after some time',
+        'Failed to fetch common group. Please try again after some time',
     });
   }
 });
@@ -859,13 +859,13 @@ export const removeCustomListAPICall = createAsyncThunk<
         .doc(requestObj.customListId)
         .delete()
         .then(res => {
-          return {message: 'Common List deleted successfully'};
+          return {message: 'Common Group deleted successfully'};
         });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
         message:
           err?.message ||
-          'Failed to delete common list. Please try again after some time',
+          'Failed to delete common group. Please try again after some time',
       });
     }
   },
@@ -913,14 +913,14 @@ export const getSearchedPeopleAPICall = createAsyncThunk<
           //return the resolved promise with data.
           return {
             responseData: responseArr,
-            message: 'Users fetched successfully',
+            message: 'Guests fetched successfully',
           };
         });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
         message:
           err?.message ||
-          'Failed to fetch users. Please try again after some time',
+          'Failed to fetch searched guests. Please try again after some time',
       });
     }
   },
@@ -974,14 +974,14 @@ export const getNextSearchedEventJoinersAPICall = createAsyncThunk<
             //return the resolved promise with data.
             return {
               responseData: responseArr,
-              message: 'Users fetched successfully',
+              message: 'Guests fetched successfully',
               successMessagetype: 'moreUsersExist',
             } as SuccessType;
           } else {
             //return the resolved promise with data.
             return {
               responseData: [],
-              message: 'No More Event Joiners',
+              message: 'No More Guests.',
               successMessagetype: 'noMoreUsers',
             } as SuccessType;
           }
@@ -991,7 +991,7 @@ export const getNextSearchedEventJoinersAPICall = createAsyncThunk<
       return rejectWithValue({
         message:
           err?.message ||
-          'Failed to fetch more users. Please try again after some time',
+          'Failed to fetch more guests. Please try again after some time',
         failureType: 'failure',
       } as MessageType);
     }
