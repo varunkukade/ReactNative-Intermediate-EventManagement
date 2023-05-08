@@ -99,7 +99,7 @@ const GuestListComponent = ({
     } else {
       dispatch(
         getNextSearchedEventJoinersAPICall({
-          searchedValue: searchedUser.trim().split(' ').join(''),
+          searchedValue: searchedUser.trim(),
         }),
       ).then(resp => {
         handleResponse(resp);
@@ -220,7 +220,7 @@ const GuestListComponent = ({
 
   const handleUserSearch = (searchedValue: string) => {
     setSearchedUser(searchedValue);
-    showSearchedUsers(searchedValue.trim().split(' ').join(''));
+    showSearchedUsers(searchedValue.trim());
   };
 
   return (
@@ -270,7 +270,7 @@ const GuestListComponent = ({
                 onRefresh={async () => {
                   setRefreshing(true)
                   if(searchedUser){
-                    dispatch(getSearchedPeopleAPICall({searchedValue: searchedUser.trim().split(' ').join('')})).then(res => {
+                    dispatch(getSearchedPeopleAPICall({searchedValue: searchedUser.trim()})).then(res => {
                       if (res.meta.requestStatus === 'rejected' && res.payload) {
                         if (Platform.OS === 'android')
                           ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
