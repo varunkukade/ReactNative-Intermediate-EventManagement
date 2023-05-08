@@ -8,20 +8,20 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
+import {colors, measureMents} from '../../utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '../navigation/homeStackNavigator';
+import {HomeStackParamList} from '../../navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
 import {
   ButtonComponent,
   CheckboxComponent,
   ImageComponent,
   InputComponent,
   TextComponent,
-} from '../reusables';
-import ScreenWrapper from './screenWrapper';
-import {generateArray} from '../utils/commonFunctions';
+} from '../../reusables';
+import ScreenWrapper from '../screenWrapper';
+import {generateArray} from '../../utils/commonFunctions';
 import {
   EachContact,
   EachPerson,
@@ -29,11 +29,12 @@ import {
   getDeviceContactsAPICall,
   getPeopleAPICall,
   updateContacts,
-} from '../reduxConfig/slices/peopleSlice';
+} from '../../reduxConfig/slices/peopleSlice';
 import {debounce} from 'lodash';
+import RenderEachContact from './renderEachContact';
 
 const PROFILE_PICTURE_SIZE = 43;
-const ITEM_HEIGHT = 80
+const ITEM_HEIGHT = 80;
 
 const SelectContactScreen = (): ReactElement => {
   const skelatons = generateArray(8);
@@ -65,7 +66,7 @@ const SelectContactScreen = (): ReactElement => {
       }
     });
     return () => {
-      setSelectedIds([])
+      setSelectedIds([]);
     };
   }, []);
 
@@ -97,29 +98,20 @@ const SelectContactScreen = (): ReactElement => {
     });
   };
 
-  const onContactSelected = (value: boolean, contactId: string) => {
-    setSelectedIds((prevIds) => {
-        const index = prevIds.indexOf(contactId);
-        if (value && index === -1) {
-          return [...prevIds, contactId];
-        } else if (!value && index !== -1) {
-          const newIds = [...prevIds];
-          newIds.splice(index, 1);
-          return newIds;
-        } else {
-          return prevIds;
-        }   
-    })
-  };
-
-  const getSkalatonName = (fullName: string) => {
-    let arr = fullName.split(' ');
-    if (arr.length > 1) {
-      return arr[0][0].toUpperCase() + arr[1][0].toUpperCase();
-    } else {
-      return arr[0][0].toUpperCase();
-    }
-  };
+  const onContactSelected = useCallback((value: boolean, contactId: string) => {
+    setSelectedIds(prevIds => {
+      const index = prevIds.indexOf(contactId);
+      if (value && index === -1) {
+        return [...prevIds, contactId];
+      } else if (!value && index !== -1) {
+        const newIds = [...prevIds];
+        newIds.splice(index, 1);
+        return newIds;
+      } else {
+        return prevIds;
+      }
+    });
+  }, [setSelectedIds]);
 
   const getSelectedCount = () => {
     return selectedIds.length;
@@ -171,84 +163,127 @@ const SelectContactScreen = (): ReactElement => {
     showSearchedContacts(searchedValue);
   };
 
-  const isSelected = (contactId: string) => {
-    if(selectedIds.length === 0) return false;
+  const isSelected = useCallback((contactId: string) => {
+    if (selectedIds.length === 0) return false;
     else {
-        if(selectedIds.find((eachId) => eachId === contactId)) return true;
-        else return false;
+      if (selectedIds.find(eachId => eachId === contactId)) return true;
+      else return false;
     }
-  }
+  }, [selectedIds]);
 
-  type RenderEachComponentProps = {
-    item: EachContact
-  }
 
-  const RenderEachContact = React.memo(({item}: RenderEachComponentProps) => {
-    return (
-      <View>
-        <TouchableOpacity
-          style={[
-            styles.mainContainer,
-            {
-              backgroundColor: colors[theme].cardColor,
-              borderRadius: 20,
-              marginBottom: measureMents.leftPadding,
-            },
-          ]}
-          activeOpacity={0.7}
-          onPress={() => onContactSelected(!isSelected(item.contactId),item.contactId)}>
-          <View style={styles.avatar}>
-            {item.contactAvatar === '' ? (
-              <View
-                style={[
-                  styles.profilePicSkaleton,
-                  {
-                    backgroundColor: colors[theme].lightLavenderColor,
-                    alignSelf: 'flex-start',
-                  },
-                ]}>
-                <TextComponent
-                  style={{color: colors[theme].textColor}}
-                  weight="semibold">
-                  {getSkalatonName(item.contactName)}
-                </TextComponent>
-              </View>
-            ) : (
-              <ImageComponent
-                source={{uri: item.contactAvatar}}
-                style={{
-                  width: PROFILE_PICTURE_SIZE,
-                  height: PROFILE_PICTURE_SIZE,
-                  borderRadius: PROFILE_PICTURE_SIZE / 2,
-                  alignSelf: 'flex-start',
-                }}
-              />
-            )}
-          </View>
-          <View style={styles.textComponentContainer}>
-            <TextComponent
-              weight="semibold"
-              style={{color: colors[theme].textColor}}>
-              {item.contactName}
-            </TextComponent>
-            {item.contactPhoneNumber ? (
-              <TextComponent
-                weight="semibold"
-                style={{color: colors[theme].greyColor, marginTop: 5}}>
-                {item.contactPhoneNumber}
-              </TextComponent>
-            ) : null}
-          </View>
-          <View style={styles.checkBoxContainer}>
-            <CheckboxComponent
-              value={isSelected(item.contactId)}
-              onValueChange={value => onContactSelected(value, item.contactId)}
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
-    );
-  });
+  //   item: EachContact;
+  //   selectedIds: string[];
+  // };
+
+  // const RenderEachContact = React.memo(
+  //   ({item, selectedIds}: RenderEachComponentProps) => {
+  //     console.log('rendering', item.contactName);
+  //     return (
+  //       <View>
+  //         <TouchableOpacity
+  //           style={[
+  //             styles.mainContainer,
+  //             {
+  //               backgroundColor: colors[theme].cardColor,
+  //               borderRadius: 20,
+  //               marginBottom: measureMents.leftPadding,
+  //             },
+  //           ]}
+  //           activeOpacity={0.7}
+  //           onPress={() =>
+  //             onContactSelected(!isSelected(item.contactId), item.contactId)
+  //           }>
+  //           <View style={styles.avatar}>
+  //             {item.contactAvatar === '' ? (
+  //               <View
+  //                 style={[
+  //                   styles.profilePicSkaleton,
+  //                   {
+  //                     backgroundColor: colors[theme].lightLavenderColor,
+  //                     alignSelf: 'flex-start',
+  //                   },
+  //                 ]}>
+  //                 <TextComponent
+  //                   style={{color: colors[theme].textColor}}
+  //                   weight="semibold">
+  //                   {getSkalatonName(item.contactName)}
+  //                 </TextComponent>
+  //               </View>
+  //             ) : (
+  //               <ImageComponent
+  //                 source={{uri: item.contactAvatar}}
+  //                 style={{
+  //                   width: PROFILE_PICTURE_SIZE,
+  //                   height: PROFILE_PICTURE_SIZE,
+  //                   borderRadius: PROFILE_PICTURE_SIZE / 2,
+  //                   alignSelf: 'flex-start',
+  //                 }}
+  //               />
+  //             )}
+  //           </View>
+  //           <View style={styles.textComponentContainer}>
+  //             <TextComponent
+  //               weight="semibold"
+  //               style={{color: colors[theme].textColor}}>
+  //               {item.contactName}
+  //             </TextComponent>
+  //             {item.contactPhoneNumber ? (
+  //               <TextComponent
+  //                 weight="semibold"
+  //                 style={{color: colors[theme].greyColor, marginTop: 5}}>
+  //                 {item.contactPhoneNumber}
+  //               </TextComponent>
+  //             ) : null}
+  //           </View>
+  //           <View style={styles.checkBoxContainer}>
+  //             <CheckboxComponent
+  //               value={isSelected(item.contactId)}
+  //               onValueChange={value =>
+  //                 onContactSelected(value, item.contactId)
+  //               }
+  //             />
+  //           </View>
+  //         </TouchableOpacity>
+  //       </View>
+  //     );
+  //   },
+  //   (
+  //     prevProps: RenderEachComponentProps,
+  //     nextProps: RenderEachComponentProps,
+  //   ) => {
+  //     //if givenId is either added, removed in selectedIds, then return false.
+  //     console.log('for ', prevProps.item.contactName);
+  //     console.log('prevProps', prevProps);
+  //     console.log('newProps', nextProps);
+
+  //     if (
+  //       prevProps.selectedIds.find(
+  //         eachId => prevProps.item.contactId === eachId,
+  //       )
+  //     ) {
+  //       //if id is present previosly
+  //       //now check if in new props that id is removed, if yes, don't memoize item or else memoize it.
+  //       if (
+  //         !nextProps.selectedIds.find(
+  //           eachId => nextProps.item.contactId === eachId,
+  //         )
+  //       )
+  //         return false;
+  //       else return true;
+  //     } else {
+  //       //if id is not present previously
+  //       //now check if next props contain the id, if yes, don't memoize item, or else memoize it.
+  //       if (
+  //         nextProps.selectedIds.find(
+  //           eachId => nextProps.item.contactId === eachId,
+  //         )
+  //       )
+  //         return false;
+  //       else return true;
+  //     }
+  //   },
+  // );
 
   return (
     <ScreenWrapper>
@@ -265,7 +300,13 @@ const SelectContactScreen = (): ReactElement => {
       </View>
       {peopleState.statuses.getDeviceContactsAPICall === 'succeedded' &&
       peopleState.contacts.length > 0 ? (
-        <TextComponent style={{color: colors[theme].textColor, marginHorizontal: measureMents.leftPadding, marginTop: 7}} weight="normal">
+        <TextComponent
+          style={{
+            color: colors[theme].textColor,
+            marginHorizontal: measureMents.leftPadding,
+            marginTop: 7,
+          }}
+          weight="normal">
           {`Total Contacts: ${peopleState.contacts.length}`}
         </TextComponent>
       ) : null}
@@ -280,8 +321,9 @@ const SelectContactScreen = (): ReactElement => {
             marginBottom: 20,
           }}
           initialNumToRender={8}
-          renderItem={({item}) => <RenderEachContact item={item}/>}
-          extraData={selectedIds}
+          renderItem={({item}) => (
+            <RenderEachContact isSelected={isSelected} onContactSelected = {onContactSelected}selectedIds={selectedIds} item={item} />
+          )}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -309,7 +351,10 @@ const SelectContactScreen = (): ReactElement => {
             key={index}
             style={[
               styles.contactsSkalaton,
-              {backgroundColor: colors[theme].lavenderColor, height: ITEM_HEIGHT},
+              {
+                backgroundColor: colors[theme].lavenderColor,
+                height: ITEM_HEIGHT,
+              },
             ]}
           />
         ))
