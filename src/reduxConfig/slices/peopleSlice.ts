@@ -26,6 +26,7 @@ export type EachContact = {
   contactEmailAddress: string;
   contactAvatar: string;
   contactId: string;
+  selected: boolean
 };
 
 type PeopleState = {
@@ -94,6 +95,30 @@ export const peopleSlice = createSlice({
     },
     updateContacts: (state, action: PayloadAction<EachContact[]>) => {
       state.contacts = JSON.parse(JSON.stringify(action.payload));
+    },
+    updateOriginalContacts: (state, action: PayloadAction<EachContact[]>) => {
+      state.originalContacts = JSON.parse(JSON.stringify(action.payload));
+    },
+    updateSelected: (
+      state,
+      action: PayloadAction<{value: boolean; id: string}>,
+    ) => {
+      state.contacts = state.contacts.map(eachContact => {
+        if (eachContact.contactId === action.payload.id) {
+          return {
+            ...eachContact,
+            selected: action.payload.value,
+          };
+        } else return eachContact;
+      });
+      state.originalContacts = state.originalContacts.map(eachContact => {
+        if (eachContact.contactId === action.payload.id) {
+          return {
+            ...eachContact,
+            selected: action.payload.value,
+          };
+        } else return eachContact;
+      });
     },
   },
   extraReducers(builder) {
@@ -327,6 +352,8 @@ export const {
   updateCommonList,
   updatePeople,
   updateContacts,
+  updateOriginalContacts,
+  updateSelected
 } = peopleSlice.actions;
 export default peopleSlice.reducer;
 
@@ -996,6 +1023,7 @@ export const getDeviceContactsAPICall = createAsyncThunk<
             contactAvatar: eachContact.thumbnailPath || '',
             contactPhoneNumber: (eachContact.phoneNumbers.length > 0 && eachContact.phoneNumbers[0].number) || '',
             contactEmailAddress: (eachContact.emailAddresses.length > 0 && eachContact.emailAddresses[0].email) || '',
+            selected: false
           });
       });
       return {

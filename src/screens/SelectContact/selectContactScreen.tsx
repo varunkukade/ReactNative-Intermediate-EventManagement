@@ -5,7 +5,6 @@ import {
   RefreshControl,
   StyleSheet,
   ToastAndroid,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import {colors, measureMents} from '../../utils/appStyles';
@@ -15,8 +14,6 @@ import {useNavigation} from '@react-navigation/native';
 import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
 import {
   ButtonComponent,
-  CheckboxComponent,
-  ImageComponent,
   InputComponent,
   TextComponent,
 } from '../../reusables';
@@ -29,6 +26,7 @@ import {
   getDeviceContactsAPICall,
   getPeopleAPICall,
   updateContacts,
+  updateOriginalContacts,
 } from '../../reduxConfig/slices/peopleSlice';
 import {debounce} from 'lodash';
 import RenderEachContact from './renderEachContact';
@@ -66,7 +64,8 @@ const SelectContactScreen = (): ReactElement => {
       }
     });
     return () => {
-      setSelectedIds([]);
+      dispatch(updateContacts([]))
+      dispatch(updateOriginalContacts([]))
     };
   }, []);
 
@@ -74,7 +73,7 @@ const SelectContactScreen = (): ReactElement => {
     if (!currentSelectedEvent) return null;
     let requestArr: Omit<EachPerson, 'userId'>[] = [];
     peopleState.originalContacts.forEach(eachContact => {
-      if (isSelected(eachContact.contactId))
+      if (eachContact.selected)
         requestArr.push({
           userEmail: eachContact.contactEmailAddress || '',
           userMobileNumber: eachContact.contactPhoneNumber || '',
@@ -97,24 +96,13 @@ const SelectContactScreen = (): ReactElement => {
       }
     });
   };
-
-  const onContactSelected = useCallback((value: boolean, contactId: string) => {
-    setSelectedIds(prevIds => {
-      const index = prevIds.indexOf(contactId);
-      if (value && index === -1) {
-        return [...prevIds, contactId];
-      } else if (!value && index !== -1) {
-        const newIds = [...prevIds];
-        newIds.splice(index, 1);
-        return newIds;
-      } else {
-        return prevIds;
-      }
-    });
-  }, [setSelectedIds]);
-
+  
   const getSelectedCount = () => {
-    return selectedIds.length;
+    let count = 0;
+    peopleState.originalContacts.forEach(eachContact => {
+      if (eachContact.selected) count += 1;
+    });
+    return count;
   };
 
   const showSearchedContacts = useCallback(
@@ -163,128 +151,6 @@ const SelectContactScreen = (): ReactElement => {
     showSearchedContacts(searchedValue);
   };
 
-  const isSelected = useCallback((contactId: string) => {
-    if (selectedIds.length === 0) return false;
-    else {
-      if (selectedIds.find(eachId => eachId === contactId)) return true;
-      else return false;
-    }
-  }, [selectedIds]);
-
-
-  //   item: EachContact;
-  //   selectedIds: string[];
-  // };
-
-  // const RenderEachContact = React.memo(
-  //   ({item, selectedIds}: RenderEachComponentProps) => {
-  //     console.log('rendering', item.contactName);
-  //     return (
-  //       <View>
-  //         <TouchableOpacity
-  //           style={[
-  //             styles.mainContainer,
-  //             {
-  //               backgroundColor: colors[theme].cardColor,
-  //               borderRadius: 20,
-  //               marginBottom: measureMents.leftPadding,
-  //             },
-  //           ]}
-  //           activeOpacity={0.7}
-  //           onPress={() =>
-  //             onContactSelected(!isSelected(item.contactId), item.contactId)
-  //           }>
-  //           <View style={styles.avatar}>
-  //             {item.contactAvatar === '' ? (
-  //               <View
-  //                 style={[
-  //                   styles.profilePicSkaleton,
-  //                   {
-  //                     backgroundColor: colors[theme].lightLavenderColor,
-  //                     alignSelf: 'flex-start',
-  //                   },
-  //                 ]}>
-  //                 <TextComponent
-  //                   style={{color: colors[theme].textColor}}
-  //                   weight="semibold">
-  //                   {getSkalatonName(item.contactName)}
-  //                 </TextComponent>
-  //               </View>
-  //             ) : (
-  //               <ImageComponent
-  //                 source={{uri: item.contactAvatar}}
-  //                 style={{
-  //                   width: PROFILE_PICTURE_SIZE,
-  //                   height: PROFILE_PICTURE_SIZE,
-  //                   borderRadius: PROFILE_PICTURE_SIZE / 2,
-  //                   alignSelf: 'flex-start',
-  //                 }}
-  //               />
-  //             )}
-  //           </View>
-  //           <View style={styles.textComponentContainer}>
-  //             <TextComponent
-  //               weight="semibold"
-  //               style={{color: colors[theme].textColor}}>
-  //               {item.contactName}
-  //             </TextComponent>
-  //             {item.contactPhoneNumber ? (
-  //               <TextComponent
-  //                 weight="semibold"
-  //                 style={{color: colors[theme].greyColor, marginTop: 5}}>
-  //                 {item.contactPhoneNumber}
-  //               </TextComponent>
-  //             ) : null}
-  //           </View>
-  //           <View style={styles.checkBoxContainer}>
-  //             <CheckboxComponent
-  //               value={isSelected(item.contactId)}
-  //               onValueChange={value =>
-  //                 onContactSelected(value, item.contactId)
-  //               }
-  //             />
-  //           </View>
-  //         </TouchableOpacity>
-  //       </View>
-  //     );
-  //   },
-  //   (
-  //     prevProps: RenderEachComponentProps,
-  //     nextProps: RenderEachComponentProps,
-  //   ) => {
-  //     //if givenId is either added, removed in selectedIds, then return false.
-  //     console.log('for ', prevProps.item.contactName);
-  //     console.log('prevProps', prevProps);
-  //     console.log('newProps', nextProps);
-
-  //     if (
-  //       prevProps.selectedIds.find(
-  //         eachId => prevProps.item.contactId === eachId,
-  //       )
-  //     ) {
-  //       //if id is present previosly
-  //       //now check if in new props that id is removed, if yes, don't memoize item or else memoize it.
-  //       if (
-  //         !nextProps.selectedIds.find(
-  //           eachId => nextProps.item.contactId === eachId,
-  //         )
-  //       )
-  //         return false;
-  //       else return true;
-  //     } else {
-  //       //if id is not present previously
-  //       //now check if next props contain the id, if yes, don't memoize item, or else memoize it.
-  //       if (
-  //         nextProps.selectedIds.find(
-  //           eachId => nextProps.item.contactId === eachId,
-  //         )
-  //       )
-  //         return false;
-  //       else return true;
-  //     }
-  //   },
-  // );
-
   return (
     <ScreenWrapper>
       <View
@@ -322,7 +188,9 @@ const SelectContactScreen = (): ReactElement => {
           }}
           initialNumToRender={8}
           renderItem={({item}) => (
-            <RenderEachContact isSelected={isSelected} onContactSelected = {onContactSelected}selectedIds={selectedIds} item={item} />
+            <RenderEachContact
+              item={item}
+            />
           )}
           refreshControl={
             <RefreshControl

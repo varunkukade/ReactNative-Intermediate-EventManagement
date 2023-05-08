@@ -1,12 +1,8 @@
-import React, { useCallback} from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {EachContact} from '../../reduxConfig/slices/peopleSlice';
+import React, {useCallback} from 'react';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {EachContact, updateSelected} from '../../reduxConfig/slices/peopleSlice';
 import {colors, measureMents} from '../../utils/appStyles';
-import {useAppSelector} from '../../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
 import {
   CheckboxComponent,
   ImageComponent,
@@ -18,25 +14,29 @@ const ITEM_HEIGHT = 80;
 
 type RenderEachComponentProps = {
   item: EachContact;
-  selectedIds: string[];
-  isSelected: (contactId: string) => boolean
-  onContactSelected: (value: boolean, contactId: string) => void
 };
 
 const RenderEachContact = React.memo(
-  ({item, selectedIds, onContactSelected, isSelected}: RenderEachComponentProps) => {
-    console.log('rendering', item.contactName);
+  ({
+    item,
+  }: RenderEachComponentProps) => {
 
+    //dispatch and selectors
+    const dispatch = useAppDispatch();
     const theme = useAppSelector(state => state.user.currentUser.theme);
 
     const getSkalatonName = useCallback((fullName: string) => {
-        let arr = fullName.split(' ');
-        if (arr.length > 1) {
-          return arr[0][0].toUpperCase() + arr[1][0].toUpperCase();
-        } else {
-          return arr[0][0].toUpperCase();
-        }
-      }, []);
+      let arr = fullName.split(' ');
+      if (arr.length > 1) {
+        return arr[0][0].toUpperCase() + arr[1][0].toUpperCase();
+      } else {
+        return arr[0][0].toUpperCase();
+      }
+    }, []);
+
+    const onContactSelected = (value: boolean, id: string) => {
+        dispatch(updateSelected({value, id}));
+    };
 
     return (
       <View>
@@ -51,7 +51,7 @@ const RenderEachContact = React.memo(
           ]}
           activeOpacity={0.7}
           onPress={() =>
-            onContactSelected(!isSelected(item.contactId), item.contactId)
+            onContactSelected(!item.selected, item.contactId)
           }>
           <View style={styles.avatar}>
             {item.contactAvatar === '' ? (
@@ -97,19 +97,23 @@ const RenderEachContact = React.memo(
           </View>
           <View style={styles.checkBoxContainer}>
             <CheckboxComponent
-              value={isSelected(item.contactId)}
+              value={item.selected}
               onValueChange={value => onContactSelected(value, item.contactId)}
             />
           </View>
         </TouchableOpacity>
       </View>
     );
-  }, (prevProps, nextProps ) => {
-      console.log('for ', prevProps.item.contactName);
-      console.log('prevProps', prevProps);
-      console.log('newProps', nextProps);
-      return false
-  }
+  },
+  (prevProps: RenderEachComponentProps, nextProps: RenderEachComponentProps) => {
+    const { selected } = nextProps.item;
+    const { selected: prevIsSelected } = prevProps.item;
+
+    /*if the props are equal, it won't update*/
+    const isSelectedEqual = selected === prevIsSelected;
+
+    return isSelectedEqual;
+  },
 );
 
 export default RenderEachContact;
