@@ -1,5 +1,6 @@
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
 
 export type checkIfEmptyProps = boolean | object | string | number;
 export const checkIfEmpty = <T extends checkIfEmptyProps>(value: T) => {
@@ -58,6 +59,10 @@ export const getAsyncStorage = async (key : string): Promise<string> => {
     return "";
   }
 };
+
+export const getInviteCode = () => {
+  return auth().currentUser?.uid.slice(0, 10);
+}
 
 type ValidationObject = {
   isValid: boolean;

@@ -23,7 +23,7 @@ import {
 } from '../reduxConfig/slices/userSlice';
 import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
 import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {setAsyncStorage} from '../utils/commonFunctions';
+import {getInviteCode, setAsyncStorage} from '../utils/commonFunctions';
 import {resetEventState} from '../reduxConfig/slices/eventsSlice';
 import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
 import {ScreenWrapper} from '.';
@@ -43,12 +43,17 @@ const SettingsScreen = () => {
 
   //modal states
   const [isLogoutPopupVisible, setIsLogoutPopupVisible] = useState(false);
+  const [isInvitePopupVisible, setInvitePopupVisible] = useState(false);
 
   const theme = useAppSelector(state => state.user.currentUser.theme);
 
   const onCancelClick = useCallback(() => {
     setIsLogoutPopupVisible(false);
   }, []);
+
+  const onCancelInvitePopupClick = useCallback(() => {
+    setInvitePopupVisible(false)
+  }, [setInvitePopupVisible])
 
   const resetReduxState = useCallback(() => {
     dispatch(resetEventState());
@@ -84,6 +89,10 @@ const SettingsScreen = () => {
     });
   }, [dispatch, resetReduxState, rootNavigation]);
 
+  const onShareCodeClick = useCallback(() => {
+    console.log('in share click');
+  }, []);
+
   const logoutPopupData = useCallback(
     (): popupData => ({
       header: 'Logout',
@@ -94,6 +103,19 @@ const SettingsScreen = () => {
     [onCancelClick, onLogoutpress],
   );
 
+  const invitePopupData = useCallback(
+    (): popupData => ({
+      header: 'Invite Guests',
+      description:
+        'Share this code with guests and guests will be able to join the app through your invite code',
+      onCancelClick: onCancelInvitePopupClick,
+      onConfirmClick: onShareCodeClick,
+      confirmButtonText: "Share",
+      cancelButtonText: "Cancel"
+    }),
+    [onCancelInvitePopupClick, onShareCodeClick],
+  );
+
   const onUpdateProfilePress = useCallback(() => {
     homeStackNavigation.navigate('UpdateProfileScreen');
   }, [homeStackNavigation]);
@@ -101,6 +123,10 @@ const SettingsScreen = () => {
   const onUpdateCommonListPress = useCallback(() => {
     homeStackNavigation.navigate('UpdateCommonGroupsScreen');
   }, [homeStackNavigation]);
+
+  const onInviteUsersPress = useCallback(() => {
+    setInvitePopupVisible(true);
+  }, [setInvitePopupVisible]);
 
   const onResetPasswordPress = useCallback(() => {
     rootNavigation.navigate('AuthStack', {
@@ -177,6 +203,25 @@ const SettingsScreen = () => {
     },
     {
       id: 4,
+      label: 'Invite Guests to app',
+      icon: () => (
+        <EntypoIcons
+          size={30}
+          color={colors[theme].primaryColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      rightIcon: () => (
+        <EntypoIcons
+          size={35}
+          color={colors[theme].iconLightPinkColor}
+          name="chevron-with-circle-right"
+        />
+      ),
+      onPress: onInviteUsersPress,
+    },
+    {
+      id: 5,
       label: 'Dark Mode',
       icon: () => (
         <EntypoIcons
@@ -199,7 +244,7 @@ const SettingsScreen = () => {
       onPress: () => changeTheme(),
     },
     {
-      id: 5,
+      id: 6,
       label: 'Log-out',
       icon: () => (
         <EntypoIcons
@@ -221,14 +266,14 @@ const SettingsScreen = () => {
 
   return (
     <ScreenWrapper>
-        <View style={styles.welcomeMessage}>
-          <TextComponent
-            style={{fontSize: 20, color: colors[theme].whiteColor}}
-            weight="bold">
-            Settings
-          </TextComponent>
-        </View>
-        <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.welcomeMessage}>
+        <TextComponent
+          style={{fontSize: 20, color: colors[theme].whiteColor}}
+          weight="bold">
+          Settings
+        </TextComponent>
+      </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View
           style={[
             styles.mainContainer,
@@ -236,7 +281,7 @@ const SettingsScreen = () => {
           ]}>
           {actions.map((eachAction, index) => (
             <View key={index}>
-              {eachAction.id === 4 ? (
+              {eachAction.id === 5 ? (
                 <TouchableHighlight
                   underlayColor="transparent"
                   onPress={eachAction.onPress}>
@@ -302,6 +347,22 @@ const SettingsScreen = () => {
         isModalVisible={isLogoutPopupVisible}
         setIsModalVisible={setIsLogoutPopupVisible}
       />
+      <CenterPopupComponent
+        popupData={invitePopupData}
+        isModalVisible={isInvitePopupVisible}
+        setIsModalVisible={setInvitePopupVisible}>
+        <TextComponent
+          style={{
+            color: colors[theme].textColor,
+            textAlign: 'center',
+            marginBottom: 25,
+            fontSize: 22,
+            letterSpacing: 1.5
+          }}
+          weight="semibold">
+            {getInviteCode()}
+        </TextComponent>
+      </CenterPopupComponent>
     </ScreenWrapper>
   );
 };
