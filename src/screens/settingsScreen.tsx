@@ -28,6 +28,8 @@ import {resetEventState} from '../reduxConfig/slices/eventsSlice';
 import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
 import {ScreenWrapper} from '.';
 import {VERSION_CONST} from '../utils/constants';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const SettingsScreen = () => {
   //dispatch and selectors
@@ -52,8 +54,8 @@ const SettingsScreen = () => {
   }, []);
 
   const onCancelInvitePopupClick = useCallback(() => {
-    setInvitePopupVisible(false)
-  }, [setInvitePopupVisible])
+    setInvitePopupVisible(false);
+  }, [setInvitePopupVisible]);
 
   const resetReduxState = useCallback(() => {
     dispatch(resetEventState());
@@ -110,8 +112,8 @@ const SettingsScreen = () => {
         'Share this code with guests and guests will be able to join the app through your invite code',
       onCancelClick: onCancelInvitePopupClick,
       onConfirmClick: onShareCodeClick,
-      confirmButtonText: "Share",
-      cancelButtonText: "Cancel"
+      confirmButtonText: 'Share',
+      cancelButtonText: 'Cancel',
     }),
     [onCancelInvitePopupClick, onShareCodeClick],
   );
@@ -142,6 +144,12 @@ const SettingsScreen = () => {
       dispatch(setTheme('light'));
     }
   }, [theme, dispatch]);
+
+  const onCopyInviteCodeClick = () => {
+    Clipboard.setString(getInviteCode() || "");
+    if (Platform.OS === 'android')
+          ToastAndroid.show("Copied to clipboard", ToastAndroid.SHORT);
+  };
 
   let actions = [
     {
@@ -351,17 +359,26 @@ const SettingsScreen = () => {
         popupData={invitePopupData}
         isModalVisible={isInvitePopupVisible}
         setIsModalVisible={setInvitePopupVisible}>
-        <TextComponent
-          style={{
-            color: colors[theme].textColor,
-            textAlign: 'center',
-            marginBottom: 25,
-            fontSize: 22,
-            letterSpacing: 1.5
-          }}
-          weight="semibold">
+        <View style={styles.invitePopupContainer}>
+          <TextComponent
+            style={{
+              color: colors[theme].textColor,
+              textAlign: 'center',
+              fontSize: 22,
+              letterSpacing: 1.5,
+            }}
+            weight="semibold">
             {getInviteCode()}
-        </TextComponent>
+          </TextComponent>
+          <TouchableOpacity onPress={onCopyInviteCodeClick}>
+            <Ionicons
+              name="copy-outline"
+              color={colors[theme].iconLightPinkColor}
+              size={22}
+              style={{marginLeft: 15}}
+            />
+          </TouchableOpacity>
+        </View>
       </CenterPopupComponent>
     </ScreenWrapper>
   );
@@ -420,5 +437,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignSelf: 'center',
     marginTop: 20,
+  },
+  invitePopupContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 25,
   },
 });
