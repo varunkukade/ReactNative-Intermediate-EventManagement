@@ -6,6 +6,7 @@ import {
   ToastAndroid,
   TouchableOpacity,
   View,
+  Share
 } from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {

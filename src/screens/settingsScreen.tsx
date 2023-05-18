@@ -7,6 +7,7 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
+  Share
 } from 'react-native';
 import {colors, measureMents} from '../utils/appStyles';
 import {TextComponent} from '../reusables';
@@ -91,8 +92,25 @@ const SettingsScreen = () => {
     });
   }, [dispatch, resetReduxState, rootNavigation]);
 
-  const onShareCodeClick = useCallback(() => {
-    console.log('in share click');
+  const onShareCodeClick = useCallback(async () => {
+    try {
+      const result = await Share.share({
+        message:
+          `Hi! I have been using this EventManagement app and you can join as guest. Install the app and join by entering this code : ${getInviteCode()}. See you in the app!`,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error: any) {
+      if (Platform.OS === 'android' && error?.message)
+          ToastAndroid.show(error.message, ToastAndroid.SHORT);
+    }
   }, []);
 
   const logoutPopupData = useCallback(
