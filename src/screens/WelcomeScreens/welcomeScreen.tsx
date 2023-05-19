@@ -37,24 +37,24 @@ const WelcomeScreen = () => {
     'SignupScreen'
   > = useNavigation();
 
-//   const returnLastActiveScreenId = () => {
-//     for (let i = noOfScreens.length - 1; i >= 0; i--) {
-//         if (noOfScreens[i].active === true) {
-//           return noOfScreens[i].id;
-//         }
-//     }
-//     return null; // Term not found
-//   }
+  const returnLastActiveScreenId = () => {
+    for (let i = noOfScreens.length - 1; i >= 0; i--) {
+        if (noOfScreens[i].active === true) {
+          return noOfScreens[i].id;
+        }
+    }
+    return null; // Term not found
+  }
 
   const onNextClick = () => {
-    // let lastActiveScreenId = returnLastActiveScreenId()
-    // if(lastActiveScreenId === noOfScreens.length) authStackNavigation.navigate("SignupScreen")
-    // let updatedScreens = noOfScreens.map((eachScreen) => {
-    //     if(lastActiveScreenId && eachScreen.id === lastActiveScreenId + 1){
-    //         return { ...eachScreen, active: true}
-    //     } else return eachScreen
-    // })
-    // setNoOfScreens(updatedScreens)
+    let lastActiveScreenId = returnLastActiveScreenId()
+    if(lastActiveScreenId === noOfScreens.length) authStackNavigation.navigate("SignupScreen")
+    let updatedScreens = noOfScreens.map((eachScreen) => {
+        if(lastActiveScreenId && eachScreen.id === lastActiveScreenId + 1){
+            return { ...eachScreen, active: true}
+        } else return eachScreen
+    })
+    setNoOfScreens(updatedScreens)
   };
 
   return (
@@ -62,13 +62,14 @@ const WelcomeScreen = () => {
       <View style={styles.progressContainer}>
         {noOfScreens.map(eachScreen => (
           <View
+            key={eachScreen.id}
             style={[
               styles.eachProgressBar,
               {
                 width:
                   (measureMents.windowWidth - marginConst * (noOfScreens.length + 1)) /
                   noOfScreens.length,
-                backgroundColor: eachScreen.active ? colors[theme].primaryColor : colors[theme].greyColor,
+                backgroundColor: eachScreen?.active ? colors[theme].primaryColor : colors[theme].greyColor,
               },
             ]}
           />
