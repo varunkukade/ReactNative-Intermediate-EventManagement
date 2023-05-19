@@ -1,7 +1,6 @@
-import React, {ReactElement, useState} from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import ScreenWrapper from '../screenWrapper';
-import {generateArray} from '../../utils/commonFunctions';
 import {colors, measureMents} from '../../utils/appStyles';
 import {useAppSelector} from '../../reduxConfig/store';
 import {ButtonComponent, TextComponent} from '../../reusables';
@@ -21,14 +20,19 @@ const WelcomeScreen = () => {
     {
       id: 1,
       active: true,
+      mainText: 'Event Management Is Now More Simpler, Easier And Practical!',
     },
     {
       id: 2,
       active: false,
+      mainText:
+        'Create Events, Create Common Guests, Add Guest To Event.',
     },
     {
       id: 3,
       active: false,
+      mainText:
+        'Invite Users To App And They Can Stay Updated with New Events.',
     },
   ]);
 
@@ -62,9 +66,9 @@ const WelcomeScreen = () => {
   const onPreviousClick = () => {
     let lastActiveScreenId = returnLastActiveScreenId();
     let updatedScreens = noOfScreens.map(eachScreen => {
-      if(lastActiveScreenId && eachScreen.id === lastActiveScreenId ){
+      if (lastActiveScreenId && eachScreen.id === lastActiveScreenId) {
         return {...eachScreen, active: false};
-      } else return eachScreen
+      } else return eachScreen;
     });
     setNoOfScreens(updatedScreens);
   };
@@ -83,49 +87,76 @@ const WelcomeScreen = () => {
                     marginConst * (noOfScreens.length + 1)) /
                   noOfScreens.length,
                 backgroundColor: eachScreen?.active
-                  ? colors[theme].primaryColor
+                  ? colors[theme].commonPrimaryColor
                   : colors[theme].greyColor,
               },
             ]}
           />
         ))}
       </View>
-      <TouchableOpacity activeOpacity={0.5} onPress={onNextClick} style={styles.rightIcon}>
-        <AntDesignIcons
-          name="rightcircleo"
-          color={colors[theme].iconLightPinkColor}
-          size={40}
-        />
-      </TouchableOpacity>
-      {returnLastActiveScreenId() !== 1 ? (
-        <TouchableOpacity activeOpacity={0.5} onPress={onPreviousClick} style={styles.leftIcon}>
-          <AntDesignIcons
-            name="leftcircleo"
-            color={colors[theme].iconLightPinkColor}
-            size={40}
-          />
-        </TouchableOpacity>
-      ) : null}
-
-      <View style={styles.buttonContainer}>
-        <ButtonComponent onPress={onNextClick}>Next</ButtonComponent>
-        <TouchableOpacity
-          onPress={() => authStackNavigation.navigate('SignupScreen')}
-          style={{
-            alignSelf: 'center',
-            paddingHorizontal: 15,
-            paddingVertical: 15,
-          }}>
-          <TextComponent
+      <View style={{flex: 1}}>
+        {noOfScreens.map(eachScreen => (
+          <View
             style={{
-              fontSize: 14,
-              color: colors[theme].textColor,
-              textAlign: 'center',
+              flex: 1,
+              display:
+                returnLastActiveScreenId() === eachScreen.id ? 'flex' : 'none',
             }}
-            weight="bold">
-            SKIP
-          </TextComponent>
-        </TouchableOpacity>
+            key={eachScreen.id}>
+            <TouchableOpacity
+              activeOpacity={0.5}
+              onPress={onNextClick}
+              style={styles.rightIcon}>
+              <AntDesignIcons
+                name="rightcircleo"
+                color={colors[theme].iconLightPinkColor}
+                size={40}
+              />
+            </TouchableOpacity>
+            {returnLastActiveScreenId() !== 1 ? (
+              <TouchableOpacity
+                activeOpacity={0.5}
+                onPress={onPreviousClick}
+                style={styles.leftIcon}>
+                <AntDesignIcons
+                  name="leftcircleo"
+                  color={colors[theme].iconLightPinkColor}
+                  size={40}
+                />
+              </TouchableOpacity>
+            ) : null}
+            <View style={styles.heavyTextContainer}>
+              <TextComponent
+                weight="semibold"
+                style={{
+                  color: colors[theme].textColor,
+                  fontSize: 30,
+                  marginBottom: 20,
+                  textAlign: 'center',
+                }}>
+                {eachScreen.mainText}
+              </TextComponent>
+              <ButtonComponent onPress={onNextClick}>Next</ButtonComponent>
+              <TouchableOpacity
+                onPress={() => authStackNavigation.navigate('SignupScreen')}
+                style={{
+                  alignSelf: 'center',
+                  paddingHorizontal: 15,
+                  paddingVertical: 15,
+                }}>
+                <TextComponent
+                  style={{
+                    fontSize: 14,
+                    color: colors[theme].textColor,
+                    textAlign: 'center',
+                  }}
+                  weight="bold">
+                  SKIP
+                </TextComponent>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
       </View>
     </ScreenWrapper>
   );
@@ -144,20 +175,20 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: marginConst,
   },
-  buttonContainer: {
+  heavyTextContainer: {
     position: 'absolute',
+    bottom: 20,
     width: '100%',
-    bottom: 15,
-    paddingHorizontal: marginConst,
+    paddingHorizontal: marginConst*2,
   },
   rightIcon: {
     position: 'absolute',
-    top: '45%',
+    top: '47%',
     right: 20,
   },
   leftIcon: {
     position: 'absolute',
-    top: '45%',
+    top: '47%',
     left: 20,
   },
 });
