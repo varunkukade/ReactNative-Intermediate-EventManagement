@@ -8,6 +8,7 @@ import {ButtonComponent, TextComponent} from '../../reusables';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AuthStackParamList} from '../../navigation/authStackNavigator';
 import {useNavigation} from '@react-navigation/native';
+import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 
 const marginConst = 20;
 
@@ -18,18 +19,18 @@ const WelcomeScreen = () => {
   //useState
   const [noOfScreens, setNoOfScreens] = useState([
     {
-        id: 1,
-        active: true
+      id: 1,
+      active: true,
     },
     {
-        id: 2,
-        active: false
+      id: 2,
+      active: false,
     },
     {
-        id: 3,
-        active: false
-    }
-  ])
+      id: 3,
+      active: false,
+    },
+  ]);
 
   //navigation state
   const authStackNavigation: NativeStackNavigationProp<
@@ -39,22 +40,33 @@ const WelcomeScreen = () => {
 
   const returnLastActiveScreenId = () => {
     for (let i = noOfScreens.length - 1; i >= 0; i--) {
-        if (noOfScreens[i].active === true) {
-          return noOfScreens[i].id;
-        }
+      if (noOfScreens[i].active === true) {
+        return noOfScreens[i].id;
+      }
     }
     return null; // Term not found
-  }
+  };
 
   const onNextClick = () => {
-    let lastActiveScreenId = returnLastActiveScreenId()
-    if(lastActiveScreenId === noOfScreens.length) authStackNavigation.navigate("SignupScreen")
-    let updatedScreens = noOfScreens.map((eachScreen) => {
-        if(lastActiveScreenId && eachScreen.id === lastActiveScreenId + 1){
-            return { ...eachScreen, active: true}
-        } else return eachScreen
-    })
-    setNoOfScreens(updatedScreens)
+    let lastActiveScreenId = returnLastActiveScreenId();
+    if (lastActiveScreenId === noOfScreens.length)
+      authStackNavigation.navigate('SignupScreen');
+    let updatedScreens = noOfScreens.map(eachScreen => {
+      if (lastActiveScreenId && eachScreen.id === lastActiveScreenId + 1) {
+        return {...eachScreen, active: true};
+      } else return eachScreen;
+    });
+    setNoOfScreens(updatedScreens);
+  };
+
+  const onPreviousClick = () => {
+    let lastActiveScreenId = returnLastActiveScreenId();
+    let updatedScreens = noOfScreens.map(eachScreen => {
+      if(lastActiveScreenId && eachScreen.id === lastActiveScreenId ){
+        return {...eachScreen, active: false};
+      } else return eachScreen
+    });
+    setNoOfScreens(updatedScreens);
   };
 
   return (
@@ -67,14 +79,34 @@ const WelcomeScreen = () => {
               styles.eachProgressBar,
               {
                 width:
-                  (measureMents.windowWidth - marginConst * (noOfScreens.length + 1)) /
+                  (measureMents.windowWidth -
+                    marginConst * (noOfScreens.length + 1)) /
                   noOfScreens.length,
-                backgroundColor: eachScreen?.active ? colors[theme].primaryColor : colors[theme].greyColor,
+                backgroundColor: eachScreen?.active
+                  ? colors[theme].primaryColor
+                  : colors[theme].greyColor,
               },
             ]}
           />
         ))}
       </View>
+      <TouchableOpacity activeOpacity={0.5} onPress={onNextClick} style={styles.rightIcon}>
+        <AntDesignIcons
+          name="rightcircleo"
+          color={colors[theme].iconLightPinkColor}
+          size={40}
+        />
+      </TouchableOpacity>
+      {returnLastActiveScreenId() !== 1 ? (
+        <TouchableOpacity activeOpacity={0.5} onPress={onPreviousClick} style={styles.leftIcon}>
+          <AntDesignIcons
+            name="leftcircleo"
+            color={colors[theme].iconLightPinkColor}
+            size={40}
+          />
+        </TouchableOpacity>
+      ) : null}
+
       <View style={styles.buttonContainer}>
         <ButtonComponent onPress={onNextClick}>Next</ButtonComponent>
         <TouchableOpacity
@@ -117,5 +149,15 @@ const styles = StyleSheet.create({
     width: '100%',
     bottom: 15,
     paddingHorizontal: marginConst,
+  },
+  rightIcon: {
+    position: 'absolute',
+    top: '45%',
+    right: 20,
+  },
+  leftIcon: {
+    position: 'absolute',
+    top: '45%',
+    left: 20,
   },
 });
