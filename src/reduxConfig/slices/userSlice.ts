@@ -186,7 +186,7 @@ export const signupAPICall = createAsyncThunk<
     message: string;
   },
   //type of request obj passed to payload creator
-  {email: string; password: string; mobileNumber: string},
+  {email: string; password: string; mobileNumber: string, isAdmin: boolean},
   //type of returned error obj from rejectWithValue
   {
     rejectValue: MessageType;
@@ -194,7 +194,7 @@ export const signupAPICall = createAsyncThunk<
 >(
   'user/signup',
   async (
-    requestObject: {email: string; password: string; mobileNumber: string},
+    requestObject: {email: string; password: string; mobileNumber: string, isAdmin: boolean},
     thunkAPI,
   ) => {
     let message = '';
@@ -208,6 +208,7 @@ export const signupAPICall = createAsyncThunk<
         .add({
           authId: auth().currentUser?.uid,
           mobileNumber: requestObject.mobileNumber,
+          isAdmin: requestObject.isAdmin
         })
         .then(res => {
           message = 'Account Created Successfully';
@@ -217,6 +218,7 @@ export const signupAPICall = createAsyncThunk<
           return thunkAPI.rejectWithValue({message: error.message});
         });
     } catch (error: any) {
+      console.log(error)
       //return rejected promise.
       if (error?.code === 'auth/email-already-in-use') {
         message = 'Email address is already in use!';
@@ -227,9 +229,10 @@ export const signupAPICall = createAsyncThunk<
       if (error?.code === 'auth/weak-password') {
         message = 'Password should be atleast 6 characters long.';
       }
+      console.log("message",message)
       return thunkAPI.rejectWithValue({
         message:
-          message ||
+          message ? message :
           'Failed to create account. Please try again after some time',
       } as MessageType);
     }
