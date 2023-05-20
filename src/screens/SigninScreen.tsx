@@ -33,6 +33,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 import ScreenWrapper from './screenWrapper';
+import CenterPopup from '../reusables/centerPopup';
 
 const constants = {
   email: 'email',
@@ -53,10 +54,19 @@ const SigninScreen = () => {
     email: {value: 'varunkukade999@gmail.com', errorMessage: ''},
     password: {value: 'Vk@#$2211', errorMessage: ''},
   };
+
+  //useStates
   const [signinForm, setSigninForm] =
     useState<SigninFormData>(initialSigninForm);
-
+  const [isInviteCodePopupVisible, setIsInviteCodePopupVisible] =
+    useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [inviteCode, setInviteCode] = useState({
+    value: "",
+    error: ""
+  })
+
+  //useSelectors
   const theme = useAppSelector(state => state.user.currentUser.theme);
 
   useEffect(() => {
@@ -212,9 +222,34 @@ const SigninScreen = () => {
       });
     }
   };
+
+  const onCancelClick = React.useCallback(() => {
+    setIsInviteCodePopupVisible(false);
+  }, [setIsInviteCodePopupVisible]);
+
+  const onConfirmInviteCode = React.useCallback(() => {
+    if(inviteCode.value) {
+      
+    }else {
+      setInviteCode(prevState => ({
+        ...prevState, 
+        error: "Invite Code cannot be emoty."
+      }))
+    }
+  }, []);
+
+  const inviteCodePopupData = React.useCallback(() => {
+    return {
+      header: 'Add Invite Code',
+      description: 'We will verify invite code against the possible admins.',
+      onCancelClick: onCancelClick,
+      onConfirmClick: onConfirmInviteCode,
+    };
+  }, [onCancelClick, onConfirmInviteCode]);
+
   return (
     <ScreenWrapper>
-      <ScrollView style={{alignSelf: "center"}}>
+      <ScrollView style={{alignSelf: 'center'}}>
         <View style={styles.welcomeMessage}>
           <TextComponent
             style={{
@@ -270,14 +305,18 @@ const SigninScreen = () => {
             }
           />
           <View
-            style={{marginTop: 10, flexDirection: 'row', alignItems: 'center', alignSelf: "center"}}>
+            style={{
+              marginTop: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+              alignSelf: 'center',
+            }}>
             <View style={{width: '60%'}}>
               <TouchableOpacity
                 onPress={() =>
-                  authStackNavigation.navigate('ForgotPasswordScreen')
+                  setIsInviteCodePopupVisible(true)
                 }
-                style={{alignSelf: "flex-start"}}
-                >
+                style={{alignSelf: 'flex-start'}}>
                 <TextComponent
                   style={{
                     fontSize: 14,
@@ -293,8 +332,7 @@ const SigninScreen = () => {
                 onPress={() =>
                   authStackNavigation.navigate('ForgotPasswordScreen')
                 }
-                style={{alignSelf: "flex-end"}}
-                >
+                style={{alignSelf: 'flex-end'}}>
                 <TextComponent
                   style={{
                     fontSize: 14,
@@ -348,6 +386,17 @@ const SigninScreen = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <CenterPopup
+        popupData={inviteCodePopupData}
+        isModalVisible={isInviteCodePopupVisible}
+        setIsModalVisible={setIsInviteCodePopupVisible}
+      >
+        <InputComponent
+          value={inviteCode.value}
+          onChangeText={value => setInviteCode(prevState => ({...prevState, value: value}))}
+          errorMessage={inviteCode.error}
+        />
+        </CenterPopup>
     </ScreenWrapper>
   );
 };
