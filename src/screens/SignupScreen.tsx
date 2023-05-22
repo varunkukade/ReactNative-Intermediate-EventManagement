@@ -136,11 +136,12 @@ const SignupScreen = () => {
       mobileNumbervalidation(mobileNumber.value).isValid
     ) {
       setFormErrors('empty');
-      let requestObj: {email: string; password: string; mobileNumber: string} =
+      let requestObj: {email: string; password: string; mobileNumber: string, isAdmin: boolean} =
         {
           email: email.value,
           password: password.value,
           mobileNumber: mobileNumber.value,
+          isAdmin: isAdmin.value, 
         };
       dispatch(signupAPICall(requestObj)).then(res => {
         if (res.meta.requestStatus === 'fulfilled') {
