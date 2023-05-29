@@ -1,6 +1,10 @@
 # ReactNative-Intermediate-EventManagement
 Event Management App
 
+Demo Video 1 - https://drive.google.com/file/d/13OETteTDrtgWuZjW2zKO_B8iyoDpNia_/view?usp=share_link
+
+Demo Video 2 - https://drive.google.com/file/d/1GTqznLrrSMyiQU5ndUTF6lGUjcJucSAP/view?usp=share_link
+
 Motive of this app is to have one stop solution for all the event management for events like wedding, business seminars, birthdays, paid events/free events. Admin/host/organiser will be able to add/invite people to the events. This project is in progress.If you want to run, you can clone it directly. 
 
   Components included in the app: This app is currently supports Android mobiles. Soon we will add the support for IOS devices.
@@ -32,54 +36,6 @@ Motive of this app is to have one stop solution for all the event management for
    8. You can create your own common lists of people and while adding people to any event you can select people from created common lists. You can also add users in bulk (max 200 for now) in common list. You can also update the common list and its users information.
    9. You can view your device contact list and add guest to any event from the list.
 
-
-App Screenshots:
-
-Demo Videos link as of 14th april = 
-Prelogin - https://drive.google.com/file/d/1FlNpAaVBOzX8EZfqhWTinHW7aCw0koFe/view?usp=share_link
-
-Postlogin - https://drive.google.com/file/d/1Htr9Mzg6Acr4UsndDgr72F29mjU_EqyK/view?usp=share_link
-
-
-Signup Screen
-https://user-images.githubusercontent.com/66090579/230915105-4293b034-b038-4f44-9e71-7f73df45970b.png
-
-Login Screen
-https://user-images.githubusercontent.com/66090579/230915102-7afb96ad-ea9c-4718-a815-18c8c49138c4.png
-
-Forgot password Screen 
-https://user-images.githubusercontent.com/66090579/230915096-11a2716d-ce06-49c2-a016-d8e599d257cd.png
-
-Landing dashboard 
-https://user-images.githubusercontent.com/66090579/230915093-b66f49da-5493-4c1f-b0ef-f372850332d4.png
-
-Add new event screen 
-https://user-images.githubusercontent.com/66090579/230915090-1179f6cb-c2f3-4206-8905-cb252772f60a.png
-https://user-images.githubusercontent.com/66090579/230915087-bea6eeaa-7963-4372-9817-3f94fab9e1b9.png
-
-Specific Event Details 
-https://user-images.githubusercontent.com/66090579/230915083-56e5cf3a-e045-41c1-8ce0-80337a8ef933.png
-
-Add new people to specific event
-https://user-images.githubusercontent.com/66090579/230915080-de9320da-b148-4762-8d5a-f248fc31bcc8.png
-
-View all added people at one place 
-https://user-images.githubusercontent.com/66090579/230915076-21ba39b1-70c7-4fce-a6ff-579fce5fcd93.png
-
-You can delete, move users to completed/pending tabs
-https://user-images.githubusercontent.com/66090579/230915072-010970b7-d0b5-4b2b-b214-6001d0e3e072.png
-
-Popup/modal for specific action confirmation
-https://user-images.githubusercontent.com/66090579/230915064-e8ccfc85-e1c2-44b1-989a-2281e79f35dc.png
-
-Settings screen
-https://user-images.githubusercontent.com/66090579/230915054-7e7ca411-1506-444e-ad7f-916302afe395.png
-
-Update the profile
-https://user-images.githubusercontent.com/66090579/230950059-4e4021b3-fcd9-497f-a59f-edc1700000cb.png
-
-Logout the user from the app
-https://user-images.githubusercontent.com/66090579/230915042-e929c808-46aa-4b00-9379-93683e41c870.png
 
 
 
