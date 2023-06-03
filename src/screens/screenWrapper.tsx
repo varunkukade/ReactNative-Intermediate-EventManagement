@@ -1,5 +1,5 @@
 import {useRoute} from '@react-navigation/native';
-import React, {ReactNode} from 'react';
+import React, {ReactNode, useCallback} from 'react';
 import {StatusBar, StyleSheet, View} from 'react-native';
 import {colors} from '../utils/appStyles';
 import { useAppSelector } from '../reduxConfig/store';
@@ -15,7 +15,7 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
   const theme = useAppSelector(state => state.user.currentUser.theme)
 
   // for simplicity we will only modify the background color
-  const getBackgroundColorBasedOnRoute = () => {
+  const getBackgroundColorBasedOnRoute = useCallback(() => {
     switch (route.name) {
       case 'SignupScreen':
       case 'SigninScreen':
@@ -41,9 +41,9 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       default:
         return colors[theme].primaryColor;
     }
-  };
+  }, [route.name, theme]);
 
-  const getStatusBarStyle = () => {
+  const getStatusBarStyle = useCallback(() => {
     if (currentTab === 'Home') return 'dark-content';
     if (currentTab === 'Settings') return 'light-content';
     switch (route.name) {
@@ -72,7 +72,7 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       default:
         return 'light-content';
     }
-  };
+  }, [currentTab, route.name, theme]);
 
   // we are applying the background color to the component itself
   return (
