@@ -30,7 +30,7 @@ import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
 import {ScreenWrapper} from '.';
 import {VERSION_CONST} from '../utils/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Clipboard from '@react-native-clipboard/clipboard';
+import useCopyToClipboard from '../hooks/useCopyToClipboard';
 
 const SettingsScreen = () => {
   //dispatch and selectors
@@ -47,6 +47,9 @@ const SettingsScreen = () => {
   //modal states
   const [isLogoutPopupVisible, setIsLogoutPopupVisible] = useState(false);
   const [isInvitePopupVisible, setInvitePopupVisible] = useState(false);
+
+  //hooks
+  const [ isCopied, setCopiedText ] = useCopyToClipboard(3000);
 
   const theme = useAppSelector(state => state.user.currentUser.theme);
 
@@ -164,9 +167,7 @@ const SettingsScreen = () => {
   }, [theme, dispatch]);
 
   const onCopyInviteCodeClick = () => {
-    Clipboard.setString(getInviteCode() || "");
-    if (Platform.OS === 'android')
-          ToastAndroid.show("Copied to clipboard", ToastAndroid.SHORT);
+    setCopiedText(getInviteCode() || "")
   };
 
   let actions = [
@@ -390,9 +391,9 @@ const SettingsScreen = () => {
           </TextComponent>
           <TouchableOpacity onPress={onCopyInviteCodeClick}>
             <Ionicons
-              name="copy-outline"
+              name={isCopied ? "checkmark" : "copy-outline"}
               color={colors[theme].iconLightPinkColor}
-              size={22}
+              size={isCopied  ? 30 : 22}
               style={{marginLeft: 15}}
             />
           </TouchableOpacity>
