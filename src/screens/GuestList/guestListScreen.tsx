@@ -1,6 +1,5 @@
-import React, {ReactElement, useCallback, useEffect, useState} from 'react';
+import React, {ReactElement, useCallback, useState} from 'react';
 import {
-  Keyboard,
   Platform,
   StyleSheet,
   ToastAndroid,
@@ -29,6 +28,7 @@ import {EachPaymentMethod} from '../addGuestsScreen';
 import {MemoizedGuestListComponent} from './guestListComponent';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 import ScreenWrapper from '../screenWrapper';
+import useIsKeyboardShown from '../../hooks/useIsKeyboardShown';
 
 const GuestListScreen = (): ReactElement => {
   //navigation
@@ -37,7 +37,7 @@ const GuestListScreen = (): ReactElement => {
 
   //useStates
   const [longPressedUser, setLongPressedUser] = useState<EachPerson | null>(null);
-  const [isKeyboardOpened, setIsKeyboardOpened] = useState(false);
+  const [isKeyboardOpened] = useIsKeyboardShown();
 
   //modal states
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -60,19 +60,6 @@ const GuestListScreen = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const theme = useAppSelector(state => state.user.currentUser.theme)
-
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-      setIsKeyboardOpened(true);
-    });
-    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-      setIsKeyboardOpened(false);
-    });
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  },[])
 
   const onLongPressUser = React.useCallback(
     (user: EachPerson) => {

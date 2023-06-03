@@ -1,5 +1,5 @@
-import React, {ReactElement, useEffect, useState} from 'react';
-import {Keyboard, StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {ReactElement} from 'react';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {MemoizedEventListComponent} from './eventListComponent';
 import {MemoizedWelcomeComponent} from './welcomeComponent';
 import {colors, measureMents} from '../../utils/appStyles';
@@ -9,6 +9,7 @@ import {useNavigation} from '@react-navigation/native';
 import {HomeStackParamList} from '../../navigation/homeStackNavigator';
 import ScreenWrapper from '../screenWrapper';
 import {useAppSelector} from '../../reduxConfig/store';
+import useIsKeyboardShown from '../../hooks/useIsKeyboardShown';
 
 const HomeScreen = (): ReactElement => {
   //navigation state
@@ -17,26 +18,13 @@ const HomeScreen = (): ReactElement => {
     'BottomTabNavigator'
   > = useNavigation();
 
+  //hooks
   const theme = useAppSelector(state => state.user.currentUser.theme);
-  const [isKeyboardOpened, setIsKeyboardOpened] = useState(false);
-
+  const [isKeyboardOpened] = useIsKeyboardShown();
   const onAddEventClick = () => {
     navigation.navigate('AddEventScreen');
   };
 
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-      setIsKeyboardOpened(true);
-    });
-    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-      setIsKeyboardOpened(false);
-    });
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
   return (
     <>
       <ScreenWrapper>

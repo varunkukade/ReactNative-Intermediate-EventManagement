@@ -50,7 +50,6 @@ const SettingsScreen = () => {
 
   //hooks
   const [ isCopied, setCopiedText ] = useCopyToClipboard(3000);
-
   const theme = useAppSelector(state => state.user.currentUser.theme);
 
   const onCancelClick = useCallback(() => {
