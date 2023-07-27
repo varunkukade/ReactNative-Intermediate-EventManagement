@@ -318,7 +318,7 @@ const SigninScreen = () => {
               alignSelf: 'center',
             }}
           >
-            <View style={{ width: '60%' }}>
+            {/* <View style={{ width: '60%' }}>
               <TouchableOpacity
                 onPress={() => setIsInviteCodePopupVisible(true)}
                 style={{ alignSelf: 'flex-start' }}
@@ -333,8 +333,8 @@ const SigninScreen = () => {
                   Have an Invite Code ?
                 </TextComponent>
               </TouchableOpacity>
-            </View>
-            <View style={{ width: '40%' }}>
+            </View> */}
+            <View style={{ width: '100%' }}>
               <TouchableOpacity
                 onPress={() =>
                   authStackNavigation.navigate(screens.ForgotPasswordScreen)

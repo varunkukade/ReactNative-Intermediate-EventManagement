@@ -236,25 +236,25 @@ const SettingsScreen = () => {
       ),
       onPress: onUpdateCommonListPress,
     },
-    {
-      id: 4,
-      label: 'Invite Guests to app',
-      icon: () => (
-        <EntypoIcons
-          size={30}
-          color={colors[theme].primaryColor}
-          name="chevron-with-circle-right"
-        />
-      ),
-      rightIcon: () => (
-        <EntypoIcons
-          size={35}
-          color={colors[theme].iconLightPinkColor}
-          name="chevron-with-circle-right"
-        />
-      ),
-      onPress: onInviteUsersPress,
-    },
+    // {
+    //   id: 4,
+    //   label: 'Invite Guests to app',
+    //   icon: () => (
+    //     <EntypoIcons
+    //       size={30}
+    //       color={colors[theme].primaryColor}
+    //       name="chevron-with-circle-right"
+    //     />
+    //   ),
+    //   rightIcon: () => (
+    //     <EntypoIcons
+    //       size={35}
+    //       color={colors[theme].iconLightPinkColor}
+    //       name="chevron-with-circle-right"
+    //     />
+    //   ),
+    //   onPress: onInviteUsersPress,
+    // },
     {
       id: 5,
       label: 'Dark Mode',
