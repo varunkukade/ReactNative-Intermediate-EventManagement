@@ -1,8 +1,8 @@
-import React, {ReactElement, useEffect, useRef} from 'react';
+import React, {ReactElement} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useAppSelector} from '../../reduxConfig/store';
-import {colors, measureMents} from '../../utils/appStyles';
-import {InputComponent, TextComponent} from '../../reusables';
+import {useAppSelector} from '@/reduxConfig/store';
+import {colors, measureMents} from '@/utils/appStyles';
+import {InputComponent, TextComponent} from '@/reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { EachUserFormData } from './UpdateCommonGroupsUsersScreen';

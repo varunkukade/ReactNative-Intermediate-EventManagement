@@ -8,12 +8,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '../../utils/appStyles';
+import {colors, measureMents} from '@/utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
-import TextComponent from '../../reusables/text';
+import TextComponent from '@/reusables/text';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
-import {generateArray} from '../../utils/commonFunctions';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
+import {generateArray} from '@/utils/commonFunctions';
 import {
   EachPerson,
   getNextEventJoinersAPICall,
@@ -22,8 +22,8 @@ import {
   getSearchedPeopleAPICall,
   setlastFetchedUserId,
   updatePeople,
-} from '../../reduxConfig/slices/peopleSlice';
-import {InputComponent} from '../../reusables';
+} from '@/reduxConfig/slices/peopleSlice';
+import {InputComponent} from '@/reusables';
 import {debounce} from 'lodash';
 
 type EventJoinerListProps = {

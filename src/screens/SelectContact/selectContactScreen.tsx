@@ -7,18 +7,18 @@ import {
   ToastAndroid,
   View,
 } from 'react-native';
-import {colors, measureMents} from '../../utils/appStyles';
+import {colors, measureMents} from '@/utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '../../navigation/homeStackNavigator';
+import {HomeStackParamList} from '@/navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
 import {
   ButtonComponent,
   InputComponent,
   TextComponent,
-} from '../../reusables';
+} from '@/reusables';
 import ScreenWrapper from '../screenWrapper';
-import {generateArray} from '../../utils/commonFunctions';
+import {generateArray} from '@/utils/commonFunctions';
 import {
   EachContact,
   EachPerson,
@@ -27,7 +27,7 @@ import {
   getPeopleAPICall,
   updateContacts,
   updateOriginalContacts,
-} from '../../reduxConfig/slices/peopleSlice';
+} from '@/reduxConfig/slices/peopleSlice';
 import {debounce} from 'lodash';
 import RenderEachContact from './renderEachContact';
 

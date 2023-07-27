@@ -7,25 +7,25 @@ import {
   ToastAndroid,
   Platform,
 } from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
+import {colors, measureMents} from '@/utils/appStyles';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '../navigation/homeStackNavigator';
+import {HomeStackParamList} from '@/navigation/homeStackNavigator';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
 import {
   addEventAPICall,
   EachEvent,
   updateEventAPICall,
-} from '../reduxConfig/slices/eventsSlice';
+} from '@/reduxConfig/slices/eventsSlice';
 import {
   ButtonComponent,
   CheckboxComponent,
   DateTimePickerComponent,
   InputComponent,
-} from '../reusables';
-import {getDate, getTime} from '../utils/commonFunctions';
+} from '@/reusables';
+import {getDate, getTime} from '@/utils/commonFunctions';
 import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import ScreenWrapper from './screenWrapper';
 

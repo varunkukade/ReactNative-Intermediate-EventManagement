@@ -1,10 +1,10 @@
 import React, {ReactElement} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useAppSelector} from '../../reduxConfig/store';
-import {colors, measureMents} from '../../utils/appStyles';
-import {CheckboxComponent, TextComponent} from '../../reusables';
+import {useAppSelector} from '@/reduxConfig/store';
+import {colors, measureMents} from '@/utils/appStyles';
+import {CheckboxComponent, TextComponent} from '@/reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {CommonListObject} from '../../reduxConfig/slices/peopleSlice';
+import {CommonListObject} from '@/reduxConfig/slices/peopleSlice';
 
 type EachUserComponentProps = {
   eachCommonList: CommonListObject;

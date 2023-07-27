@@ -3,7 +3,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import DatePicker, {DatePickerProps} from 'react-native-date-picker';
-import { measureMents } from '../utils/appStyles';
+import { measureMents } from '@/utils/appStyles';
 
 interface DateTimePickerComponentProps extends DatePickerProps {
   setIsOpen?: (value: boolean) => void;

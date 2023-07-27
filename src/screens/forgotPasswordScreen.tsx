@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import {Platform, StyleSheet, ToastAndroid, View} from 'react-native';
-import { ButtonComponent, InputComponent, TextComponent } from '../reusables';
-import { emailValidation } from '../utils/commonFunctions';
-import { useAppDispatch, useAppSelector } from '../reduxConfig/store';
+import { ButtonComponent, InputComponent, TextComponent } from '@/reusables';
+import { emailValidation } from '@/utils/commonFunctions';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AuthStackParamList } from '../navigation/authStackNavigator';
+import { AuthStackParamList } from '@/navigation/authStackNavigator';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { forgotPasswordAPICall } from '../reduxConfig/slices/userSlice';
-import { HomeStackParamList } from '../navigation/homeStackNavigator';
+import { forgotPasswordAPICall } from '@/reduxConfig/slices/userSlice';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
 import ScreenWrapper from './screenWrapper';
-import { colors, measureMents } from '../utils/appStyles';
+import { colors, measureMents } from '@/utils/appStyles';
 
 const constants = {
   email: 'email',

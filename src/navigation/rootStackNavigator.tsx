@@ -4,9 +4,9 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {HomeStackNavigator} from '.';
 import AuthStackNavigator, {AuthStackParamList} from './authStackNavigator';
 import {NavigatorScreenParams} from '@react-navigation/native';
-import {useAppDispatch} from '../reduxConfig/store';
-import {getAsyncStorage} from '../utils/commonFunctions';
-import {setTheme} from '../reduxConfig/slices/userSlice';
+import {useAppDispatch} from '@/reduxConfig/store';
+import {getAsyncStorage} from '@/utils/commonFunctions';
+import {setTheme} from '@/reduxConfig/slices/userSlice';
 
 export type RootStackParamList = {
   HomeStack: undefined;

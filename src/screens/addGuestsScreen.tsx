@@ -9,28 +9,28 @@ import {
   PermissionsAndroid,
   Linking
 } from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
+import {colors, measureMents} from '@/utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '../navigation/homeStackNavigator';
+import {HomeStackParamList} from '@/navigation/homeStackNavigator';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
 import {
   ButtonComponent,
   CheckboxComponent,
   InputComponent,
   RadioButtonComponent,
   TextComponent,
-} from '../reusables';
-import {mobileNumbervalidation} from '../utils/commonFunctions';
+} from '@/reusables';
+import {mobileNumbervalidation} from '@/utils/commonFunctions';
 import {
   EachPerson,
   addPeopleAPICall,
   getPeopleAPICall,
   updatePeopleAPICall,
   updatePeopleAPICallRequest,
-} from '../reduxConfig/slices/peopleSlice';
+} from '@/reduxConfig/slices/peopleSlice';
 import ScreenWrapper from './screenWrapper';
-import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
+import CenterPopupComponent, {popupData} from '@/reusables/centerPopup';
 
 type ConstantsType = {
   userName: 'userName';

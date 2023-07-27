@@ -3,7 +3,7 @@ import apiUrls from '../apiUrls';
 import firestore from '@react-native-firebase/firestore';
 import {MessageType} from './eventsSlice';
 import {RootState, store} from '../store';
-import {PAGINATION_CONSTANT} from '../../utils/constants';
+import {PAGINATION_CONSTANT} from '@/utils/constants';
 import auth from '@react-native-firebase/auth';
 import Contacts from 'react-native-contacts';
 

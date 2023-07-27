@@ -8,18 +8,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ImageComponent from '../../reusables/image';
-import TextComponent from '../../reusables/text';
-import {colors} from '../../utils/appStyles';
+import ImageComponent from '@/reusables/image';
+import TextComponent from '@/reusables/text';
+import {colors} from '@/utils/appStyles';
 import * as ImagePicker from 'react-native-image-picker';
 import auth from '@react-native-firebase/auth';
 import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
-import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
 import {
   getProfilePictureAPICall,
   uploadProfilePictureAPICall,
-} from '../../reduxConfig/slices/userSlice';
+} from '@/reduxConfig/slices/userSlice';
 
 const PROFILE_PICTURE_SIZE = 60;
 

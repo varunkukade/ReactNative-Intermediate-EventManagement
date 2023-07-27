@@ -8,12 +8,12 @@ import {
   SigninScreen,
   ForgotPasswordScreen,
   WelcomeScreen,
-} from '../screens/index';
-import {colors, fontStyles} from '../utils/appStyles';
-import {TextComponent} from '../reusables';
+} from '@/screens/index';
+import {colors, fontStyles} from '@/utils/appStyles';
+import {TextComponent} from '@/reusables';
 import {TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {useAppSelector} from '../reduxConfig/store';
+import {useAppSelector} from '@/reduxConfig/store';
 
 export type AuthStackParamList = {
   SignupScreen: undefined;

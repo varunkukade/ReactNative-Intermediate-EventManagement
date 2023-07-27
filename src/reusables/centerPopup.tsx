@@ -1,10 +1,10 @@
 import React, {ReactElement, ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Modal, {ModalProps} from 'react-native-modal';
-import {colors} from '../utils/appStyles';
+import {colors} from '@/utils/appStyles';
 import TextComponent from './text';
 import ButtonComponent from './buttonComponent';
-import {useAppSelector} from '../reduxConfig/store';
+import {useAppSelector} from '@/reduxConfig/store';
 
 export type popupData = {
   header: string;

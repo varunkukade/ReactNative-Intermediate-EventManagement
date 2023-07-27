@@ -6,25 +6,24 @@ import {
   ToastAndroid,
   TouchableOpacity,
   View,
-  Share,
 } from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
-import {ButtonComponent, InputComponent, TextComponent} from '../reusables';
-import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
+import {colors, measureMents} from '@/utils/appStyles';
+import {ButtonComponent, InputComponent, TextComponent} from '@/reusables';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../navigation/rootStackNavigator';
+import {RootStackParamList} from '@/navigation/rootStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import {
   emailValidation,
   passwordValidation,
   setAsyncStorage,
-} from '../utils/commonFunctions';
+} from '@/utils/commonFunctions';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   googleSigninAPICall,
   signinAPICall,
-} from '../reduxConfig/slices/userSlice';
-import {AuthStackParamList} from '../navigation/authStackNavigator';
+} from '@/reduxConfig/slices/userSlice';
+import {AuthStackParamList} from '@/navigation/authStackNavigator';
 
 import {
   GoogleSignin,
@@ -33,7 +32,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 import ScreenWrapper from './screenWrapper';
-import CenterPopup from '../reusables/centerPopup';
+import CenterPopup from '@/reusables/centerPopup';
 
 const constants = {
   email: 'email',

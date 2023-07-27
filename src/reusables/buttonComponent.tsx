@@ -8,9 +8,9 @@ import {
   TouchableOpacityProps,
   TextStyle,
 } from 'react-native';
-import {colors} from '../utils/appStyles';
+import {colors} from '@/utils/appStyles';
 import TextComponent from './text';
-import {useAppSelector} from '../reduxConfig/store';
+import {useAppSelector} from '@/reduxConfig/store';
 
 type ButtonCommonProps = TouchableNativeFeedbackProps & TouchableOpacityProps;
 

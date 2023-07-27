@@ -1,9 +1,9 @@
 import React, {ReactElement} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {colors} from '../utils/appStyles';
+import {colors} from '@/utils/appStyles';
 import CheckBox, {CheckBoxProps} from '@react-native-community/checkbox';
 import TextComponent from './text';
-import {useAppSelector} from '../reduxConfig/store';
+import {useAppSelector} from '@/reduxConfig/store';
 
 interface CheckboxComponentProps extends CheckBoxProps {
   label?: string;

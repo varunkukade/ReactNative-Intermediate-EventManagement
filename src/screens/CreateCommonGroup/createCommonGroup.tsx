@@ -8,12 +8,12 @@ import {
   ToastAndroid,
   TouchableOpacity,
 } from 'react-native';
-import {colors, measureMents} from '../../utils/appStyles';
+import {colors, measureMents} from '@/utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '../../navigation/homeStackNavigator';
+import {HomeStackParamList} from '@/navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
-import {ButtonComponent, InputComponent, TextComponent} from '../../reusables';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
+import {ButtonComponent, InputComponent, TextComponent} from '@/reusables';
 import ScreenWrapper from '../screenWrapper';
 import uuid from 'react-native-uuid';
 import EachUserComponent from './eachUserComponent';
@@ -21,14 +21,14 @@ import {
   emailValidation,
   generateArray,
   mobileNumbervalidation,
-} from '../../utils/commonFunctions';
-import CenterPopupComponent, {popupData} from '../../reusables/centerPopup';
-import {MAX_BULK_ADDITION} from '../../utils/constants';
+} from '@/utils/commonFunctions';
+import CenterPopupComponent, {popupData} from '@/reusables/centerPopup';
+import {MAX_BULK_ADDITION} from '@/utils/constants';
 import {
   EachPerson,
   addCommonListAPICall,
   getCommonListsAPICall,
-} from '../../reduxConfig/slices/peopleSlice';
+} from '@/reduxConfig/slices/peopleSlice';
 import auth from '@react-native-firebase/auth';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 

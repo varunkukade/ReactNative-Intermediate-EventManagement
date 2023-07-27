@@ -8,15 +8,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '../../utils/appStyles';
-import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
+import {colors, measureMents} from '@/utils/appStyles';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
 import ScreenWrapper from '../screenWrapper';
-import {generateArray} from '../../utils/commonFunctions';
-import {getCommonListsAPICall} from '../../reduxConfig/slices/peopleSlice';
+import {generateArray} from '@/utils/commonFunctions';
+import {getCommonListsAPICall} from '@/reduxConfig/slices/peopleSlice';
 import UpdateEachCommonList from './updateEachCommonGroup';
-import {TextComponent} from '../../reusables';
+import {TextComponent} from '@/reusables';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '../../navigation/homeStackNavigator';
+import {HomeStackParamList} from '@/navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 

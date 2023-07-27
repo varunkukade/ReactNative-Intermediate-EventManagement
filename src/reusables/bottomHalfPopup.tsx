@@ -1,9 +1,9 @@
 import React, {ReactElement, ReactNode} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import Modal, {ModalProps} from 'react-native-modal';
-import {colors, measureMents} from '../utils/appStyles';
+import {colors, measureMents} from '@/utils/appStyles';
 import TextComponent from './text';
-import { useAppSelector } from '../reduxConfig/store';
+import { useAppSelector } from '@/reduxConfig/store';
 
 export type EachAction = {
   icon: () => ReactElement;

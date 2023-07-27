@@ -1,13 +1,13 @@
 import React, {useCallback} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {EachContact, updateSelected} from '../../reduxConfig/slices/peopleSlice';
-import {colors, measureMents} from '../../utils/appStyles';
-import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
+import {EachContact, updateSelected} from '@/reduxConfig/slices/peopleSlice';
+import {colors, measureMents} from '@/utils/appStyles';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
 import {
   CheckboxComponent,
   ImageComponent,
   TextComponent,
-} from '../../reusables';
+} from '@/reusables';
 
 const PROFILE_PICTURE_SIZE = 43;
 const ITEM_HEIGHT = 80;

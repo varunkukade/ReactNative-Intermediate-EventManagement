@@ -7,12 +7,12 @@ import {
   Platform,
   RefreshControl,
 } from 'react-native';
-import {colors, measureMents} from '../../utils/appStyles';
+import {colors, measureMents} from '@/utils/appStyles';
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
-import TextComponent from '../../reusables/text';
+import TextComponent from '@/reusables/text';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
-import {generateArray} from '../../utils/commonFunctions';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
+import {generateArray} from '@/utils/commonFunctions';
 import {
   EachEvent,
   getEventsAPICall,
@@ -20,19 +20,19 @@ import {
   removeEventAPICall,
   setEvents,
   setSelectedEvent,
-} from '../../reduxConfig/slices/eventsSlice';
+} from '@/reduxConfig/slices/eventsSlice';
 import moment from 'moment';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '../../navigation/homeStackNavigator';
+import {HomeStackParamList} from '@/navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import BottomHalfPopupComponent, {
   EachAction,
-} from '../../reusables/bottomHalfPopup';
-import CenterPopupComponent from '../../reusables/centerPopup';
+} from '@/reusables/bottomHalfPopup';
+import CenterPopupComponent from '@/reusables/centerPopup';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 import {ActivityIndicator} from 'react-native-paper';
-import {InputComponent} from '../../reusables';
+import {InputComponent} from '@/reusables';
 import {debounce} from 'lodash';
 
 const EventListComponent = (): ReactElement => {

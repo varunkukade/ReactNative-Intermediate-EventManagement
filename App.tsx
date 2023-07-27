@@ -1,10 +1,10 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {Provider} from 'react-redux';
-import {store} from './src/reduxConfig/store';
+import {store} from '@/reduxConfig/store';
 import {NavigationContainer} from '@react-navigation/native';
-import RootStackNavigator from './src/navigation/rootStackNavigator';
-import {LoadingAnimation} from './src/reusables';
+import RootStackNavigator from '@/navigation/rootStackNavigator';
+import {LoadingAnimation} from '@/reusables';
 
 const App = () => {
 

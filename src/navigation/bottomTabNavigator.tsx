@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {colors, fontStyles} from '../utils/appStyles';
+import {colors, fontStyles} from '@/utils/appStyles';
 import {StyleSheet, Text} from 'react-native';
-import { HomeScreen, SettingsScreen } from '../screens';
-import { useAppSelector } from '../reduxConfig/store';
+import { HomeScreen, SettingsScreen } from '@/screens';
+import { useAppSelector } from '@/reduxConfig/store';
 
 export type BottomTabParamList = {
   Home: undefined;

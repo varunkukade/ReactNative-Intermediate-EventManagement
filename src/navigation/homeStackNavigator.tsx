@@ -11,14 +11,14 @@ import {
   UpdateCommonGroupsUsersScreen,
   GuestListScreen,
   SelectContactScreen
-} from '../screens/index';
-import {colors, fontStyles} from '../utils/appStyles';
+} from '@/screens/index';
+import {colors, fontStyles} from '@/utils/appStyles';
 import {BottomTabNavigator} from '.';
 import {NavigatorScreenParams} from '@react-navigation/native';
 import {BottomTabParamList} from './bottomTabNavigator';
-import {EachEvent} from '../reduxConfig/slices/eventsSlice';
-import {EachPerson} from '../reduxConfig/slices/peopleSlice';
-import { useAppSelector } from '../reduxConfig/store';
+import {EachEvent} from '@/reduxConfig/slices/eventsSlice';
+import {EachPerson} from '@/reduxConfig/slices/peopleSlice';
+import { useAppSelector } from '@/reduxConfig/store';
 
 export type HomeStackParamList = {
   BottomTabNavigator: undefined | NavigatorScreenParams<BottomTabParamList>;

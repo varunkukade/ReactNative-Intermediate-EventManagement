@@ -1,15 +1,15 @@
 import React, {ReactElement} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
-import {HomeStackParamList} from '../navigation/homeStackNavigator';
+import {colors, measureMents} from '@/utils/appStyles';
+import {HomeStackParamList} from '@/navigation/homeStackNavigator';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import TextComponent from '../reusables/text';
-import {useAppSelector} from '../reduxConfig/store';
-import {getDate, getTime} from '../utils/commonFunctions';
+import {useNavigation} from '@react-navigation/native';
+import TextComponent from '@/reusables/text';
+import {useAppSelector} from '@/reduxConfig/store';
+import {getDate, getTime} from '@/utils/commonFunctions';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {ButtonComponent} from '../reusables';
+import {ButtonComponent} from '@/reusables';
 import ScreenWrapper from './screenWrapper';
 
 const EventDetailsScreen = (): ReactElement | null => {

@@ -1,8 +1,8 @@
-import React, {ReactElement, ReactNode, useState} from 'react';
+import React, {ReactElement, ReactNode} from 'react';
 import {StyleSheet, View, TouchableOpacity} from 'react-native';
-import {colors} from '../utils/appStyles';
+import {colors} from '@/utils/appStyles';
 import TextComponent from './text';
-import { useAppSelector } from '../reduxConfig/store';
+import { useAppSelector } from '@/reduxConfig/store';
 
 interface RadioButtonComponentProps {
     onPress: () => void

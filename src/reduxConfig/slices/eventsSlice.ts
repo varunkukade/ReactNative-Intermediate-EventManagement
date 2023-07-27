@@ -2,7 +2,7 @@ import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import firestore from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
 import auth from '@react-native-firebase/auth';
-import {PAGINATION_CONSTANT} from '../../utils/constants';
+import {PAGINATION_CONSTANT} from '@/utils/constants';
 import {RootState, store} from '../store';
 
 export type MessageType = {

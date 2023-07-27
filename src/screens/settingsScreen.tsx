@@ -9,28 +9,28 @@ import {
   View,
   Share
 } from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
-import {TextComponent} from '../reusables';
+import {colors, measureMents} from '@/utils/appStyles';
+import {TextComponent} from '@/reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../navigation/rootStackNavigator';
+import {RootStackParamList} from '@/navigation/rootStackNavigator';
 import {
   logoutAPICall,
   resetUserState,
   setTheme,
-} from '../reduxConfig/slices/userSlice';
-import CenterPopupComponent, {popupData} from '../reusables/centerPopup';
-import {HomeStackParamList} from '../navigation/homeStackNavigator';
-import {getInviteCode, setAsyncStorage} from '../utils/commonFunctions';
-import {resetEventState} from '../reduxConfig/slices/eventsSlice';
-import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
+} from '@/reduxConfig/slices/userSlice';
+import CenterPopupComponent, {popupData} from '@/reusables/centerPopup';
+import {HomeStackParamList} from '@/navigation/homeStackNavigator';
+import {getInviteCode, setAsyncStorage} from '@/utils/commonFunctions';
+import {resetEventState} from '@/reduxConfig/slices/eventsSlice';
+import {resetPeopleState} from '@/reduxConfig/slices/peopleSlice';
 import {ScreenWrapper} from '.';
-import {VERSION_CONST} from '../utils/constants';
+import {VERSION_CONST} from '@/utils/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import useCopyToClipboard from '../hooks/useCopyToClipboard';
+import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 
 const SettingsScreen = () => {
   //dispatch and selectors

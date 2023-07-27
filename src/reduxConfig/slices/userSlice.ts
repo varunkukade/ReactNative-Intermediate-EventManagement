@@ -9,8 +9,8 @@ import {
   GoogleSignin,
 } from '@react-native-google-signin/google-signin';
 import { RootState } from '../store';
-import { GOOGLE_CONST } from '../../utils/constants';
-import { setAsyncStorage } from '../../utils/commonFunctions';
+import { GOOGLE_CONST } from '@/utils/constants';
+import { setAsyncStorage } from '@/utils/commonFunctions';
 
 export type MessageType = {
   message: string;

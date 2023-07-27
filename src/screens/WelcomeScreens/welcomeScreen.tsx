@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import ScreenWrapper from '../screenWrapper';
-import {colors, measureMents} from '../../utils/appStyles';
-import {useAppSelector} from '../../reduxConfig/store';
-import {ButtonComponent, TextComponent} from '../../reusables';
+import {colors, measureMents} from '@/utils/appStyles';
+import {useAppSelector} from '@/reduxConfig/store';
+import {ButtonComponent, TextComponent} from '@/reusables';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {AuthStackParamList} from '../../navigation/authStackNavigator';
+import {AuthStackParamList} from '@/navigation/authStackNavigator';
 import {useNavigation} from '@react-navigation/native';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import Animated, {
@@ -16,7 +16,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { WelcomeScreenState, initialWelcomeScreens } from '../../utils/constants';
+import { WelcomeScreenState, initialWelcomeScreens } from '@/utils/constants';
 
 const marginConst = 20;
 

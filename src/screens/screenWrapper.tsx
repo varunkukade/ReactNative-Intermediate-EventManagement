@@ -1,8 +1,8 @@
 import {useRoute} from '@react-navigation/native';
 import React, {ReactNode, useCallback} from 'react';
 import {StatusBar, StyleSheet, View} from 'react-native';
-import {colors} from '../utils/appStyles';
-import { useAppSelector } from '../reduxConfig/store';
+import {colors} from '@/utils/appStyles';
+import { useAppSelector } from '@/reduxConfig/store';
 
 type ScreenWrapperProps = {
   children: ReactNode;

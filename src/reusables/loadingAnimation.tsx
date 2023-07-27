@@ -9,8 +9,8 @@ import Animated, {
   runOnUI,
 } from 'react-native-reanimated';
 import TextComponent from './text';
-import {colors} from '../utils/appStyles';
-import {useAppSelector} from '../reduxConfig/store';
+import {colors} from '@/utils/appStyles';
+import {useAppSelector} from '@/reduxConfig/store';
 
 const SIZE = 60;
 const LOADING = 'loading';

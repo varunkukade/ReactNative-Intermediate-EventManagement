@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
-import {ButtonComponent, InputComponent, TextComponent} from '../reusables';
+import {colors, measureMents} from '@/utils/appStyles';
+import {ButtonComponent, InputComponent, TextComponent} from '@/reusables';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   confirmPasswordValidation,
@@ -16,11 +16,11 @@ import {
   mobileNumbervalidation,
   passwordValidation,
   setAsyncStorage,
-} from '../utils/commonFunctions';
-import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
+} from '@/utils/commonFunctions';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
-import {RootStackParamList} from '../navigation/rootStackNavigator';
+import {RootStackParamList} from '@/navigation/rootStackNavigator';
 import auth from '@react-native-firebase/auth';
 import {
   EachUser,
@@ -29,10 +29,10 @@ import {
   logoutAPICall,
   resetUserState,
   updateProfileAPICall,
-} from '../reduxConfig/slices/userSlice';
-import {resetEventState} from '../reduxConfig/slices/eventsSlice';
-import {resetPeopleState} from '../reduxConfig/slices/peopleSlice';
-import {GOOGLE_CONST} from '../utils/constants';
+} from '@/reduxConfig/slices/userSlice';
+import {resetEventState} from '@/reduxConfig/slices/eventsSlice';
+import {resetPeopleState} from '@/reduxConfig/slices/peopleSlice';
+import {GOOGLE_CONST} from '@/utils/constants';
 import ScreenWrapper from './screenWrapper';
 
 const constants = {

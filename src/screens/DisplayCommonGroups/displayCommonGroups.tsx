@@ -1,20 +1,20 @@
 import React, {ReactElement, useCallback, useEffect, useState} from 'react';
 import {FlatList, Platform, RefreshControl, StyleSheet, ToastAndroid, TouchableOpacity, View} from 'react-native';
-import {colors, measureMents} from '../../utils/appStyles';
+import {colors, measureMents} from '@/utils/appStyles';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '../../navigation/homeStackNavigator';
+import {HomeStackParamList} from '@/navigation/homeStackNavigator';
 import {useNavigation} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '../../reduxConfig/store';
-import {ButtonComponent, TextComponent} from '../../reusables';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
+import {ButtonComponent, TextComponent} from '@/reusables';
 import ScreenWrapper from '../screenWrapper';
-import {generateArray} from '../../utils/commonFunctions';
+import {generateArray} from '@/utils/commonFunctions';
 import {
   EachPerson,
   addPeopleInBatchAPICall,
   getCommonListsAPICall,
   getPeopleAPICall,
   updateCommonList,
-} from '../../reduxConfig/slices/peopleSlice';
+} from '@/reduxConfig/slices/peopleSlice';
 import DisplayEachCommonList from './displayEachCommonGroup';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 

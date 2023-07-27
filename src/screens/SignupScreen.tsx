@@ -7,27 +7,27 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '../utils/appStyles';
+import {colors, measureMents} from '@/utils/appStyles';
 import {
   ButtonComponent,
   CheckboxComponent,
   InputComponent,
   TextComponent,
-} from '../reusables';
+} from '@/reusables';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   confirmPasswordValidation,
   emailValidation,
   mobileNumbervalidation,
   passwordValidation,
-} from '../utils/commonFunctions';
-import {useAppDispatch, useAppSelector} from '../reduxConfig/store';
-import {signupAPICall} from '../reduxConfig/slices/userSlice';
+} from '@/utils/commonFunctions';
+import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
+import {signupAPICall} from '@/reduxConfig/slices/userSlice';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
-import {RootStackParamList} from '../navigation/rootStackNavigator';
+import {RootStackParamList} from '@/navigation/rootStackNavigator';
 import auth from '@react-native-firebase/auth';
-import {AuthStackParamList} from '../navigation/authStackNavigator';
+import {AuthStackParamList} from '@/navigation/authStackNavigator';
 import {ScreenWrapper} from '.';
 
 const constants = {
