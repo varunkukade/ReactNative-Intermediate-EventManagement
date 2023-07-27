@@ -277,6 +277,7 @@ export const signinAPICall = createAsyncThunk<
         });
     } catch (error: any) {
       //return rejected promise
+      console.log("error",error)
       if (error?.code === 'auth/user-disabled') {
         message = 'Email address is disabled!';
       }
