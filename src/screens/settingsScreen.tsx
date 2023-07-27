@@ -266,15 +266,6 @@ const SettingsScreen = () => {
         />
       ),
       rightIcon: () => (
-        // <MaterialCommunityIcons
-        //   size={40}
-        //   color={colors[theme].iconLightPinkColor}
-        //   name={
-        //     theme === 'light'
-        //       ? 'toggle-switch-off-outline'
-        //       : 'toggle-switch-outline'
-        //   }
-        // />
         <View style={[styles.onOffSwitchContainer, {borderColor: colors[theme].iconLightPinkColor, justifyContent: theme === 'light' ? "flex-start" : "flex-end" }]}>
           <View style={[styles.onOffSwitch, {backgroundColor: colors[theme].iconLightPinkColor}]}/>
         </View>
