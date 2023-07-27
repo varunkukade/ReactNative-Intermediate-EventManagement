@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   View,
   Share,
+  LayoutAnimation,
+  UIManager,
 } from 'react-native';
 import { colors, measureMents } from '@/utils/appStyles';
 import { TextComponent } from '@/reusables';
@@ -31,6 +33,13 @@ import { ScreenWrapper } from '.';
 import { VERSION_CONST, screens } from '@/utils/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
+
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const SettingsScreen = () => {
   //dispatch and selectors
@@ -157,6 +166,7 @@ const SettingsScreen = () => {
   }, [rootNavigation]);
 
   const changeTheme = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (theme === 'light') {
       dispatch(setTheme('dark'));
     } else {
@@ -256,15 +266,18 @@ const SettingsScreen = () => {
         />
       ),
       rightIcon: () => (
-        <MaterialCommunityIcons
-          size={40}
-          color={colors[theme].iconLightPinkColor}
-          name={
-            theme === 'light'
-              ? 'toggle-switch-off-outline'
-              : 'toggle-switch-outline'
-          }
-        />
+        // <MaterialCommunityIcons
+        //   size={40}
+        //   color={colors[theme].iconLightPinkColor}
+        //   name={
+        //     theme === 'light'
+        //       ? 'toggle-switch-off-outline'
+        //       : 'toggle-switch-outline'
+        //   }
+        // />
+        <View style={[styles.onOffSwitchContainer, {borderColor: colors[theme].iconLightPinkColor, justifyContent: theme === 'light' ? "flex-start" : "flex-end" }]}>
+          <View style={[styles.onOffSwitch, {backgroundColor: colors[theme].iconLightPinkColor}]}/>
+        </View>
       ),
       onPress: () => changeTheme(),
     },
@@ -429,7 +442,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: measureMents.leftPadding,
   },
   eachAction: {
-    height: 90,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
@@ -437,16 +449,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: measureMents.leftPadding,
+    paddingVertical: 20,
     marginBottom: 20,
   },
   secondSection: {
     width: '80%',
-    height: '100%',
     justifyContent: 'space-evenly',
   },
   thirdSection: {
     width: '20%',
-    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -472,4 +483,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 25,
   },
+  onOffSwitchContainer: { 
+    width: 40, 
+    height: 20, 
+    borderWidth: 2.5, 
+    borderRadius: 20, 
+    marginTop: 5, 
+    paddingHorizontal: 5, 
+    flexDirection: "row", 
+    alignItems: "center", 
+  },
+  onOffSwitch: { 
+    width: 10, 
+    height: 10, 
+    borderRadius: 10
+  }
 });
