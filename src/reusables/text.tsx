@@ -22,7 +22,7 @@ const TextComponent = ({
       ? fontStyles.extraBold
       : fontStyles.semibold;
   return (
-    <View style={styles.wrapperComponent}>
+    <View style={[styles.wrapperComponent]}>
       <Text {...props} style={[{ fontFamily }, style]}>
         {children}
       </Text>

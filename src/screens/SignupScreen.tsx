@@ -237,14 +237,14 @@ const SignupScreen = () => {
             onChangeText={(value) => onChangeForm(value, constants.name)}
             label="Name"
             errorMessage={signupForm.name.errorMessage}
-            placeholder="Varun Kukade"
+            placeholder="Enter your full name..."
           />
           <InputComponent
             value={signupForm.email.value}
             onChangeText={(value) => onChangeForm(value, constants.email)}
             label="Email"
             errorMessage={signupForm.email.errorMessage}
-            placeholder="abc@gmail.com"
+            placeholder="Enter your email..."
             required
           />
           <InputComponent

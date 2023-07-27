@@ -117,7 +117,7 @@ const EachUserComponent = ({
             required
             label="Enter Name"
             errorMessage={eachUser.userName.errorMessage}
-            placeholder="Name of user..."
+            placeholder="Name of guest..."
           />
           <InputComponent
             value={eachUser.userMobileNumber?.value}
@@ -127,7 +127,7 @@ const EachUserComponent = ({
             errorMessage={eachUser.userMobileNumber?.errorMessage}
             label="Enter Mobile Number"
             keyboardType="numeric"
-            placeholder="10 digits"
+            placeholder="Mobile number of guest..."
           />
           <InputComponent
             value={eachUser.userEmail?.value}
@@ -136,7 +136,7 @@ const EachUserComponent = ({
             }
             errorMessage={eachUser.userEmail?.errorMessage}
             label="Enter Email"
-            placeholder="Email of user"
+            placeholder="Email of guest..."
           />
         </View>
       ) : null}

@@ -324,7 +324,7 @@ const AddGuestsScreen = (): ReactElement => {
             label="Enter Name"
             required
             errorMessage={eventForm.userName.errorMessage}
-            placeholder="Varun Kukade"
+            placeholder="Enter guest full name..."
           />
           <InputComponent
             value={eventForm.userMobileNumber.value}
@@ -334,13 +334,13 @@ const AddGuestsScreen = (): ReactElement => {
             label="Enter Mobile Number"
             keyboardType="numeric"
             errorMessage={eventForm.userMobileNumber.errorMessage}
-            placeholder="9028476756"
+            placeholder="Enter guest mobile number..."
           />
           <InputComponent
             value={eventForm.userEmail.value}
             onChangeText={(value) => onChangeForm(value, constants.userEmail)}
             label="Enter Email"
-            placeholder="varun.k@gmail.com"
+            placeholder="Enter guest email..."
           />
           <CheckboxComponent
             label="Check this if User has completed the payment"

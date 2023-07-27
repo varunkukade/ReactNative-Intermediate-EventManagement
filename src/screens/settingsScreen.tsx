@@ -9,12 +9,10 @@ import {
   View,
   Share,
   LayoutAnimation,
-  UIManager,
 } from 'react-native';
 import { colors, measureMents } from '@/utils/appStyles';
 import { TextComponent } from '@/reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -33,13 +31,6 @@ import { ScreenWrapper } from '.';
 import { VERSION_CONST, screens } from '@/utils/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
-
-if (
-  Platform.OS === 'android' &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 const SettingsScreen = () => {
   //dispatch and selectors
@@ -154,9 +145,9 @@ const SettingsScreen = () => {
     homeStackNavigation.navigate(screens.UpdateCommonGroupsScreen);
   }, [homeStackNavigation]);
 
-  const onInviteUsersPress = useCallback(() => {
-    setInvitePopupVisible(true);
-  }, [setInvitePopupVisible]);
+  // const onInviteUsersPress = useCallback(() => {
+  //   setInvitePopupVisible(true);
+  // }, [setInvitePopupVisible]);
 
   const onResetPasswordPress = useCallback(() => {
     rootNavigation.navigate(screens.AuthStack, {

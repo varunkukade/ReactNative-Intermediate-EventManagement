@@ -1,9 +1,8 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useState } from 'react';
 import { StyleSheet, View, TextInputProps, TextInput } from 'react-native';
 import { colors, fontStyles } from '@/utils/appStyles';
 import TextComponent from './text';
 import { useAppSelector } from '@/reduxConfig/store';
-
 interface InputComponentProps extends Omit<TextInputProps, 'cursorColor'> {
   onChangeText: (value: string) => void;
   value: string;
@@ -23,19 +22,20 @@ const InputComponent = ({
   ...props
 }: InputComponentProps): ReactElement => {
   const theme = useAppSelector((state) => state.user.currentUser.theme);
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <View>
-      <View style={{ flexDirection: 'row' }}>
-        {label ? (
-          <TextComponent
-            weight="semibold"
-            style={{ fontSize: 16, color: colors[theme].textColor }}
-          >
-            {label}
+      <View style={styles.textInputWrapper}>
+        {
+         label && (isFocused || value!== "") ? (
+          <View style={styles.topView}>
+          <TextComponent 
+            style={{ fontSize: 14, color: colors[theme].textColor }}
+            weight='semibold'>
+              {label}
           </TextComponent>
-        ) : null}
-        {required ? (
+          {required ? (
           <TextComponent
             weight="semibold"
             style={{
@@ -47,8 +47,9 @@ const InputComponent = ({
             *
           </TextComponent>
         ) : null}
-      </View>
-      <View style={styles.textInputWrapper}>
+          </View>
+         ) : null
+        }
         <TextInput
           style={[
             styles.input,
@@ -59,10 +60,17 @@ const InputComponent = ({
             },
           ]}
           {...props}
+          placeholder={isFocused ? "" : props.placeholder}
           placeholderTextColor={colors[theme].textColor}
           onChangeText={onChangeText}
           value={value}
           cursorColor={colors[theme].textColor}
+          onFocus={() => {
+            setIsFocused(true)
+          }}
+          onBlur={() => {
+            setIsFocused(false)
+          }}
         />
         {rightIconComponent ? rightIconComponent : null}
       </View>
@@ -90,15 +98,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 5,
+    overflow: 'hidden',    
+    position: "relative"
   },
   input: {
-    marginTop: 7,
+    marginTop: 10,
     borderRadius: 15,
     paddingVertical: 13,
     paddingHorizontal: 13,
     fontFamily: fontStyles.regular,
     fontSize: 15,
     width: '100%',
+    zIndex: 1,
+
   },
+  topView: { 
+    flexDirection: 'row', 
+    position: "absolute", 
+    top: 0, 
+    left: 15, 
+    zIndex: 2 
+  }
 });

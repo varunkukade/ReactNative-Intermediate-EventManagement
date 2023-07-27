@@ -266,7 +266,7 @@ const AddEventScreen = (): ReactElement => {
             label="Event Title"
             required
             errorMessage={eventForm.eventTitle.errorMessage}
-            placeholder="Wedding"
+            placeholder="Event Title"
           />
           <InputComponent
             value={eventForm.eventDesc.value}
@@ -349,7 +349,7 @@ const AddEventScreen = (): ReactElement => {
             required
             numberOfLines={5}
             errorMessage={eventForm.eventLocation.errorMessage}
-            placeholder="Singh Residency, near Tarakpur bus Stand, Ahmednagar, 414003."
+            placeholder="Add event location..."
           />
           <InputComponent
             value={eventForm.eventFees.value}
