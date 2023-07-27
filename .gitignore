@@ -40,12 +40,6 @@ yarn-error.log
 yarn.lock
 package-lock.json
 
-# BUCK
-buck-out/
-\.buckd/
-*.keystore
-!debug.keystore
-
 # fastlane
 #
 # It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
@@ -65,3 +59,6 @@ buck-out/
 /ios/Pods/
 /vendor/bundle/
 Podfile.lock
+
+# Temporary files created by Metro to check the health of the file watcher
+.metro-health-check*
