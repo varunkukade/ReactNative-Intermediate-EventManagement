@@ -1,41 +1,39 @@
-import {useRoute} from '@react-navigation/native';
-import React, {ReactNode, useCallback} from 'react';
-import {StatusBar, StyleSheet, View} from 'react-native';
-import {colors} from '@/utils/appStyles';
+import { useRoute } from '@react-navigation/native';
+import React, { ReactNode, useCallback } from 'react';
+import { StatusBar, View } from 'react-native';
+import { colors } from '@/utils/appStyles';
 import { useAppSelector } from '@/reduxConfig/store';
+import { screens } from '@/utils/constants';
 
 type ScreenWrapperProps = {
   children: ReactNode;
   currentTab?: 'Home' | 'Settings' | '';
 };
 
-const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
+const ScreenWrapper = ({ children, currentTab }: ScreenWrapperProps) => {
   // we obtain the object that contains info about the current route
   const route = useRoute();
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   // for simplicity we will only modify the background color
   const getBackgroundColorBasedOnRoute = useCallback(() => {
     switch (route.name) {
-      case 'SignupScreen':
-      case 'SigninScreen':
-      case 'UpdateProfileScreen':
+      case screens.SignupScreen:
+      case screens.SigninScreen:
+      case screens.UpdateProfileScreen:
         return colors[theme].primaryColor;
 
-      case 'Home':
-      case 'EventDetailsScreen':
-      case 'AddEventScreen':
-      case 'All':
-      case 'Pending':
-      case 'Completed':
-      case 'AddGuestsScreen':
-      case 'CreateCommonGroup':
-      case 'DisplayCommonGroups': 
-      case 'UpdateCommonGroupsScreen':
-      case 'UpdateCommonGroupsUsersScreen': 
-      case 'GuestListScreen':
-      case 'SelectContactScreen':
-      case 'WelcomeScreen':
+      case screens.Home:
+      case screens.EventDetailsScreen:
+      case screens.AddEventScreen:
+      case screens.AddGuestsScreen:
+      case screens.CreateCommonGroup:
+      case screens.DisplayCommonGroups:
+      case screens.UpdateCommonGroupsScreen:
+      case screens.UpdateCommonGroupsUsersScreen:
+      case screens.GuestListScreen:
+      case screens.SelectContactScreen:
+      case screens.WelcomeScreen:
         return colors[theme].lightLavenderColor;
 
       default:
@@ -44,31 +42,26 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
   }, [route.name, theme]);
 
   const getStatusBarStyle = useCallback(() => {
-    if (currentTab === 'Home') return 'dark-content';
-    if (currentTab === 'Settings') return 'light-content';
+    if (currentTab === screens.Home) return 'dark-content';
+    if (currentTab === screens.Settings) return 'light-content';
     switch (route.name) {
-      case 'SignupScreen':
-      case 'SigninScreen':
-      case 'UpdateProfileScreen':
+      case screens.SignupScreen:
+      case screens.SigninScreen:
+      case screens.UpdateProfileScreen:
         return 'light-content';
 
-      case 'Home':
-      case 'AddEventScreen':
-      case 'EventDetailsScreen':
-      case 'All':
-      case 'Pending':
-      case 'Completed':
-      case 'AddGuestsScreen':
-      case 'CreateCommonGroup':
-      case 'DisplayCommonGroups':
-      case 'UpdateCommonGroupsScreen':
-      case 'UpdateCommonGroupsUsersScreen':
-      case 'GuestListScreen':
-      case 'SelectContactScreen':
-      case 'WelcomeScreen':
-        let content = theme === "dark" ? "light-content" : "dark-content"
-        return content;
-
+      case screens.Home:
+      case screens.AddEventScreen:
+      case screens.EventDetailsScreen:
+      case screens.AddGuestsScreen:
+      case screens.CreateCommonGroup:
+      case screens.DisplayCommonGroups:
+      case screens.UpdateCommonGroupsScreen:
+      case screens.UpdateCommonGroupsUsersScreen:
+      case screens.GuestListScreen:
+      case screens.SelectContactScreen:
+      case screens.WelcomeScreen:
+        return theme === 'dark' ? 'light-content' : 'dark-content';
       default:
         return 'light-content';
     }
@@ -80,7 +73,8 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
       style={{
         backgroundColor: getBackgroundColorBasedOnRoute(),
         flex: 1,
-      }}>
+      }}
+    >
       <StatusBar
         backgroundColor={getBackgroundColorBasedOnRoute()}
         barStyle={getStatusBarStyle()}
@@ -89,9 +83,5 @@ const ScreenWrapper = ({children, currentTab}: ScreenWrapperProps) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  customHeader: {},
-});
 
 export default ScreenWrapper;

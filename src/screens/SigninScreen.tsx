@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -7,12 +7,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
-import {ButtonComponent, InputComponent, TextComponent} from '@/reusables';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '@/navigation/rootStackNavigator';
-import {useNavigation} from '@react-navigation/native';
+import { colors, measureMents } from '@/utils/appStyles';
+import { ButtonComponent, InputComponent, TextComponent } from '@/reusables';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/navigation/rootStackNavigator';
+import { useNavigation } from '@react-navigation/native';
 import {
   emailValidation,
   passwordValidation,
@@ -23,7 +23,7 @@ import {
   googleSigninAPICall,
   signinAPICall,
 } from '@/reduxConfig/slices/userSlice';
-import {AuthStackParamList} from '@/navigation/authStackNavigator';
+import { AuthStackParamList } from '@/navigation/authStackNavigator';
 
 import {
   GoogleSignin,
@@ -33,6 +33,7 @@ import {
 import auth from '@react-native-firebase/auth';
 import ScreenWrapper from './screenWrapper';
 import CenterPopup from '@/reusables/centerPopup';
+import { screens } from '@/utils/constants';
 
 const constants = {
   email: 'email',
@@ -50,8 +51,8 @@ type SigninFormData = {
 };
 const SigninScreen = () => {
   let initialSigninForm: SigninFormData = {
-    email: {value: 'varunkukade999@gmail.com', errorMessage: ''},
-    password: {value: 'Vk@#$2211', errorMessage: ''},
+    email: { value: 'varunkukade999@gmail.com', errorMessage: '' },
+    password: { value: 'Vk@#$2211', errorMessage: '' },
   };
 
   //useStates
@@ -61,12 +62,12 @@ const SigninScreen = () => {
     useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [inviteCode, setInviteCode] = useState({
-    value: "",
-    error: ""
-  })
+    value: '',
+    error: '',
+  });
 
   //useSelectors
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -78,29 +79,31 @@ const SigninScreen = () => {
   const signIn = async () => {
     try {
       // Check if device supports Google Play
-      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
       // Get the users ID token
-      const {idToken} = await GoogleSignin.signIn();
+      const { idToken } = await GoogleSignin.signIn();
 
       // Create a Google credential with the token
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
       // Sign-in the user with the credential
-      dispatch(googleSigninAPICall({authCredentials: googleCredential})).then(
-        res => {
+      dispatch(googleSigninAPICall({ authCredentials: googleCredential })).then(
+        (res) => {
           if (res.meta.requestStatus === 'fulfilled') {
             if (res.payload)
               ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
             setSigninForm(initialSigninForm);
-            setAsyncStorage('isAuthenticated', 'true').then(res => {
+            setAsyncStorage('isAuthenticated', 'true').then(() => {
               navigation.reset({
                 index: 0,
                 routes: [
                   {
-                    name: 'HomeStack',
+                    name: screens.HomeStack,
                     state: {
                       index: 0,
-                      routes: [{name: 'Home'}],
+                      routes: [{ name: screens.Home }],
                     },
                   },
                 ],
@@ -134,7 +137,7 @@ const SigninScreen = () => {
   ): void => {
     setSigninForm({
       ...signinForm,
-      [fieldName]: {value: value, errorMessage: ''},
+      [fieldName]: { value: value, errorMessage: '' },
     });
   };
 
@@ -172,30 +175,30 @@ const SigninScreen = () => {
   };
 
   const onFormSubmit = (): void => {
-    const {email, password} = signinForm;
+    const { email, password } = signinForm;
     if (
       emailValidation(email.value).isValid &&
       passwordValidation(password.value).isValid
     ) {
       setFormErrors('empty');
-      let requestObj: {email: string; password: string} = {
+      let requestObj: { email: string; password: string } = {
         email: email.value,
         password: password.value,
       };
-      dispatch(signinAPICall(requestObj)).then(res => {
+      dispatch(signinAPICall(requestObj)).then((res) => {
         if (res.meta.requestStatus === 'fulfilled') {
           if (res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
           setSigninForm(initialSigninForm);
-          setAsyncStorage('isAuthenticated', 'true').then(res => {
+          setAsyncStorage('isAuthenticated', 'true').then(() => {
             navigation.reset({
               index: 0,
               routes: [
                 {
-                  name: 'HomeStack',
+                  name: screens.HomeStack,
                   state: {
                     index: 0,
-                    routes: [{name: 'Home'}],
+                    routes: [{ name: screens.Home }],
                   },
                 },
               ],
@@ -227,13 +230,13 @@ const SigninScreen = () => {
   }, [setIsInviteCodePopupVisible]);
 
   const onConfirmInviteCode = React.useCallback(() => {
-    if(inviteCode.value) {
-      
-    }else {
-      setInviteCode(prevState => ({
-        ...prevState, 
-        error: "Invite Code cannot be emoty."
-      }))
+    if (inviteCode.value) {
+      console.log('Value present');
+    } else {
+      setInviteCode((prevState) => ({
+        ...prevState,
+        error: 'Invite Code cannot be emoty.',
+      }));
     }
   }, []);
 
@@ -248,7 +251,7 @@ const SigninScreen = () => {
 
   return (
     <ScreenWrapper>
-      <ScrollView style={{alignSelf: 'center'}}>
+      <ScrollView style={{ alignSelf: 'center' }}>
         <View style={styles.welcomeMessage}>
           <TextComponent
             style={{
@@ -257,7 +260,8 @@ const SigninScreen = () => {
               marginBottom: 10,
               textAlign: 'center',
             }}
-            weight="bold">
+            weight="bold"
+          >
             Hi, Welcome Back 👋🏻
           </TextComponent>
           <TextComponent
@@ -266,18 +270,20 @@ const SigninScreen = () => {
               color: colors[theme].whiteColor,
               textAlign: 'center',
             }}
-            weight="normal">
+            weight="normal"
+          >
             You can continue to login to manage your events.
           </TextComponent>
         </View>
         <View
           style={[
             styles.mainContainer,
-            {backgroundColor: colors[theme].cardColor},
-          ]}>
+            { backgroundColor: colors[theme].cardColor },
+          ]}
+        >
           <InputComponent
             value={signinForm.email.value}
-            onChangeText={value => onChangeForm(value, constants.email)}
+            onChangeText={(value) => onChangeForm(value, constants.email)}
             label="Email"
             required
             errorMessage={signinForm.email.errorMessage}
@@ -285,7 +291,7 @@ const SigninScreen = () => {
           />
           <InputComponent
             value={signinForm.password.value}
-            onChangeText={value => onChangeForm(value, constants.password)}
+            onChangeText={(value) => onChangeForm(value, constants.password)}
             label="Password"
             required
             errorMessage={signinForm.password.errorMessage}
@@ -294,7 +300,8 @@ const SigninScreen = () => {
             rightIconComponent={
               <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
-                style={{position: 'absolute', right: 15}}>
+                style={{ position: 'absolute', right: 15 }}
+              >
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                   color={colors[theme].iconLightPinkColor}
@@ -309,35 +316,38 @@ const SigninScreen = () => {
               flexDirection: 'row',
               alignItems: 'center',
               alignSelf: 'center',
-            }}>
-            <View style={{width: '60%'}}>
+            }}
+          >
+            <View style={{ width: '60%' }}>
               <TouchableOpacity
-                onPress={() =>
-                  setIsInviteCodePopupVisible(true)
-                }
-                style={{alignSelf: 'flex-start'}}>
+                onPress={() => setIsInviteCodePopupVisible(true)}
+                style={{ alignSelf: 'flex-start' }}
+              >
                 <TextComponent
                   style={{
                     fontSize: 14,
                     color: colors[theme].textColor,
                   }}
-                  weight="bold">
+                  weight="bold"
+                >
                   Have an Invite Code ?
                 </TextComponent>
               </TouchableOpacity>
             </View>
-            <View style={{width: '40%'}}>
+            <View style={{ width: '40%' }}>
               <TouchableOpacity
                 onPress={() =>
-                  authStackNavigation.navigate('ForgotPasswordScreen')
+                  authStackNavigation.navigate(screens.ForgotPasswordScreen)
                 }
-                style={{alignSelf: 'flex-end'}}>
+                style={{ alignSelf: 'flex-end' }}
+              >
                 <TextComponent
                   style={{
                     fontSize: 14,
                     color: colors[theme].textColor,
                   }}
-                  weight="bold">
+                  weight="bold"
+                >
                   Forgot Password?
                 </TextComponent>
               </TouchableOpacity>
@@ -345,7 +355,8 @@ const SigninScreen = () => {
           </View>
           <ButtonComponent
             onPress={onFormSubmit}
-            containerStyle={{marginTop: 30}}>
+            containerStyle={{ marginTop: 30 }}
+          >
             Sign-in
           </ButtonComponent>
           <TextComponent
@@ -355,7 +366,8 @@ const SigninScreen = () => {
               fontSize: 18,
               marginTop: 30,
               color: colors[theme].textColor,
-            }}>
+            }}
+          >
             Or
           </TextComponent>
           <GoogleSigninButton
@@ -371,16 +383,18 @@ const SigninScreen = () => {
             onPress={signIn}
           />
           <TouchableOpacity
-            onPress={() => authStackNavigation.navigate('SignupScreen')}
-            style={{marginTop: 15}}>
+            onPress={() => authStackNavigation.navigate(screens.SignupScreen)}
+            style={{ marginTop: 15 }}
+          >
             <TextComponent
               style={{
                 fontSize: 14,
                 color: colors[theme].textColor,
                 textAlign: 'center',
               }}
-              weight="bold">
-              Don't have an account ? Sign Up
+              weight="bold"
+            >
+              Don&apos;t have an account ? Sign Up
             </TextComponent>
           </TouchableOpacity>
         </View>
@@ -392,10 +406,12 @@ const SigninScreen = () => {
       >
         <InputComponent
           value={inviteCode.value}
-          onChangeText={value => setInviteCode(prevState => ({...prevState, value: value}))}
+          onChangeText={(value) =>
+            setInviteCode((prevState) => ({ ...prevState, value: value }))
+          }
           errorMessage={inviteCode.error}
         />
-        </CenterPopup>
+      </CenterPopup>
     </ScreenWrapper>
   );
 };

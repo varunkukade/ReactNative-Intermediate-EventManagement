@@ -1,10 +1,12 @@
-import React, {useState, useCallback, useEffect} from 'react';
-import {Platform, ToastAndroid} from 'react-native';
+import { useState, useCallback, useEffect } from 'react';
+import { Platform, ToastAndroid } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 
-type UseCopyToClipboard = [boolean, (text: string | number) => void]
+type UseCopyToClipboard = [boolean, (text: string | number) => void];
 
-export default function useCopyToClipboard(resetInterval: null | number = null) : UseCopyToClipboard {
+export default function useCopyToClipboard(
+  resetInterval: null | number = null,
+): UseCopyToClipboard {
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {

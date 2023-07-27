@@ -4,6 +4,7 @@
  *
  * @format
  */
+/* eslint-disable no-undef */
 
 module.exports = {
   transformer: {

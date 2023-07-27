@@ -1,15 +1,16 @@
-import React, {ReactElement} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {MemoizedEventListComponent} from './eventListComponent';
-import {MemoizedWelcomeComponent} from './welcomeComponent';
-import {colors, measureMents} from '@/utils/appStyles';
+import React, { ReactElement } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { MemoizedEventListComponent } from './eventListComponent';
+import { MemoizedWelcomeComponent } from './welcomeComponent';
+import { colors, measureMents } from '@/utils/appStyles';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
-import {HomeStackParamList} from '@/navigation/homeStackNavigator';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
 import ScreenWrapper from '../screenWrapper';
-import {useAppSelector} from '@/reduxConfig/store';
+import { useAppSelector } from '@/reduxConfig/store';
 import useIsKeyboardShown from '@/hooks/useIsKeyboardShown';
+import { screens } from '@/utils/constants';
 
 const HomeScreen = (): ReactElement => {
   //navigation state
@@ -19,10 +20,10 @@ const HomeScreen = (): ReactElement => {
   > = useNavigation();
 
   //hooks
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
   const [isKeyboardOpened] = useIsKeyboardShown();
   const onAddEventClick = () => {
-    navigation.navigate('AddEventScreen');
+    navigation.navigate(screens.AddEventScreen);
   };
 
   return (
@@ -39,8 +40,9 @@ const HomeScreen = (): ReactElement => {
           activeOpacity={0.7}
           style={[
             styles.addEventButton,
-            {backgroundColor: colors[theme].commonPrimaryColor},
-          ]}>
+            { backgroundColor: colors[theme].commonPrimaryColor },
+          ]}
+        >
           <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
         </TouchableOpacity>
       ) : null}

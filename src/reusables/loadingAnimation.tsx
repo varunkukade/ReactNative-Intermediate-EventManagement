@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -9,8 +9,8 @@ import Animated, {
   runOnUI,
 } from 'react-native-reanimated';
 import TextComponent from './text';
-import {colors} from '@/utils/appStyles';
-import {useAppSelector} from '@/reduxConfig/store';
+import { colors } from '@/utils/appStyles';
+import { useAppSelector } from '@/reduxConfig/store';
 
 const SIZE = 60;
 const LOADING = 'loading';
@@ -24,19 +24,19 @@ const LoadingAnimation = () => {
   const reanimatedStyle = useAnimatedStyle(() => {
     return {
       //opacity: progress.value,
-      transform: [{scale: scale.value}],
+      transform: [{ scale: scale.value }],
     };
   }, []);
 
   //selectors
-  const eventSlice = useAppSelector(state => state.events);
-  const userSlice = useAppSelector(state => state.user);
-  const peopleSlice = useAppSelector(state => state.people);
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const eventSlice = useAppSelector((state) => state.events);
+  const userSlice = useAppSelector((state) => state.user);
+  const peopleSlice = useAppSelector((state) => state.people);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
-  const eventSliceStatuses = useAppSelector(state => state.events.statuses);
-  const userSliceStatuses = useAppSelector(state => state.user.statuses);
-  const peopleSliceStatuses = useAppSelector(state => state.people.statuses);
+  const eventSliceStatuses = useAppSelector((state) => state.events.statuses);
+  const userSliceStatuses = useAppSelector((state) => state.user.statuses);
+  const peopleSliceStatuses = useAppSelector((state) => state.people.statuses);
 
   function getLoadingMessage() {
     if (
@@ -49,8 +49,8 @@ const LoadingAnimation = () => {
       userSliceStatuses.signinAPICall === LOADING ||
       userSliceStatuses.signupAPICall === LOADING ||
       userSliceStatuses.forgotPasswordAPICall === LOADING ||
-      userSliceStatuses.updateProfileAPICall === LOADING || 
-      userSliceStatuses.uploadProfilePictureAPICall === LOADING || 
+      userSliceStatuses.updateProfileAPICall === LOADING ||
+      userSliceStatuses.uploadProfilePictureAPICall === LOADING ||
       userSliceStatuses.getProfileDataAPICall === LOADING ||
       userSliceStatuses.googleSigninAPICall === LOADING
     )
@@ -61,7 +61,7 @@ const LoadingAnimation = () => {
       peopleSliceStatuses.removePeopleAPICall === LOADING ||
       peopleSliceStatuses.updatePeopleAPICall === LOADING ||
       peopleSliceStatuses.addCommonListAPICall === LOADING ||
-      peopleSliceStatuses.getCommonListsAPICall === LOADING || 
+      peopleSliceStatuses.getCommonListsAPICall === LOADING ||
       peopleSliceStatuses.removeCustomListAPICall === LOADING ||
       peopleSliceStatuses.updateCommonListAPICall === LOADING ||
       peopleSliceStatuses.getDeviceContactsAPICall === LOADING
@@ -72,21 +72,21 @@ const LoadingAnimation = () => {
     return (
       eventSliceStatuses.addEventAPICall === LOADING ||
       eventSliceStatuses.removeEventAPICall === LOADING ||
-      eventSliceStatuses.updateEventAPICall === LOADING || 
+      eventSliceStatuses.updateEventAPICall === LOADING ||
       userSliceStatuses.signinAPICall === LOADING ||
       userSliceStatuses.signupAPICall === LOADING ||
       userSliceStatuses.forgotPasswordAPICall === LOADING ||
       userSliceStatuses.logoutAPICall === LOADING ||
       userSliceStatuses.updateProfileAPICall === LOADING ||
       userSliceStatuses.uploadProfilePictureAPICall === LOADING ||
-      userSliceStatuses.getProfileDataAPICall === LOADING || 
+      userSliceStatuses.getProfileDataAPICall === LOADING ||
       userSliceStatuses.googleSigninAPICall === LOADING ||
       peopleSliceStatuses.addPeopleAPICall === LOADING ||
       peopleSliceStatuses.addPeopleInBatchAPICall === LOADING ||
       peopleSliceStatuses.removePeopleAPICall === LOADING ||
       peopleSliceStatuses.updatePeopleAPICall === LOADING ||
       peopleSliceStatuses.addCommonListAPICall === LOADING ||
-      peopleSliceStatuses.getCommonListsAPICall === LOADING || 
+      peopleSliceStatuses.getCommonListsAPICall === LOADING ||
       peopleSliceStatuses.removeCustomListAPICall === LOADING ||
       peopleSliceStatuses.updateCommonListAPICall === LOADING ||
       peopleSliceStatuses.getDeviceContactsAPICall === LOADING
@@ -98,7 +98,7 @@ const LoadingAnimation = () => {
     const updateValue = () => {
       'worklet';
       scale.value = withRepeat(withSpring(1), -1, true);
-    }; 
+    };
     runOnUI(updateValue)();
     return () => cancelAnimation(scale);
   }, []);
@@ -116,12 +116,19 @@ const LoadingAnimation = () => {
                 borderRadius: SIZE / 2,
               },
               reanimatedStyle,
-            ]}>
-            <Animated.View style={[styles.loadingAnimation, { backgroundColor: colors[theme].lavenderColor}]} />
+            ]}
+          >
+            <Animated.View
+              style={[
+                styles.loadingAnimation,
+                { backgroundColor: colors[theme].lavenderColor },
+              ]}
+            />
           </Animated.View>
           <TextComponent
             weight="bold"
-            style={{color: colors[theme].whiteColor, fontSize: 16}}>
+            style={{ color: colors[theme].whiteColor, fontSize: 16 }}
+          >
             {getLoadingMessage()}
           </TextComponent>
         </View>
@@ -148,11 +155,11 @@ const styles = StyleSheet.create({
     borderRadius: SIZE / 2,
   },
   leftHeart: {
-    transform: [{rotate: '-45deg'}],
+    transform: [{ rotate: '-45deg' }],
     left: 55,
   },
   rightHeart: {
-    transform: [{rotate: '45deg'}],
+    transform: [{ rotate: '45deg' }],
     right: 55,
   },
   heartShape: {

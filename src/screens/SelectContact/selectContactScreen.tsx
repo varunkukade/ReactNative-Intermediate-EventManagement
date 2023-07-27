@@ -1,4 +1,4 @@
-import React, {ReactElement, useCallback, useEffect, useState} from 'react';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import {
   FlatList,
   Platform,
@@ -7,18 +7,14 @@ import {
   ToastAndroid,
   View,
 } from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '@/navigation/homeStackNavigator';
-import {useNavigation} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
-import {
-  ButtonComponent,
-  InputComponent,
-  TextComponent,
-} from '@/reusables';
+import { colors, measureMents } from '@/utils/appStyles';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
+import { useNavigation } from '@react-navigation/native';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
+import { ButtonComponent, InputComponent, TextComponent } from '@/reusables';
 import ScreenWrapper from '../screenWrapper';
-import {generateArray} from '@/utils/commonFunctions';
+import { generateArray } from '@/utils/commonFunctions';
 import {
   EachContact,
   EachPerson,
@@ -28,8 +24,9 @@ import {
   updateContacts,
   updateOriginalContacts,
 } from '@/reduxConfig/slices/peopleSlice';
-import {debounce} from 'lodash';
+import { debounce } from 'lodash';
 import RenderEachContact from './renderEachContact';
+import { screens } from '@/utils/constants';
 
 const PROFILE_PICTURE_SIZE = 43;
 const ITEM_HEIGHT = 80;
@@ -45,34 +42,33 @@ const SelectContactScreen = (): ReactElement => {
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const peopleState = useAppSelector(state => state.people);
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const peopleState = useAppSelector((state) => state.people);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
   const currentSelectedEvent = useAppSelector(
-    state => state.events.currentSelectedEvent,
+    (state) => state.events.currentSelectedEvent,
   );
 
   //useStates
   const [refreshing, setRefreshing] = useState(false);
   const [searchedValue, setSearchedValue] = useState('');
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    dispatch(getDeviceContactsAPICall()).then(resp => {
+    dispatch(getDeviceContactsAPICall()).then((resp) => {
       if (resp.payload && resp.meta.requestStatus === 'rejected') {
         if (Platform.OS === 'android')
           ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
       }
     });
     return () => {
-      dispatch(updateContacts([]))
-      dispatch(updateOriginalContacts([]))
+      dispatch(updateContacts([]));
+      dispatch(updateOriginalContacts([]));
     };
   }, []);
 
   const addContactsToEvent = () => {
     if (!currentSelectedEvent) return null;
     let requestArr: Omit<EachPerson, 'userId'>[] = [];
-    peopleState.originalContacts.forEach(eachContact => {
+    peopleState.originalContacts.forEach((eachContact) => {
       if (eachContact.selected)
         requestArr.push({
           userEmail: eachContact.contactEmailAddress || '',
@@ -84,32 +80,32 @@ const SelectContactScreen = (): ReactElement => {
           createdAt: new Date().toString(),
         });
     });
-    dispatch(addPeopleInBatchAPICall(requestArr)).then(resp => {
+    dispatch(addPeopleInBatchAPICall(requestArr)).then((resp) => {
       if (resp.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
         dispatch(getPeopleAPICall());
-        navigation.navigate('GuestListScreen');
+        navigation.navigate(screens.GuestListScreen);
       } else {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
       }
     });
   };
-  
+
   const getSelectedCount = () => {
     let count = 0;
-    peopleState.originalContacts.forEach(eachContact => {
+    peopleState.originalContacts.forEach((eachContact) => {
       if (eachContact.selected) count += 1;
     });
     return count;
   };
 
   const showSearchedContacts = useCallback(
-    debounce(searchedValue => {
+    debounce((searchedValue) => {
       let updatedContacts: EachContact[];
       if (searchedValue === '') {
-        updatedContacts = peopleState.originalContacts.map(eachContact => {
+        updatedContacts = peopleState.originalContacts.map((eachContact) => {
           return eachContact;
         });
       } else {
@@ -118,7 +114,7 @@ const SelectContactScreen = (): ReactElement => {
           .trim()
           .split(' ')
           .join('');
-        updatedContacts = peopleState.originalContacts.filter(eachContact => {
+        updatedContacts = peopleState.originalContacts.filter((eachContact) => {
           if (
             eachContact.contactName &&
             eachContact.contactName
@@ -156,12 +152,13 @@ const SelectContactScreen = (): ReactElement => {
       <View
         style={[
           styles.searchInput,
-          {backgroundColor: colors[theme].cardColor},
-        ]}>
+          { backgroundColor: colors[theme].cardColor },
+        ]}
+      >
         <InputComponent
           value={searchedValue}
           placeholder="Search through name / cell no..."
-          onChangeText={value => handleContactSearch(value)}
+          onChangeText={(value) => handleContactSearch(value)}
         />
       </View>
       {peopleState.statuses.getDeviceContactsAPICall === 'succeedded' &&
@@ -172,7 +169,8 @@ const SelectContactScreen = (): ReactElement => {
             marginHorizontal: measureMents.leftPadding,
             marginTop: 7,
           }}
-          weight="normal">
+          weight="normal"
+        >
           {`Total Contacts: ${peopleState.contacts.length}`}
         </TextComponent>
       ) : null}
@@ -187,18 +185,14 @@ const SelectContactScreen = (): ReactElement => {
             marginBottom: 20,
           }}
           initialNumToRender={8}
-          renderItem={({item}) => (
-            <RenderEachContact
-              item={item}
-            />
-          )}
+          renderItem={({ item }) => <RenderEachContact item={item} />}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={async () => {
                 setRefreshing(true);
                 setSearchedValue('');
-                dispatch(getDeviceContactsAPICall()).then(resp => {
+                dispatch(getDeviceContactsAPICall()).then((resp) => {
                   if (resp.payload && resp.meta.requestStatus === 'rejected') {
                     if (Platform.OS === 'android')
                       ToastAndroid.show(
@@ -211,7 +205,7 @@ const SelectContactScreen = (): ReactElement => {
               }}
             />
           }
-          keyExtractor={item => item.contactId.toString()}
+          keyExtractor={(item) => item.contactId.toString()}
         />
       ) : peopleState.statuses.getDeviceContactsAPICall === 'loading' ? (
         skelatons.map((eachItem, index) => (
@@ -235,8 +229,12 @@ const SelectContactScreen = (): ReactElement => {
               height: 100,
               backgroundColor: colors[theme].lavenderColor,
             },
-          ]}>
-          <TextComponent style={{color: colors[theme].textColor}} weight="bold">
+          ]}
+        >
+          <TextComponent
+            style={{ color: colors[theme].textColor }}
+            weight="bold"
+          >
             Failed to fetch contacts. Please try again after some time
           </TextComponent>
         </View>
@@ -249,10 +247,12 @@ const SelectContactScreen = (): ReactElement => {
               height: 60,
               backgroundColor: colors[theme].lavenderColor,
             },
-          ]}>
+          ]}
+        >
           <TextComponent
-            style={{color: colors[theme].textColor, fontSize: 16}}
-            weight="bold">
+            style={{ color: colors[theme].textColor, fontSize: 16 }}
+            weight="bold"
+          >
             No records found!
           </TextComponent>
         </View>
@@ -262,7 +262,8 @@ const SelectContactScreen = (): ReactElement => {
         <View style={styles.addButton}>
           <ButtonComponent
             isDisabled={getSelectedCount() > 0 ? false : true}
-            onPress={addContactsToEvent}>
+            onPress={addContactsToEvent}
+          >
             {getSelectedCount() === 0
               ? 'ADD'
               : getSelectedCount() === 1

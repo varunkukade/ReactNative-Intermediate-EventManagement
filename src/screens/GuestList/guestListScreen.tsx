@@ -1,4 +1,4 @@
-import React, {ReactElement, useCallback, useState} from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import {
   Platform,
   StyleSheet,
@@ -6,12 +6,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
+import { colors, measureMents } from '@/utils/appStyles';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '@/navigation/homeStackNavigator';
-import {useNavigation} from '@react-navigation/native';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
+import { useNavigation } from '@react-navigation/native';
 import {
   EachPerson,
   removePeopleAPICall,
@@ -22,21 +22,26 @@ import BottomHalfPopupComponent, {
   EachAction,
 } from '@/reusables/bottomHalfPopup';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import CenterPopupComponent, {popupData} from '@/reusables/centerPopup';
-import {RadioButtonComponent} from '@/reusables';
-import {EachPaymentMethod} from '../addGuestsScreen';
-import {MemoizedGuestListComponent} from './guestListComponent';
+import CenterPopupComponent, { popupData } from '@/reusables/centerPopup';
+import { RadioButtonComponent } from '@/reusables';
+import { EachPaymentMethod } from '../addGuestsScreen';
+import { MemoizedGuestListComponent } from './guestListComponent';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 import ScreenWrapper from '../screenWrapper';
 import useIsKeyboardShown from '@/hooks/useIsKeyboardShown';
+import { screens } from '@/utils/constants';
 
 const GuestListScreen = (): ReactElement => {
   //navigation
-  const Navigation: NativeStackNavigationProp<HomeStackParamList, 'GuestListScreen'> =
-    useNavigation();
+  const Navigation: NativeStackNavigationProp<
+    HomeStackParamList,
+    'GuestListScreen'
+  > = useNavigation();
 
   //useStates
-  const [longPressedUser, setLongPressedUser] = useState<EachPerson | null>(null);
+  const [longPressedUser, setLongPressedUser] = useState<EachPerson | null>(
+    null,
+  );
   const [isKeyboardOpened] = useIsKeyboardShown();
 
   //modal states
@@ -51,15 +56,15 @@ const GuestListScreen = (): ReactElement => {
 
   //payment modes inside the "Move to Completed" popup.
   let initialPaymentModes: EachPaymentMethod[] = [
-    {id: 1, value: true, name: 'Cash', selected: true},
-    {id: 2, value: false, name: 'Online', selected: false},
+    { id: 1, value: true, name: 'Cash', selected: true },
+    { id: 2, value: false, name: 'Online', selected: false },
   ];
   const [paymentModes, setPaymentModes] =
     useState<EachPaymentMethod[]>(initialPaymentModes);
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   const onLongPressUser = React.useCallback(
     (user: EachPerson) => {
@@ -76,11 +81,12 @@ const GuestListScreen = (): ReactElement => {
   };
 
   const onEditUserClick = () => {
-    setIsModalVisible(!isModalVisible)
-    setTimeout(()=> {
-      if(longPressedUser) Navigation.navigate("AddGuestsScreen", { longPressedUser });
-    }, 400)
-  }
+    setIsModalVisible(!isModalVisible);
+    setTimeout(() => {
+      if (longPressedUser)
+        Navigation.navigate(screens.AddGuestsScreen, { longPressedUser });
+    }, 400);
+  };
 
   const onMoveToPendingClick = () => {
     setIsModalVisible(!isModalVisible);
@@ -95,33 +101,35 @@ const GuestListScreen = (): ReactElement => {
   const onDeleteCancelClick = useCallback(() => {
     setIsDeletePopupVisible(false);
   }, [setIsDeletePopupVisible]);
-  
+
   const onPaymentModeCancelClick = useCallback(() => {
     setIsPaymentModePopupVisible(false);
     setPaymentModes(initialPaymentModes);
   }, [setIsPaymentModePopupVisible, setPaymentModes, initialPaymentModes]);
-  
+
   const onMoveToCompletedCancelClick = useCallback(() => {
     setIsMoveToCompletedPopupVisible(false);
   }, [setIsMoveToCompletedPopupVisible]);
-  
+
   const onMoveToPendingCancelClick = useCallback(() => {
     setIsMoveToPendingPopupVisible(false);
   }, [setIsMoveToPendingPopupVisible]);
-  
+
   const onConfirmDeleteClick = React.useCallback(() => {
     //call delete API and delete the user from list.
     if (!longPressedUser) return;
     setIsDeletePopupVisible(false);
-    dispatch(removePeopleAPICall({userId: longPressedUser?.userId})).then(resp => {
-      if (resp.meta.requestStatus === 'fulfilled') {
-        if (Platform.OS === 'android' && resp.payload)
-          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-      } else {
-        if (Platform.OS === 'android' && resp.payload)
-          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-      }
-    });
+    dispatch(removePeopleAPICall({ userId: longPressedUser?.userId })).then(
+      (resp) => {
+        if (resp.meta.requestStatus === 'fulfilled') {
+          if (Platform.OS === 'android' && resp.payload)
+            ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        } else {
+          if (Platform.OS === 'android' && resp.payload)
+            ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        }
+      },
+    );
   }, [longPressedUser, dispatch, setIsDeletePopupVisible]);
 
   const onConfirmPaymentModeClick = React.useCallback(() => {
@@ -129,20 +137,23 @@ const GuestListScreen = (): ReactElement => {
     setIsMoveToCompletedPopupVisible(true);
   }, [setIsPaymentModePopupVisible, setIsMoveToCompletedPopupVisible]);
 
-  const handleAPICall = useCallback((requestObj: updatePeopleAPICallRequest, isPending: boolean) => {
-    dispatch(updatePeopleAPICall(requestObj)).then(resp => {
-      if (resp.meta.requestStatus === 'fulfilled') {
-        if (isPending) {
-          setPaymentModes(initialPaymentModes);
+  const handleAPICall = useCallback(
+    (requestObj: updatePeopleAPICallRequest, isPending: boolean) => {
+      dispatch(updatePeopleAPICall(requestObj)).then((resp) => {
+        if (resp.meta.requestStatus === 'fulfilled') {
+          if (isPending) {
+            setPaymentModes(initialPaymentModes);
+          }
+          if (Platform.OS === 'android' && resp.payload)
+            ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
+        } else {
+          if (Platform.OS === 'android' && resp.payload)
+            ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
         }
-        if (Platform.OS === 'android' && resp.payload)
-          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-      } else {
-        if (Platform.OS === 'android' && resp.payload)
-          ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
-      }
-    });
-  },[dispatch, Navigation, setPaymentModes, initialPaymentModes])
+      });
+    },
+    [dispatch, Navigation, setPaymentModes, initialPaymentModes],
+  );
 
   const onConfirmMoveClick = React.useCallback(() => {
     //update people list with updated value of isPending.
@@ -152,44 +163,43 @@ const GuestListScreen = (): ReactElement => {
     setIsMoveToPendingPopupVisible(false);
     let requestObj: updatePeopleAPICallRequest = {
       userId: longPressedUser.userId,
-      newUpdate: {isPaymentPending: !longPressedUser.isPaymentPending},
+      newUpdate: { isPaymentPending: !longPressedUser.isPaymentPending },
     };
     if (isPending) {
       //if admin is opting for payment completed right now, then pass payment mode in request obj
-      paymentModes.forEach(eachMode => {
+      paymentModes.forEach((eachMode) => {
         if (eachMode.selected) requestObj.newUpdate.paymentMode = eachMode.name;
       });
     } else {
       //if admin is opting for payment pending, then pass payment mode as empty in request obj
       requestObj.newUpdate.paymentMode = '';
     }
-    handleAPICall(requestObj, isPending)
+    handleAPICall(requestObj, isPending);
   }, [
     longPressedUser,
     paymentModes,
     setIsMoveToCompletedPopupVisible,
     setIsMoveToPendingPopupVisible,
-    handleAPICall
+    handleAPICall,
   ]);
 
-  const onRadioBtnClick = React.useCallback((item: EachPaymentMethod) => {
-    let updatedState = paymentModes.map(eachMethod =>
-      eachMethod.id === item.id
-        ? {...eachMethod, selected: true}
-        : {...eachMethod, selected: false},
-    );
-    setPaymentModes(updatedState);
-  },[paymentModes,setPaymentModes]) 
+  const onRadioBtnClick = React.useCallback(
+    (item: EachPaymentMethod) => {
+      let updatedState = paymentModes.map((eachMethod) =>
+        eachMethod.id === item.id
+          ? { ...eachMethod, selected: true }
+          : { ...eachMethod, selected: false },
+      );
+      setPaymentModes(updatedState);
+    },
+    [paymentModes, setPaymentModes],
+  );
 
   const actionsArray: EachAction[] = [
     {
       label: 'Edit User',
       icon: () => (
-        <FeatherIcons
-          size={22}
-          color={colors[theme].greyColor}
-          name="edit-2"
-        />
+        <FeatherIcons size={22} color={colors[theme].greyColor} name="edit-2" />
       ),
       onClick: () => onEditUserClick(),
       isVisible: true,
@@ -276,15 +286,17 @@ const GuestListScreen = (): ReactElement => {
   return (
     <ScreenWrapper>
       <View style={styles.eventListContainer}>
-        <MemoizedGuestListComponent
-          onLongPressUser={onLongPressUser}
-        />
+        <MemoizedGuestListComponent onLongPressUser={onLongPressUser} />
       </View>
       {!isKeyboardOpened ? (
         <TouchableOpacity
           activeOpacity={0.7}
-          style={[styles.addEventButton, { backgroundColor: colors[theme].commonPrimaryColor}]}
-          onPress={() => Navigation.navigate('AddGuestsScreen')}>
+          style={[
+            styles.addEventButton,
+            { backgroundColor: colors[theme].commonPrimaryColor },
+          ]}
+          onPress={() => Navigation.navigate(screens.AddGuestsScreen)}
+        >
           <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
         </TouchableOpacity>
       ) : null}
@@ -303,13 +315,15 @@ const GuestListScreen = (): ReactElement => {
       <CenterPopupComponent
         popupData={choosePaymentModePopupData}
         isModalVisible={isPaymentModePopupVisible}
-        setIsModalVisible={setIsPaymentModePopupVisible}>
+        setIsModalVisible={setIsPaymentModePopupVisible}
+      >
         <View style={styles.paymentModes}>
-          {paymentModes.map(item => (
+          {paymentModes.map((item) => (
             <RadioButtonComponent
               onPress={() => onRadioBtnClick(item)}
               selected={item.selected}
-              key={item.id}>
+              key={item.id}
+            >
               {item.name}
             </RadioButtonComponent>
           ))}
@@ -352,6 +366,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
-    marginBottom: 30
+    marginBottom: 30,
   },
 });

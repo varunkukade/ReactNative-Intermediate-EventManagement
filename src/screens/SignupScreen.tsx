@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Platform,
   ScrollView,
@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
+import { colors, measureMents } from '@/utils/appStyles';
 import {
   ButtonComponent,
   CheckboxComponent,
@@ -21,14 +21,15 @@ import {
   mobileNumbervalidation,
   passwordValidation,
 } from '@/utils/commonFunctions';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
-import {signupAPICall} from '@/reduxConfig/slices/userSlice';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
-import {RootStackParamList} from '@/navigation/rootStackNavigator';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
+import { signupAPICall } from '@/reduxConfig/slices/userSlice';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '@/navigation/rootStackNavigator';
 import auth from '@react-native-firebase/auth';
-import {AuthStackParamList} from '@/navigation/authStackNavigator';
-import {ScreenWrapper} from '.';
+import { AuthStackParamList } from '@/navigation/authStackNavigator';
+import { ScreenWrapper } from '.';
+import { screens } from '@/utils/constants';
 
 const constants = {
   name: 'name',
@@ -55,19 +56,19 @@ type SignupFormData = {
 
 const SignupScreen = () => {
   let initialSignupForm: SignupFormData = {
-    name: {value: '', errorMessage: ''},
-    email: {value: '', errorMessage: ''},
-    password: {value: '', errorMessage: ''},
-    confirmPasssword: {value: '', errorMessage: ''},
-    mobileNumber: {value: '', errorMessage: ''},
-    isAdmin: {value: true, errorMessage: ''},
+    name: { value: '', errorMessage: '' },
+    email: { value: '', errorMessage: '' },
+    password: { value: '', errorMessage: '' },
+    confirmPasssword: { value: '', errorMessage: '' },
+    mobileNumber: { value: '', errorMessage: '' },
+    isAdmin: { value: true, errorMessage: '' },
   };
   const [signupForm, setSignupForm] =
     useState<SignupFormData>(initialSignupForm);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   const onChangeForm = (
     value: string | Date | boolean,
@@ -75,7 +76,7 @@ const SignupScreen = () => {
   ): void => {
     setSignupForm({
       ...signupForm,
-      [fieldName]: {value: value, errorMessage: ''},
+      [fieldName]: { value: value, errorMessage: '' },
     });
   };
 
@@ -125,7 +126,7 @@ const SignupScreen = () => {
   };
 
   const onFormSubmit = (): void => {
-    const {name, email, password, confirmPasssword, mobileNumber, isAdmin} =
+    const { name, email, password, confirmPasssword, mobileNumber, isAdmin } =
       signupForm;
     if (
       name.value &&
@@ -136,14 +137,18 @@ const SignupScreen = () => {
       mobileNumbervalidation(mobileNumber.value).isValid
     ) {
       setFormErrors('empty');
-      let requestObj: {email: string; password: string; mobileNumber: string, isAdmin: boolean} =
-        {
-          email: email.value,
-          password: password.value,
-          mobileNumber: mobileNumber.value,
-          isAdmin: isAdmin.value, 
-        };
-      dispatch(signupAPICall(requestObj)).then(res => {
+      let requestObj: {
+        email: string;
+        password: string;
+        mobileNumber: string;
+        isAdmin: boolean;
+      } = {
+        email: email.value,
+        password: password.value,
+        mobileNumber: mobileNumber.value,
+        isAdmin: isAdmin.value,
+      };
+      dispatch(signupAPICall(requestObj)).then((res) => {
         if (res.meta.requestStatus === 'fulfilled') {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
@@ -151,17 +156,17 @@ const SignupScreen = () => {
             .currentUser?.updateProfile({
               displayName: name.value,
             })
-            .then(res => {
+            .then(() => {
               setSignupForm(initialSignupForm);
               //Navigation state object - https://reactnavigation.org/docs/navigation-state/
               navigation.reset({
                 index: 0,
                 routes: [
                   {
-                    name: 'HomeStack',
+                    name: screens.HomeStack,
                     state: {
                       index: 0,
-                      routes: [{name: 'Home'}],
+                      routes: [{ name: screens.Home }],
                     },
                   },
                 ],
@@ -205,8 +210,7 @@ const SignupScreen = () => {
 
   return (
     <ScreenWrapper>
-      <ScrollView
-        showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.welcomeMessage}>
           <TextComponent
             style={{
@@ -215,23 +219,29 @@ const SignupScreen = () => {
               color: colors[theme].whiteColor,
               textAlign: 'center',
             }}
-            weight="semibold">
+            weight="semibold"
+          >
             Create an account so you can create and manage all your events at
             once place.
           </TextComponent>
         </View>
-        <View style={[styles.mainContainer, { backgroundColor: colors[theme].cardColor}]}>
+        <View
+          style={[
+            styles.mainContainer,
+            { backgroundColor: colors[theme].cardColor },
+          ]}
+        >
           <InputComponent
             required
             value={signupForm.name.value}
-            onChangeText={value => onChangeForm(value, constants.name)}
+            onChangeText={(value) => onChangeForm(value, constants.name)}
             label="Name"
             errorMessage={signupForm.name.errorMessage}
             placeholder="Varun Kukade"
           />
           <InputComponent
             value={signupForm.email.value}
-            onChangeText={value => onChangeForm(value, constants.email)}
+            onChangeText={(value) => onChangeForm(value, constants.email)}
             label="Email"
             errorMessage={signupForm.email.errorMessage}
             placeholder="abc@gmail.com"
@@ -239,7 +249,7 @@ const SignupScreen = () => {
           />
           <InputComponent
             value={signupForm.password.value}
-            onChangeText={value => onChangeForm(value, constants.password)}
+            onChangeText={(value) => onChangeForm(value, constants.password)}
             label="Password"
             errorMessage={signupForm.password.errorMessage}
             placeholder="Enter a password..."
@@ -248,7 +258,8 @@ const SignupScreen = () => {
             rightIconComponent={
               <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
-                style={{position: 'absolute', right: 15}}>
+                style={{ position: 'absolute', right: 15 }}
+              >
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                   color={colors[theme].iconLightPinkColor}
@@ -259,7 +270,7 @@ const SignupScreen = () => {
           />
           <InputComponent
             value={signupForm.confirmPasssword.value}
-            onChangeText={value =>
+            onChangeText={(value) =>
               onChangeForm(value, constants.confirmPasssword)
             }
             required
@@ -270,7 +281,8 @@ const SignupScreen = () => {
             rightIconComponent={
               <TouchableOpacity
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={{position: 'absolute', right: 15}}>
+                style={{ position: 'absolute', right: 15 }}
+              >
                 <Ionicons
                   name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
                   color={colors[theme].iconLightPinkColor}
@@ -281,7 +293,9 @@ const SignupScreen = () => {
           />
           <InputComponent
             value={signupForm.mobileNumber.value}
-            onChangeText={value => onChangeForm(value, constants.mobileNumber)}
+            onChangeText={(value) =>
+              onChangeForm(value, constants.mobileNumber)
+            }
             label="Mobile Number"
             keyboardType="numeric"
             required
@@ -291,23 +305,26 @@ const SignupScreen = () => {
           <CheckboxComponent
             label="Check this if you are an admin."
             value={signupForm.isAdmin.value}
-            onValueChange={value => onChangeForm(value, constants.isAdmin)}
+            onValueChange={(value) => onChangeForm(value, constants.isAdmin)}
           />
           <ButtonComponent
             onPress={onFormSubmit}
-            containerStyle={{marginTop: 30}}>
+            containerStyle={{ marginTop: 30 }}
+          >
             Register
           </ButtonComponent>
           <TouchableOpacity
-            onPress={() => authStackNavigation.navigate('SigninScreen')}
-            style={{marginTop: 15}}>
+            onPress={() => authStackNavigation.navigate(screens.SigninScreen)}
+            style={{ marginTop: 15 }}
+          >
             <TextComponent
               style={{
                 fontSize: 14,
                 color: colors[theme].textColor,
                 textAlign: 'center',
               }}
-              weight="bold">
+              weight="bold"
+            >
               Already have an account ? Sign In
             </TextComponent>
           </TouchableOpacity>

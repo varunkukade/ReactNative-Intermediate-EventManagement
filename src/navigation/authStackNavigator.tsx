@@ -9,16 +9,17 @@ import {
   ForgotPasswordScreen,
   WelcomeScreen,
 } from '@/screens/index';
-import {colors, fontStyles} from '@/utils/appStyles';
-import {TextComponent} from '@/reusables';
-import {TouchableOpacity} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useAppSelector} from '@/reduxConfig/store';
+import { colors, fontStyles } from '@/utils/appStyles';
+import { TextComponent } from '@/reusables';
+import { TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useAppSelector } from '@/reduxConfig/store';
+import { screens } from '@/utils/constants';
 
 export type AuthStackParamList = {
   SignupScreen: undefined;
   SigninScreen: undefined;
-  ForgotPasswordScreen: undefined | {isResetPassword: boolean};
+  ForgotPasswordScreen: undefined | { isResetPassword: boolean };
   WelcomeScreen: undefined;
 };
 
@@ -30,12 +31,12 @@ function AuthStackNavigator() {
     AuthStackParamList,
     'SignupScreen'
   > = useNavigation();
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   const getSigninNavigator = () => {
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate('SigninScreen')}
+        onPress={() => navigation.navigate(screens.SigninScreen)}
         style={{
           backgroundColor: colors[theme].lavenderColor,
           alignItems: 'center',
@@ -43,10 +44,12 @@ function AuthStackNavigator() {
           borderRadius: 15,
           paddingHorizontal: 13,
           paddingVertical: 8,
-        }}>
+        }}
+      >
         <TextComponent
-          style={{fontSize: 14, color: colors[theme].textColor}}
-          weight="bold">
+          style={{ fontSize: 14, color: colors[theme].textColor }}
+          weight="bold"
+        >
           {' '}
           Sign-In
         </TextComponent>
@@ -59,54 +62,55 @@ function AuthStackNavigator() {
         animation: 'slide_from_right',
         headerTintColor: colors[theme].primaryColor,
       }}
-      initialRouteName="WelcomeScreen">
+      initialRouteName={screens.WelcomeScreen}
+    >
       <AuthStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerShown: false,
         })}
-        name="WelcomeScreen"
+        name={screens.WelcomeScreen}
         component={WelcomeScreen}
       />
       <AuthStack.Screen
         options={{
           headerTitle: 'Setup Your Profile ✍🏻',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 17},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 17 },
           headerTitleAlign: 'left',
           headerBackVisible: true,
           headerRight: () => getSigninNavigator(),
-          headerStyle: {backgroundColor: colors[theme].primaryColor},
+          headerStyle: { backgroundColor: colors[theme].primaryColor },
           headerTintColor: colors[theme].whiteColor,
         }}
-        name="SignupScreen"
+        name={screens.SignupScreen}
         component={SignupScreen}
       />
       <AuthStack.Screen
-        options={({route, navigation}) => ({
+        options={({ route }) => ({
           headerTitle: route.params?.isResetPassword
             ? 'Reset Password'
             : 'Forgot Password',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].primaryColor},
+          headerStyle: { backgroundColor: colors[theme].primaryColor },
           headerTintColor: colors[theme].whiteColor,
         })}
-        name="ForgotPasswordScreen"
+        name={screens.ForgotPasswordScreen}
         component={ForgotPasswordScreen}
       />
       <AuthStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerTitle: 'Login',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].primaryColor},
+          headerStyle: { backgroundColor: colors[theme].primaryColor },
           headerTintColor: colors[theme].whiteColor,
         })}
-        name="SigninScreen"
+        name={screens.SigninScreen}
         component={SigninScreen}
       />
     </AuthStack.Navigator>

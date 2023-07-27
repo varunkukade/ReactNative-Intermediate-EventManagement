@@ -1,4 +1,4 @@
-import React, {ReactElement, useCallback, useState} from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 import {
   Platform,
   ScrollView,
@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   View,
   PermissionsAndroid,
-  Linking
+  Linking,
 } from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '@/navigation/homeStackNavigator';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
+import { colors, measureMents } from '@/utils/appStyles';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
 import {
   ButtonComponent,
   CheckboxComponent,
@@ -21,7 +21,7 @@ import {
   RadioButtonComponent,
   TextComponent,
 } from '@/reusables';
-import {mobileNumbervalidation} from '@/utils/commonFunctions';
+import { mobileNumbervalidation } from '@/utils/commonFunctions';
 import {
   EachPerson,
   addPeopleAPICall,
@@ -30,7 +30,8 @@ import {
   updatePeopleAPICallRequest,
 } from '@/reduxConfig/slices/peopleSlice';
 import ScreenWrapper from './screenWrapper';
-import CenterPopupComponent, {popupData} from '@/reusables/centerPopup';
+import CenterPopupComponent, { popupData } from '@/reusables/centerPopup';
+import { screens } from '@/utils/constants';
 
 type ConstantsType = {
   userName: 'userName';
@@ -76,9 +77,9 @@ const AddGuestsScreen = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const selectedEventDetails = useAppSelector(
-    state => state.events.currentSelectedEvent,
+    (state) => state.events.currentSelectedEvent,
   );
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   let longPressedUser = route.params?.longPressedUser;
 
@@ -120,7 +121,7 @@ const AddGuestsScreen = (): ReactElement => {
         : false,
     },
   ]);
-  const [permissionModal, setPermissionModal] = useState(false)
+  const [permissionModal, setPermissionModal] = useState(false);
 
   const onChangeForm = (
     value: string | boolean,
@@ -132,7 +133,7 @@ const AddGuestsScreen = (): ReactElement => {
   ): void => {
     setEventForm({
       ...eventForm,
-      [fieldName]: {...eventForm[fieldName], value: value},
+      [fieldName]: { ...eventForm[fieldName], value: value },
     });
   };
 
@@ -159,7 +160,7 @@ const AddGuestsScreen = (): ReactElement => {
 
   const updateTheUser = () => {
     if (!selectedEventDetails || !longPressedUser) return null;
-    const {userEmail, userMobileNumber, userName, isPaymentCompleted} =
+    const { userEmail, userMobileNumber, userName, isPaymentCompleted } =
       eventForm;
     let requestObj: updatePeopleAPICallRequest = {
       userId: longPressedUser?.userId,
@@ -172,13 +173,13 @@ const AddGuestsScreen = (): ReactElement => {
       },
     };
     if (isPaymentCompleted.value) {
-      paymentModes.forEach(eachMode => {
+      paymentModes.forEach((eachMode) => {
         if (eachMode.selected) requestObj.newUpdate.paymentMode = eachMode.name;
       });
     } else {
       requestObj.newUpdate.paymentMode = '';
     }
-    dispatch(updatePeopleAPICall(requestObj)).then(resp => {
+    dispatch(updatePeopleAPICall(requestObj)).then((resp) => {
       if (resp.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -193,7 +194,7 @@ const AddGuestsScreen = (): ReactElement => {
 
   const createNewUser = () => {
     if (!selectedEventDetails) return null;
-    const {userEmail, userMobileNumber, userName, isPaymentCompleted} =
+    const { userEmail, userMobileNumber, userName, isPaymentCompleted } =
       eventForm;
     let requestObj: Omit<EachPerson, 'userId'> = {
       userEmail: userEmail.value,
@@ -204,19 +205,19 @@ const AddGuestsScreen = (): ReactElement => {
       createdAt: new Date().toString(),
     };
     if (isPaymentCompleted.value) {
-      paymentModes.forEach(eachMode => {
+      paymentModes.forEach((eachMode) => {
         if (eachMode.selected) requestObj.paymentMode = eachMode.name;
       });
     } else {
       requestObj.paymentMode = '';
     }
-    dispatch(addPeopleAPICall(requestObj)).then(resp => {
+    dispatch(addPeopleAPICall(requestObj)).then((resp) => {
       if (resp.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
         setEventForm(initialEventForm);
         dispatch(getPeopleAPICall());
-        navigation.navigate('GuestListScreen');
+        navigation.navigate(screens.GuestListScreen);
       } else {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -225,7 +226,7 @@ const AddGuestsScreen = (): ReactElement => {
   };
 
   const onFormSubmit = (): void => {
-    const {userMobileNumber, userName} = eventForm;
+    const { userMobileNumber, userName } = eventForm;
     if (
       (!userMobileNumber?.value.trim() ||
         mobileNumbervalidation(userMobileNumber.value.trim()).isValid) &&
@@ -244,7 +245,7 @@ const AddGuestsScreen = (): ReactElement => {
       const newUserMobileNumber =
         !userMobileNumber?.value.trim() ||
         mobileNumbervalidation(userMobileNumber.value.trim()).isValid
-          ? {...userMobileNumber, errorMessage: ''}
+          ? { ...userMobileNumber, errorMessage: '' }
           : {
               ...userMobileNumber,
               errorMessage: mobileNumbervalidation(
@@ -257,16 +258,16 @@ const AddGuestsScreen = (): ReactElement => {
           ...userName,
           errorMessage: userName.value ? '' : 'User Name cannot be empty.',
         },
-        userMobileNumber: newUserMobileNumber
+        userMobileNumber: newUserMobileNumber,
       });
     }
   };
 
   const onRadioBtnClick = (item: EachPaymentMethod) => {
-    let updatedState = paymentModes.map(eachMethod =>
+    let updatedState = paymentModes.map((eachMethod) =>
       eachMethod.id === item.id
-        ? {...eachMethod, selected: true}
-        : {...eachMethod, selected: false},
+        ? { ...eachMethod, selected: true }
+        : { ...eachMethod, selected: false },
     );
     setPaymentModes(updatedState);
   };
@@ -277,7 +278,7 @@ const AddGuestsScreen = (): ReactElement => {
         PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        navigation.navigate('SelectContactScreen')
+        navigation.navigate(screens.SelectContactScreen);
       } else {
         setPermissionModal(true);
       }
@@ -286,24 +287,25 @@ const AddGuestsScreen = (): ReactElement => {
     }
   };
 
-  const onConfirmClick = useCallback(()=> {
-    setPermissionModal(false)
+  const onConfirmClick = useCallback(() => {
+    setPermissionModal(false);
     Linking.openSettings();
-  }, [Linking])
+  }, [Linking]);
 
   const onCancelClick = useCallback(() => {
-    setPermissionModal(false)
+    setPermissionModal(false);
   }, [setPermissionModal]);
 
   //create new instance of this function only when dependencies change
   const permissionPopupData = useCallback((): popupData => {
     return {
       header: 'Permission required!',
-      description: 'Permission is required to acccess Contacts. Please first give permissions from Settings.',
+      description:
+        'Permission is required to acccess Contacts. Please first give permissions from Settings.',
       onCancelClick: onCancelClick,
       onConfirmClick: onConfirmClick,
-      confirmButtonText: "Go to Settings",
-      cancelButtonText: "Cancel"
+      confirmButtonText: 'Go to Settings',
+      cancelButtonText: 'Cancel',
     };
   }, [onCancelClick, onConfirmClick]);
 
@@ -313,11 +315,12 @@ const AddGuestsScreen = (): ReactElement => {
         <View
           style={[
             styles.mainContainer,
-            {backgroundColor: colors[theme].cardColor},
-          ]}>
+            { backgroundColor: colors[theme].cardColor },
+          ]}
+        >
           <InputComponent
             value={eventForm.userName.value}
-            onChangeText={value => onChangeForm(value, constants.userName)}
+            onChangeText={(value) => onChangeForm(value, constants.userName)}
             label="Enter Name"
             required
             errorMessage={eventForm.userName.errorMessage}
@@ -325,7 +328,7 @@ const AddGuestsScreen = (): ReactElement => {
           />
           <InputComponent
             value={eventForm.userMobileNumber.value}
-            onChangeText={value =>
+            onChangeText={(value) =>
               onChangeForm(value, constants.userMobileNumber)
             }
             label="Enter Mobile Number"
@@ -335,24 +338,25 @@ const AddGuestsScreen = (): ReactElement => {
           />
           <InputComponent
             value={eventForm.userEmail.value}
-            onChangeText={value => onChangeForm(value, constants.userEmail)}
+            onChangeText={(value) => onChangeForm(value, constants.userEmail)}
             label="Enter Email"
             placeholder="varun.k@gmail.com"
           />
           <CheckboxComponent
             label="Check this if User has completed the payment"
             value={eventForm.isPaymentCompleted.value}
-            onValueChange={value =>
+            onValueChange={(value) =>
               onChangeForm(value, constants.isPaymentCompleted)
             }
           />
           {eventForm.isPaymentCompleted.value ? (
             <View style={styles.paymentModes}>
-              {paymentModes.map(item => (
+              {paymentModes.map((item) => (
                 <RadioButtonComponent
                   onPress={() => onRadioBtnClick(item)}
                   selected={item.selected}
-                  key={item.id}>
+                  key={item.id}
+                >
                   {item.name}
                 </RadioButtonComponent>
               ))}
@@ -360,14 +364,16 @@ const AddGuestsScreen = (): ReactElement => {
           ) : null}
           <ButtonComponent
             onPress={onFormSubmit}
-            containerStyle={{marginTop: 30}}>
+            containerStyle={{ marginTop: 30 }}
+          >
             Submit
           </ButtonComponent>
           {!longPressedUser ? (
             <>
               <TouchableOpacity
-                onPress={() => navigation.navigate('DisplayCommonGroups')}
-                activeOpacity={0.6}>
+                onPress={() => navigation.navigate(screens.DisplayCommonGroups)}
+                activeOpacity={0.6}
+              >
                 <TextComponent
                   weight="semibold"
                   style={{
@@ -375,14 +381,16 @@ const AddGuestsScreen = (): ReactElement => {
                     fontSize: 15,
                     marginTop: 20,
                     textAlign: 'center',
-                  }}>
+                  }}
+                >
                   {' '}
                   Add from common group 👉🏻
                 </TextComponent>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={checkIfPermissionsGiven}
-                activeOpacity={0.6}>
+                activeOpacity={0.6}
+              >
                 <TextComponent
                   weight="semibold"
                   style={{
@@ -390,7 +398,8 @@ const AddGuestsScreen = (): ReactElement => {
                     fontSize: 15,
                     marginTop: 20,
                     textAlign: 'center',
-                  }}>
+                  }}
+                >
                   {' '}
                   Add from contacts 👉🏻
                 </TextComponent>
@@ -398,9 +407,10 @@ const AddGuestsScreen = (): ReactElement => {
             </>
           ) : null}
           <CenterPopupComponent
-        popupData={permissionPopupData}
-        isModalVisible={permissionModal}
-        setIsModalVisible={setPermissionModal}/>
+            popupData={permissionPopupData}
+            isModalVisible={permissionModal}
+            setIsModalVisible={setPermissionModal}
+          />
         </View>
       </ScrollView>
     </ScreenWrapper>

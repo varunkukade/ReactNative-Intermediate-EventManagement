@@ -1,7 +1,7 @@
-import React, {ReactElement, ReactNode} from 'react';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import Modal, {ModalProps} from 'react-native-modal';
-import {colors, measureMents} from '@/utils/appStyles';
+import React, { ReactElement, ReactNode } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import Modal, { ModalProps } from 'react-native-modal';
+import { colors, measureMents } from '@/utils/appStyles';
 import TextComponent from './text';
 import { useAppSelector } from '@/reduxConfig/store';
 
@@ -37,23 +37,40 @@ const BottomHalfPopupComponent = ({
   const togglePopupState = () => {
     setIsModalVisible(!isModalVisible);
   };
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   return (
     <Modal
       onBackButtonPress={togglePopupState}
       onBackdropPress={togglePopupState}
       {...props}
-      style={{justifyContent: 'flex-end', margin: 0}}
-      isVisible={isModalVisible}>
-      <ScrollView style={[styles.modalContainer, { backgroundColor: colors[theme].cardColor}]}>
-        <View style={[styles.modalCommonLine, {backgroundColor: theme === "dark" ? colors.dark.greyColor : colors.light.lavenderColor}]} />
+      style={{ justifyContent: 'flex-end', margin: 0 }}
+      isVisible={isModalVisible}
+    >
+      <ScrollView
+        style={[
+          styles.modalContainer,
+          { backgroundColor: colors[theme].cardColor },
+        ]}
+      >
+        <View
+          style={[
+            styles.modalCommonLine,
+            {
+              backgroundColor:
+                theme === 'dark'
+                  ? colors.dark.greyColor
+                  : colors.light.lavenderColor,
+            },
+          ]}
+        />
         {showActions && actions?.length ? (
           <View>
             <View style={styles.titleContainer}>
               <TextComponent
                 weight="extraBold"
-                style={{fontSize: 17, color: colors[theme].textColor}}>
+                style={{ fontSize: 17, color: colors[theme].textColor }}
+              >
                 {modalHeader}
               </TextComponent>
             </View>
@@ -65,12 +82,20 @@ const BottomHalfPopupComponent = ({
                       <TouchableOpacity
                         onPress={eachAction.onClick}
                         activeOpacity={0.5}
-                        style={[styles.eachActionStyle,  {backgroundColor: colors[theme].lightLavenderColor}]}>
+                        style={[
+                          styles.eachActionStyle,
+                          { backgroundColor: colors[theme].lightLavenderColor },
+                        ]}
+                      >
                         {eachAction.icon()}
                       </TouchableOpacity>
                       <TextComponent
-                        style={{textAlign: 'center', color: colors[theme].greyColor}}
-                        weight="semibold">
+                        style={{
+                          textAlign: 'center',
+                          color: colors[theme].greyColor,
+                        }}
+                        weight="semibold"
+                      >
                         {eachAction.label}
                       </TextComponent>
                     </View>
@@ -129,6 +154,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 5
+    marginBottom: 5,
   },
 });

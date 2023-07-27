@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Platform,
   ScrollView,
@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
-import {ButtonComponent, InputComponent, TextComponent} from '@/reusables';
+import { colors, measureMents } from '@/utils/appStyles';
+import { ButtonComponent, InputComponent, TextComponent } from '@/reusables';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   confirmPasswordValidation,
@@ -17,10 +17,10 @@ import {
   passwordValidation,
   setAsyncStorage,
 } from '@/utils/commonFunctions';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
-import {RootStackParamList} from '@/navigation/rootStackNavigator';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '@/navigation/rootStackNavigator';
 import auth from '@react-native-firebase/auth';
 import {
   EachUser,
@@ -30,9 +30,9 @@ import {
   resetUserState,
   updateProfileAPICall,
 } from '@/reduxConfig/slices/userSlice';
-import {resetEventState} from '@/reduxConfig/slices/eventsSlice';
-import {resetPeopleState} from '@/reduxConfig/slices/peopleSlice';
-import {GOOGLE_CONST} from '@/utils/constants';
+import { resetEventState } from '@/reduxConfig/slices/eventsSlice';
+import { resetPeopleState } from '@/reduxConfig/slices/peopleSlice';
+import { GOOGLE_CONST, screens } from '@/utils/constants';
 import ScreenWrapper from './screenWrapper';
 
 const constants = {
@@ -60,11 +60,11 @@ type UpdateProfileFormData = {
 
 const UpdateProfileScreen = () => {
   let initialFormData: UpdateProfileFormData = {
-    name: {value: auth().currentUser?.displayName || '', errorMessage: ''},
-    email: {value: auth().currentUser?.email || '', errorMessage: ''},
-    currentPassword: {value: '', errorMessage: ''},
-    password: {value: '', errorMessage: ''},
-    confirmPasssword: {value: '', errorMessage: ''},
+    name: { value: auth().currentUser?.displayName || '', errorMessage: '' },
+    email: { value: auth().currentUser?.email || '', errorMessage: '' },
+    currentPassword: { value: '', errorMessage: '' },
+    password: { value: '', errorMessage: '' },
+    confirmPasssword: { value: '', errorMessage: '' },
     mobileNumber: {
       value: '',
       errorMessage: '',
@@ -77,14 +77,14 @@ const UpdateProfileScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   let isGoogleUser = useAppSelector(
-    state => state.user.currentUser.signinMethod === GOOGLE_CONST,
+    (state) => state.user.currentUser.signinMethod === GOOGLE_CONST,
   );
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   let profileData = useRef<null | EachUser>(null);
 
   useEffect(() => {
-    dispatch(getProfileDataAPICall()).then(resp => {
+    dispatch(getProfileDataAPICall()).then((resp) => {
       if (resp.payload) {
         if (
           Platform.OS === 'android' &&
@@ -110,7 +110,7 @@ const UpdateProfileScreen = () => {
   ): void => {
     setUpdateProfileForm({
       ...updateProfileForm,
-      [fieldName]: {value: value, errorMessage: ''},
+      [fieldName]: { value: value, errorMessage: '' },
     });
   };
 
@@ -170,17 +170,17 @@ const UpdateProfileScreen = () => {
     if (Platform.OS === 'android') {
       ToastAndroid.show(message, ToastAndroid.SHORT);
     }
-    dispatch(logoutAPICall()).then(res => {
-      setAsyncStorage("isAuthenticated",'false');
+    dispatch(logoutAPICall()).then(() => {
+      setAsyncStorage('isAuthenticated', 'false');
       resetReduxState();
       rootNavigation.reset({
         index: 0,
         routes: [
           {
-            name: 'AuthStack',
+            name: screens.AuthStack,
             state: {
               index: 0,
-              routes: [{name: 'SigninScreen'}],
+              routes: [{ name: screens.SigninScreen }],
             },
           },
         ],
@@ -257,10 +257,10 @@ const UpdateProfileScreen = () => {
         authCredential: authCredential,
         newEmail: email.value,
         newPassword: password.value,
-        newMobileNumberUpdate: {mobileNumber: mobileNumber.value},
+        newMobileNumberUpdate: { mobileNumber: mobileNumber.value },
         docIdInFireStore: profileData.current?.docIdInFireStore || '',
       };
-      dispatch(updateProfileAPICall(requestObj)).then(resp => {
+      dispatch(updateProfileAPICall(requestObj)).then((resp) => {
         if (resp.meta.requestStatus === 'fulfilled') {
           handleSuccessCase(resp.payload.message);
         } else {
@@ -282,8 +282,12 @@ const UpdateProfileScreen = () => {
   return (
     <ScreenWrapper>
       <ScrollView
-        style={[styles.wrapperComponent, { backgroundColor: colors[theme].primaryColor}]}
-        showsVerticalScrollIndicator={false}>
+        style={[
+          styles.wrapperComponent,
+          { backgroundColor: colors[theme].primaryColor },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.welcomeMessage}>
           <TextComponent
             style={{
@@ -292,17 +296,23 @@ const UpdateProfileScreen = () => {
               color: colors[theme].whiteColor,
               textAlign: 'center',
             }}
-            weight="semibold">
+            weight="semibold"
+          >
             {isGoogleUser
               ? `If you haven't created your password yet, you can create password through "Reset Password"`
               : 'You will need to relogin once you update profile.'}
           </TextComponent>
         </View>
-        <View style={[styles.mainContainer, {  backgroundColor: colors[theme].cardColor}]}>
+        <View
+          style={[
+            styles.mainContainer,
+            { backgroundColor: colors[theme].cardColor },
+          ]}
+        >
           <InputComponent
             value={updateProfileForm.name.value}
             required
-            onChangeText={value => onChangeForm(value, constants.name)}
+            onChangeText={(value) => onChangeForm(value, constants.name)}
             label="Name"
             errorMessage={updateProfileForm.name.errorMessage}
             placeholder="Varun Kukade"
@@ -310,14 +320,14 @@ const UpdateProfileScreen = () => {
           <InputComponent
             required
             value={updateProfileForm.email.value}
-            onChangeText={value => onChangeForm(value, constants.email)}
+            onChangeText={(value) => onChangeForm(value, constants.email)}
             label="Email"
             errorMessage={updateProfileForm.email.errorMessage}
             placeholder="abc@gmail.com"
           />
           <InputComponent
             value={updateProfileForm.currentPassword.value}
-            onChangeText={value =>
+            onChangeText={(value) =>
               onChangeForm(value, constants.currentPassword)
             }
             required
@@ -328,7 +338,8 @@ const UpdateProfileScreen = () => {
             rightIconComponent={
               <TouchableOpacity
                 onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-                style={{position: 'absolute', right: 15}}>
+                style={{ position: 'absolute', right: 15 }}
+              >
                 <Ionicons
                   name={showCurrentPassword ? 'eye-off-outline' : 'eye-outline'}
                   color={colors[theme].iconLightPinkColor}
@@ -339,7 +350,7 @@ const UpdateProfileScreen = () => {
           />
           <InputComponent
             value={updateProfileForm.password.value}
-            onChangeText={value => onChangeForm(value, constants.password)}
+            onChangeText={(value) => onChangeForm(value, constants.password)}
             label="New Password"
             required
             errorMessage={updateProfileForm.password.errorMessage}
@@ -348,7 +359,8 @@ const UpdateProfileScreen = () => {
             rightIconComponent={
               <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
-                style={{position: 'absolute', right: 15}}>
+                style={{ position: 'absolute', right: 15 }}
+              >
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                   color={colors[theme].iconLightPinkColor}
@@ -359,7 +371,7 @@ const UpdateProfileScreen = () => {
           />
           <InputComponent
             value={updateProfileForm.confirmPasssword.value}
-            onChangeText={value =>
+            onChangeText={(value) =>
               onChangeForm(value, constants.confirmPasssword)
             }
             required
@@ -370,7 +382,8 @@ const UpdateProfileScreen = () => {
             rightIconComponent={
               <TouchableOpacity
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={{position: 'absolute', right: 15}}>
+                style={{ position: 'absolute', right: 15 }}
+              >
                 <Ionicons
                   name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
                   color={colors[theme].iconLightPinkColor}
@@ -381,7 +394,9 @@ const UpdateProfileScreen = () => {
           />
           <InputComponent
             value={updateProfileForm.mobileNumber.value}
-            onChangeText={value => onChangeForm(value, constants.mobileNumber)}
+            onChangeText={(value) =>
+              onChangeForm(value, constants.mobileNumber)
+            }
             label="Mobile Number"
             keyboardType="numeric"
             required
@@ -391,7 +406,8 @@ const UpdateProfileScreen = () => {
 
           <ButtonComponent
             onPress={onFormSubmit}
-            containerStyle={{marginTop: 30}}>
+            containerStyle={{ marginTop: 30 }}
+          >
             Update
           </ButtonComponent>
         </View>

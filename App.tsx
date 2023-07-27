@@ -1,13 +1,11 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
-import {Provider} from 'react-redux';
-import {store} from '@/reduxConfig/store';
-import {NavigationContainer} from '@react-navigation/native';
+import { Provider } from 'react-redux';
+import { store } from '@/reduxConfig/store';
+import { NavigationContainer } from '@react-navigation/native';
 import RootStackNavigator from '@/navigation/rootStackNavigator';
-import {LoadingAnimation} from '@/reusables';
+import { LoadingAnimation } from '@/reusables';
 
 const App = () => {
-
   return (
     <Provider store={store}>
       <NavigationContainer>
@@ -17,7 +15,5 @@ const App = () => {
     </Provider>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default App;

@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import {
   FlatList,
   Platform,
@@ -8,17 +8,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
+import { colors, measureMents } from '@/utils/appStyles';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
 import ScreenWrapper from '../screenWrapper';
-import {generateArray} from '@/utils/commonFunctions';
-import {getCommonListsAPICall} from '@/reduxConfig/slices/peopleSlice';
+import { generateArray } from '@/utils/commonFunctions';
+import { getCommonListsAPICall } from '@/reduxConfig/slices/peopleSlice';
 import UpdateEachCommonList from './updateEachCommonGroup';
-import {TextComponent} from '@/reusables';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '@/navigation/homeStackNavigator';
-import {useNavigation} from '@react-navigation/native';
+import { TextComponent } from '@/reusables';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
+import { useNavigation } from '@react-navigation/native';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
+import { screens } from '@/utils/constants';
 
 const DisplayCommonLists = (): ReactElement => {
   //navigation and route state
@@ -35,19 +36,16 @@ const DisplayCommonLists = (): ReactElement => {
 
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const peopleState = useAppSelector(state => state.people);
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const peopleState = useAppSelector((state) => state.people);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   useEffect(() => {
-    dispatch(getCommonListsAPICall({expanded: false})).then((resp) => {
+    dispatch(getCommonListsAPICall({ expanded: false })).then((resp) => {
       if (resp.payload && resp.meta.requestStatus === 'rejected') {
         if (Platform.OS === 'android')
-          ToastAndroid.show(
-            resp.payload?.message,
-            ToastAndroid.SHORT,
-          );
+          ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
       }
-    })
+    });
   }, []);
 
   return (
@@ -58,7 +56,8 @@ const DisplayCommonLists = (): ReactElement => {
           marginTop: 10,
           paddingHorizontal: measureMents.leftPadding,
         }}
-        weight="semibold">
+        weight="semibold"
+      >
         Common Group Count: {peopleState.commonLists.length}
       </TextComponent>
       {peopleState.statuses.getCommonListsAPICall === 'succeedded' &&
@@ -75,23 +74,28 @@ const DisplayCommonLists = (): ReactElement => {
               refreshing={refreshing}
               onRefresh={async () => {
                 setRefreshing(true);
-                dispatch(getCommonListsAPICall({expanded: false})).then((resp) => {
-                  if (resp.payload && resp.meta.requestStatus === 'rejected') {
-                    if (Platform.OS === 'android')
-                      ToastAndroid.show(
-                        resp.payload?.message,
-                        ToastAndroid.SHORT,
-                      );
-                  }
-                  setRefreshing(false);
-                })
+                dispatch(getCommonListsAPICall({ expanded: false })).then(
+                  (resp) => {
+                    if (
+                      resp.payload &&
+                      resp.meta.requestStatus === 'rejected'
+                    ) {
+                      if (Platform.OS === 'android')
+                        ToastAndroid.show(
+                          resp.payload?.message,
+                          ToastAndroid.SHORT,
+                        );
+                    }
+                    setRefreshing(false);
+                  },
+                );
               }}
             />
           }
-          renderItem={({item}) => (
+          renderItem={({ item }) => (
             <UpdateEachCommonList eachCommonList={item} />
           )}
-          keyExtractor={item => item.commonListId.toString()}
+          keyExtractor={(item) => item.commonListId.toString()}
         />
       ) : peopleState.statuses.getCommonListsAPICall === 'loading' ? (
         <View style={styles.commonListSkalatonContainer}>
@@ -100,8 +104,9 @@ const DisplayCommonLists = (): ReactElement => {
               key={index}
               style={[
                 styles.commonListSkalaton,
-                {backgroundColor: colors[theme].lavenderColor},
-              ]}></View>
+                { backgroundColor: colors[theme].lavenderColor },
+              ]}
+            ></View>
           ))}
         </View>
       ) : peopleState.statuses.getCommonListsAPICall === 'failed' ? (
@@ -109,11 +114,13 @@ const DisplayCommonLists = (): ReactElement => {
           <View
             style={[
               styles.commonListSkalaton,
-              {marginTop: 30, backgroundColor: colors[theme].lavenderColor},
-            ]}>
+              { marginTop: 30, backgroundColor: colors[theme].lavenderColor },
+            ]}
+          >
             <TextComponent
-              style={{color: colors[theme].textColor}}
-              weight="bold">
+              style={{ color: colors[theme].textColor }}
+              weight="bold"
+            >
               Failed to fetch common groups. Please try again after some time.
             </TextComponent>
           </View>
@@ -127,22 +134,25 @@ const DisplayCommonLists = (): ReactElement => {
                 marginTop: 30,
                 backgroundColor: colors[theme].lavenderColor,
               },
-            ]}>
+            ]}
+          >
             <TextComponent
-              style={{color: colors[theme].textColor, fontSize: 16}}
-              weight="bold">
+              style={{ color: colors[theme].textColor, fontSize: 16 }}
+              weight="bold"
+            >
               No Common Groups Found!
             </TextComponent>
           </View>
         </View>
       )}
       <TouchableOpacity
-        onPress={() => navigation.navigate('CreateCommonGroup')}
+        onPress={() => navigation.navigate(screens.CreateCommonGroup)}
         activeOpacity={0.7}
         style={[
           styles.addCustomListButton,
-          {backgroundColor: colors[theme].commonPrimaryColor},
-        ]}>
+          { backgroundColor: colors[theme].commonPrimaryColor },
+        ]}
+      >
         <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
       </TouchableOpacity>
     </ScreenWrapper>

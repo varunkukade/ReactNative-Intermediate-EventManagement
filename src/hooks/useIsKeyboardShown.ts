@@ -1,12 +1,12 @@
-import React, {useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Keyboard } from 'react-native';
 
-type UseIsKeyboardShown = [boolean]
+type UseIsKeyboardShown = [boolean];
 
-export default function useIsKeyboardShown() : UseIsKeyboardShown {
-   const [isKeyboardOpened, setIsKeyboardOpened] = useState(false);
+export default function useIsKeyboardShown(): UseIsKeyboardShown {
+  const [isKeyboardOpened, setIsKeyboardOpened] = useState(false);
 
-   useEffect(() => {
+  useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
       setIsKeyboardOpened(true);
     });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Platform, StyleSheet, ToastAndroid, View} from 'react-native';
+import { Platform, StyleSheet, ToastAndroid, View } from 'react-native';
 import { ButtonComponent, InputComponent, TextComponent } from '@/reusables';
 import { emailValidation } from '@/utils/commonFunctions';
 import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
@@ -10,6 +10,7 @@ import { forgotPasswordAPICall } from '@/reduxConfig/slices/userSlice';
 import { HomeStackParamList } from '@/navigation/homeStackNavigator';
 import ScreenWrapper from './screenWrapper';
 import { colors, measureMents } from '@/utils/appStyles';
+import { screens } from '@/utils/constants';
 
 const constants = {
   email: 'email',
@@ -25,12 +26,13 @@ type ForgotPasswordFormData = {
 };
 const ForgotPasswordScreen = () => {
   let initialForgotPasswordForm: ForgotPasswordFormData = {
-    email: {value: '', errorMessage: ''},
+    email: { value: '', errorMessage: '' },
   };
-  const [forgotPasswordForm, setSignupForm] =
-    useState<ForgotPasswordFormData>(initialForgotPasswordForm);
+  const [forgotPasswordForm, setSignupForm] = useState<ForgotPasswordFormData>(
+    initialForgotPasswordForm,
+  );
 
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   const onChangeForm = (
     value: string | Date | boolean,
@@ -38,7 +40,7 @@ const ForgotPasswordScreen = () => {
   ): void => {
     setSignupForm({
       ...forgotPasswordForm,
-      [fieldName]: {value: value, errorMessage: ''},
+      [fieldName]: { value: value, errorMessage: '' },
     });
   };
 
@@ -46,12 +48,16 @@ const ForgotPasswordScreen = () => {
   const dispatch = useAppDispatch();
 
   //navigation and route state
-  const homeStackNavigator: NativeStackNavigationProp<HomeStackParamList, 'BottomTabNavigator'> = useNavigation()
+  const homeStackNavigator: NativeStackNavigationProp<
+    HomeStackParamList,
+    'BottomTabNavigator'
+  > = useNavigation();
   const authStackNavigation: NativeStackNavigationProp<
     AuthStackParamList,
     'SigninScreen'
   > = useNavigation();
-  const route: RouteProp<AuthStackParamList,'ForgotPasswordScreen'> = useRoute()
+  const route: RouteProp<AuthStackParamList, 'ForgotPasswordScreen'> =
+    useRoute();
 
   const setFormErrors = (
     type?: '' | 'empty',
@@ -71,20 +77,18 @@ const ForgotPasswordScreen = () => {
   };
 
   const onFormSubmit = (): void => {
-    const {email} = forgotPasswordForm;
-    if (
-      emailValidation(email.value).isValid
-    ) {
+    const { email } = forgotPasswordForm;
+    if (emailValidation(email.value).isValid) {
       setFormErrors('empty');
-      let requestObj: {email: string;} = {
+      let requestObj: { email: string } = {
         email: email.value,
       };
-      dispatch(forgotPasswordAPICall(requestObj)).then(res => {
+      dispatch(forgotPasswordAPICall(requestObj)).then((res) => {
         if (res.meta.requestStatus === 'fulfilled') {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
-          if(route.params?.isResetPassword)  homeStackNavigator.pop(); 
-          else authStackNavigation.navigate("SigninScreen")
+          if (route.params?.isResetPassword) homeStackNavigator.pop();
+          else authStackNavigation.navigate(screens.SigninScreen);
         } else {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
@@ -106,15 +110,25 @@ const ForgotPasswordScreen = () => {
     <ScreenWrapper>
       <View style={styles.welcomeMessage}>
         <TextComponent
-          style={{fontSize: 16, color: colors[theme].whiteColor, textAlign:"center"}}
-          weight="normal">
-         Enter your registered email below to recieve password reset email.
+          style={{
+            fontSize: 16,
+            color: colors[theme].whiteColor,
+            textAlign: 'center',
+          }}
+          weight="normal"
+        >
+          Enter your registered email below to recieve password reset email.
         </TextComponent>
       </View>
-      <View style={[styles.mainContainer, {  backgroundColor: colors[theme].cardColor}]}>
-      <InputComponent
+      <View
+        style={[
+          styles.mainContainer,
+          { backgroundColor: colors[theme].cardColor },
+        ]}
+      >
+        <InputComponent
           value={forgotPasswordForm.email.value}
-          onChangeText={value => onChangeForm(value, constants.email)}
+          onChangeText={(value) => onChangeForm(value, constants.email)}
           label="Email"
           required
           errorMessage={forgotPasswordForm.email.errorMessage}
@@ -122,7 +136,8 @@ const ForgotPasswordScreen = () => {
         />
         <ButtonComponent
           onPress={onFormSubmit}
-          containerStyle={{marginTop: 30}}>
+          containerStyle={{ marginTop: 30 }}
+        >
           Send
         </ButtonComponent>
       </View>

@@ -1,10 +1,10 @@
-import React, {ReactElement} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useAppSelector} from '@/reduxConfig/store';
-import {colors, measureMents} from '@/utils/appStyles';
-import {CheckboxComponent, TextComponent} from '@/reusables';
+import React, { ReactElement } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useAppSelector } from '@/reduxConfig/store';
+import { colors, measureMents } from '@/utils/appStyles';
+import { CheckboxComponent, TextComponent } from '@/reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {CommonListObject} from '@/reduxConfig/slices/peopleSlice';
+import { CommonListObject } from '@/reduxConfig/slices/peopleSlice';
 
 type EachUserComponentProps = {
   eachCommonList: CommonListObject;
@@ -24,7 +24,7 @@ const DisplayEachCommonList = ({
   onAllUsersSelected,
 }: EachUserComponentProps): ReactElement => {
   //dispatch and selectors
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   return (
     <View>
@@ -39,19 +39,21 @@ const DisplayEachCommonList = ({
               ? 0
               : measureMents.leftPadding,
           },
-        ]}>
+        ]}
+      >
         <View style={styles.textComponentContainer}>
           <TextComponent
             weight="semibold"
-            style={{color: colors[theme].textColor}}>
+            style={{ color: colors[theme].textColor }}
+          >
             {eachCommonList.commonListName}
           </TextComponent>
         </View>
         <View style={styles.checkBoxContainer}>
           <CheckboxComponent
-            value={eachCommonList.users.every(eachUser => eachUser.selected)}
+            value={eachCommonList.users.every((eachUser) => eachUser.selected)}
             //style={{position: 'absolute', right: "35%"}}
-            onValueChange={value =>
+            onValueChange={(value) =>
               onAllUsersSelected(value, eachCommonList.commonListId)
             }
           />
@@ -61,7 +63,8 @@ const DisplayEachCommonList = ({
           style={styles.expandButton}
           onPress={() => {
             expandCommonList(eachCommonList.commonListId);
-          }}>
+          }}
+        >
           <EntypoIcons
             name={
               eachCommonList.expanded
@@ -80,7 +83,8 @@ const DisplayEachCommonList = ({
             {
               backgroundColor: colors[theme].cardColor,
             },
-          ]}>
+          ]}
+        >
           {eachCommonList.users.map((eachUser, index) => (
             <TouchableOpacity
               activeOpacity={0.6}
@@ -94,26 +98,28 @@ const DisplayEachCommonList = ({
               }}
               style={[
                 styles.eachUser,
-                {backgroundColor: colors[theme].lightLavenderColor},
-              ]}>
+                { backgroundColor: colors[theme].lightLavenderColor },
+              ]}
+            >
               <View style={styles.userNameContainer}>
                 <TextComponent
-                  style={{color: colors[theme].textColor}}
-                  weight="semibold">
+                  style={{ color: colors[theme].textColor }}
+                  weight="semibold"
+                >
                   {eachUser.userName}
                 </TextComponent>
               </View>
               <View style={styles.userCheckboxContainer}>
-              <CheckboxComponent
-                value={eachUser.selected}
-                onValueChange={value =>
-                  onUserSelected(
-                    value,
-                    eachCommonList.commonListId,
-                    eachUser.userId,
-                  )
-                }
-              />
+                <CheckboxComponent
+                  value={eachUser.selected}
+                  onValueChange={(value) =>
+                    onUserSelected(
+                      value,
+                      eachCommonList.commonListId,
+                      eachUser.userId,
+                    )
+                  }
+                />
               </View>
             </TouchableOpacity>
           ))}
@@ -163,9 +169,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   userNameContainer: {
-   width: "90%"
+    width: '90%',
   },
   userCheckboxContainer: {
-   width: "10%"
-  }
+    width: '10%',
+  },
 });

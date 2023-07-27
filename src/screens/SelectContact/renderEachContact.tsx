@@ -1,13 +1,9 @@
-import React, {useCallback} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {EachContact, updateSelected} from '@/reduxConfig/slices/peopleSlice';
-import {colors, measureMents} from '@/utils/appStyles';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
-import {
-  CheckboxComponent,
-  ImageComponent,
-  TextComponent,
-} from '@/reusables';
+import React, { useCallback } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { EachContact, updateSelected } from '@/reduxConfig/slices/peopleSlice';
+import { colors, measureMents } from '@/utils/appStyles';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
+import { CheckboxComponent, ImageComponent, TextComponent } from '@/reusables';
 
 const PROFILE_PICTURE_SIZE = 43;
 const ITEM_HEIGHT = 80;
@@ -17,13 +13,10 @@ type RenderEachComponentProps = {
 };
 
 const RenderEachContact = React.memo(
-  ({
-    item,
-  }: RenderEachComponentProps) => {
-
+  ({ item }: RenderEachComponentProps) => {
     //dispatch and selectors
     const dispatch = useAppDispatch();
-    const theme = useAppSelector(state => state.user.currentUser.theme);
+    const theme = useAppSelector((state) => state.user.currentUser.theme);
 
     const getSkalatonName = useCallback((fullName: string) => {
       let arr = fullName.split(' ');
@@ -35,7 +28,7 @@ const RenderEachContact = React.memo(
     }, []);
 
     const onContactSelected = (value: boolean, id: string) => {
-        dispatch(updateSelected({value, id}));
+      dispatch(updateSelected({ value, id }));
     };
 
     return (
@@ -50,9 +43,8 @@ const RenderEachContact = React.memo(
             },
           ]}
           activeOpacity={0.7}
-          onPress={() =>
-            onContactSelected(!item.selected, item.contactId)
-          }>
+          onPress={() => onContactSelected(!item.selected, item.contactId)}
+        >
           <View style={styles.avatar}>
             {item.contactAvatar === '' ? (
               <View
@@ -62,16 +54,18 @@ const RenderEachContact = React.memo(
                     backgroundColor: colors[theme].lightLavenderColor,
                     alignSelf: 'flex-start',
                   },
-                ]}>
+                ]}
+              >
                 <TextComponent
-                  style={{color: colors[theme].textColor}}
-                  weight="semibold">
+                  style={{ color: colors[theme].textColor }}
+                  weight="semibold"
+                >
                   {getSkalatonName(item.contactName)}
                 </TextComponent>
               </View>
             ) : (
               <ImageComponent
-                source={{uri: item.contactAvatar}}
+                source={{ uri: item.contactAvatar }}
                 style={{
                   width: PROFILE_PICTURE_SIZE,
                   height: PROFILE_PICTURE_SIZE,
@@ -84,13 +78,15 @@ const RenderEachContact = React.memo(
           <View style={styles.textComponentContainer}>
             <TextComponent
               weight="semibold"
-              style={{color: colors[theme].textColor}}>
+              style={{ color: colors[theme].textColor }}
+            >
               {item.contactName}
             </TextComponent>
             {item.contactPhoneNumber ? (
               <TextComponent
                 weight="semibold"
-                style={{color: colors[theme].greyColor, marginTop: 5}}>
+                style={{ color: colors[theme].greyColor, marginTop: 5 }}
+              >
                 {item.contactPhoneNumber}
               </TextComponent>
             ) : null}
@@ -98,14 +94,19 @@ const RenderEachContact = React.memo(
           <View style={styles.checkBoxContainer}>
             <CheckboxComponent
               value={item.selected}
-              onValueChange={value => onContactSelected(value, item.contactId)}
+              onValueChange={(value) =>
+                onContactSelected(value, item.contactId)
+              }
             />
           </View>
         </TouchableOpacity>
       </View>
     );
   },
-  (prevProps: RenderEachComponentProps, nextProps: RenderEachComponentProps) => {
+  (
+    prevProps: RenderEachComponentProps,
+    nextProps: RenderEachComponentProps,
+  ) => {
     const { selected } = nextProps.item;
     const { selected: prevIsSelected } = prevProps.item;
 

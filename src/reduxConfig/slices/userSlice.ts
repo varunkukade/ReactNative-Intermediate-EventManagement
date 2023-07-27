@@ -1,13 +1,11 @@
-import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import firestore, {
   FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore';
 import apiUrls from '../apiUrls';
-import {
-  GoogleSignin,
-} from '@react-native-google-signin/google-signin';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { RootState } from '../store';
 import { GOOGLE_CONST } from '@/utils/constants';
 import { setAsyncStorage } from '@/utils/commonFunctions';
@@ -32,9 +30,9 @@ type userState = {
     googleSigninAPICall: status;
   };
   currentUser: {
-    signinMethod : string;
+    signinMethod: string;
     theme: 'light' | 'dark';
-  },
+  };
   loadingMessage: string;
 };
 
@@ -51,8 +49,8 @@ const initialState: userState = {
     googleSigninAPICall: 'idle',
   },
   currentUser: {
-    signinMethod : "",
-    theme: "light",
+    signinMethod: '',
+    theme: 'light',
   },
   loadingMessage: '',
 };
@@ -72,112 +70,115 @@ export const userSlice = createSlice({
         getProfilePictureAPICall: 'idle',
         getProfileDataAPICall: 'idle',
         googleSigninAPICall: 'idle',
-      }
-      state.currentUser.signinMethod = "",
-      state.loadingMessage = ""
+      };
+      (state.currentUser.signinMethod = ''), (state.loadingMessage = '');
     },
     setCurrentUser: (state, action: PayloadAction<string>) => {
       state.currentUser.signinMethod = action.payload;
     },
     setTheme: (state, action: PayloadAction<'light' | 'dark'>) => {
       state.currentUser.theme = action.payload;
-      setAsyncStorage('theme', action.payload)
+      setAsyncStorage('theme', action.payload);
     },
   },
   extraReducers(builder) {
     builder
-      .addCase(signupAPICall.pending, (state, action) => {
+      .addCase(signupAPICall.pending, (state) => {
         state.loadingMessage = 'Creating Your Account...';
         state.statuses.signupAPICall = 'loading';
       })
-      .addCase(signupAPICall.fulfilled, (state, action) => {
+      .addCase(signupAPICall.fulfilled, (state) => {
         state.statuses.signupAPICall = 'succeedded';
       })
-      .addCase(signupAPICall.rejected, (state, action) => {
+      .addCase(signupAPICall.rejected, (state) => {
         state.statuses.signupAPICall = 'failed';
       })
-      .addCase(signinAPICall.pending, (state, action) => {
+      .addCase(signinAPICall.pending, (state) => {
         state.loadingMessage = 'Logging You In...';
         state.statuses.signinAPICall = 'loading';
       })
-      .addCase(signinAPICall.fulfilled, (state, action) => {
+      .addCase(signinAPICall.fulfilled, (state) => {
         state.statuses.signinAPICall = 'succeedded';
       })
-      .addCase(signinAPICall.rejected, (state, action) => {
+      .addCase(signinAPICall.rejected, (state) => {
         state.statuses.signinAPICall = 'failed';
       })
-      .addCase(logoutAPICall.pending, (state, action) => {
+      .addCase(logoutAPICall.pending, (state) => {
         state.loadingMessage = 'Logging You Out...';
         state.statuses.logoutAPICall = 'loading';
       })
-      .addCase(logoutAPICall.fulfilled, (state, action) => {
+      .addCase(logoutAPICall.fulfilled, (state) => {
         state.statuses.logoutAPICall = 'succeedded';
       })
-      .addCase(logoutAPICall.rejected, (state, action) => {
+      .addCase(logoutAPICall.rejected, (state) => {
         state.statuses.logoutAPICall = 'failed';
       })
-      .addCase(forgotPasswordAPICall.pending, (state, action) => {
+      .addCase(forgotPasswordAPICall.pending, (state) => {
         state.loadingMessage = 'Sending You Email...';
         state.statuses.forgotPasswordAPICall = 'loading';
       })
-      .addCase(forgotPasswordAPICall.fulfilled, (state, action) => {
+      .addCase(forgotPasswordAPICall.fulfilled, (state) => {
         state.statuses.forgotPasswordAPICall = 'succeedded';
       })
-      .addCase(forgotPasswordAPICall.rejected, (state, action) => {
+      .addCase(forgotPasswordAPICall.rejected, (state) => {
         state.statuses.forgotPasswordAPICall = 'failed';
       })
-      .addCase(updateProfileAPICall.pending, (state, action) => {
+      .addCase(updateProfileAPICall.pending, (state) => {
         state.loadingMessage = 'Updating the profile...';
         state.statuses.updateProfileAPICall = 'loading';
       })
-      .addCase(updateProfileAPICall.fulfilled, (state, action) => {
+      .addCase(updateProfileAPICall.fulfilled, (state) => {
         state.statuses.updateProfileAPICall = 'succeedded';
       })
-      .addCase(updateProfileAPICall.rejected, (state, action) => {
+      .addCase(updateProfileAPICall.rejected, (state) => {
         state.statuses.updateProfileAPICall = 'failed';
       })
-      .addCase(uploadProfilePictureAPICall.pending, (state, action) => {
+      .addCase(uploadProfilePictureAPICall.pending, (state) => {
         state.loadingMessage = 'Updating Profile Picture...';
         state.statuses.uploadProfilePictureAPICall = 'loading';
       })
-      .addCase(uploadProfilePictureAPICall.fulfilled, (state, action) => {
+      .addCase(uploadProfilePictureAPICall.fulfilled, (state) => {
         state.statuses.uploadProfilePictureAPICall = 'succeedded';
       })
-      .addCase(uploadProfilePictureAPICall.rejected, (state, action) => {
+      .addCase(uploadProfilePictureAPICall.rejected, (state) => {
         state.statuses.uploadProfilePictureAPICall = 'failed';
       })
-      .addCase(getProfilePictureAPICall.pending, (state, action) => {
+      .addCase(getProfilePictureAPICall.pending, (state) => {
         state.statuses.getProfilePictureAPICall = 'loading';
       })
-      .addCase(getProfilePictureAPICall.fulfilled, (state, action) => {
+      .addCase(getProfilePictureAPICall.fulfilled, (state) => {
         state.statuses.getProfilePictureAPICall = 'succeedded';
       })
-      .addCase(getProfilePictureAPICall.rejected, (state, action) => {
+      .addCase(getProfilePictureAPICall.rejected, (state) => {
         state.statuses.getProfilePictureAPICall = 'failed';
       })
-      .addCase(getProfileDataAPICall.pending, (state, action) => {
+      .addCase(getProfileDataAPICall.pending, (state) => {
         state.loadingMessage = 'Fetching Profile Data...';
         state.statuses.getProfileDataAPICall = 'loading';
       })
-      .addCase(getProfileDataAPICall.fulfilled, (state, action) => {
+      .addCase(getProfileDataAPICall.fulfilled, (state) => {
         state.statuses.getProfileDataAPICall = 'succeedded';
       })
-      .addCase(getProfileDataAPICall.rejected, (state, action) => {
+      .addCase(getProfileDataAPICall.rejected, (state) => {
         state.statuses.getProfileDataAPICall = 'failed';
       })
-      .addCase(googleSigninAPICall.pending, (state, action) => {
+      .addCase(googleSigninAPICall.pending, (state) => {
         state.loadingMessage = 'Logging You In...';
         state.statuses.googleSigninAPICall = 'loading';
       })
-      .addCase(googleSigninAPICall.fulfilled, (state, action) => {
+      .addCase(googleSigninAPICall.fulfilled, (state) => {
         state.statuses.googleSigninAPICall = 'succeedded';
       })
-      .addCase(googleSigninAPICall.rejected, (state, action) => {
+      .addCase(googleSigninAPICall.rejected, (state) => {
         state.statuses.googleSigninAPICall = 'failed';
       });
   },
 });
-export const {reset: resetUserState, setCurrentUser, setTheme} = userSlice.actions;
+export const {
+  reset: resetUserState,
+  setCurrentUser,
+  setTheme,
+} = userSlice.actions;
 export default userSlice.reducer;
 
 export const signupAPICall = createAsyncThunk<
@@ -186,7 +187,7 @@ export const signupAPICall = createAsyncThunk<
     message: string;
   },
   //type of request obj passed to payload creator
-  {email: string; password: string; mobileNumber: string, isAdmin: boolean},
+  { email: string; password: string; mobileNumber: string; isAdmin: boolean },
   //type of returned error obj from rejectWithValue
   {
     rejectValue: MessageType;
@@ -194,7 +195,12 @@ export const signupAPICall = createAsyncThunk<
 >(
   'user/signup',
   async (
-    requestObject: {email: string; password: string; mobileNumber: string, isAdmin: boolean},
+    requestObject: {
+      email: string;
+      password: string;
+      mobileNumber: string;
+      isAdmin: boolean;
+    },
     thunkAPI,
   ) => {
     let message = '';
@@ -208,17 +214,17 @@ export const signupAPICall = createAsyncThunk<
         .add({
           authId: auth().currentUser?.uid,
           mobileNumber: requestObject.mobileNumber,
-          isAdmin: requestObject.isAdmin
+          isAdmin: requestObject.isAdmin,
         })
-        .then(res => {
+        .then(() => {
           message = 'Account Created Successfully';
-          return {message: message};
+          return { message: message };
         })
-        .catch(error => {
-          return thunkAPI.rejectWithValue({message: error.message});
+        .catch((error) => {
+          return thunkAPI.rejectWithValue({ message: error.message });
         });
     } catch (error: any) {
-      console.log(error)
+      console.log(error);
       //return rejected promise.
       if (error?.code === 'auth/email-already-in-use') {
         message = 'Email address is already in use!';
@@ -229,11 +235,11 @@ export const signupAPICall = createAsyncThunk<
       if (error?.code === 'auth/weak-password') {
         message = 'Password should be atleast 6 characters long.';
       }
-      console.log("message",message)
+      console.log('message', message);
       return thunkAPI.rejectWithValue({
-        message:
-          message ? message :
-          'Failed to create account. Please try again after some time',
+        message: message
+          ? message
+          : 'Failed to create account. Please try again after some time',
       } as MessageType);
     }
   },
@@ -255,7 +261,7 @@ export const signinAPICall = createAsyncThunk<
   }
 >(
   'user/signin',
-  async (requestObj: {email: string; password: string}, thunkAPI) => {
+  async (requestObj: { email: string; password: string }, thunkAPI) => {
     let message = '';
     try {
       await auth().signInWithEmailAndPassword(
@@ -266,18 +272,18 @@ export const signinAPICall = createAsyncThunk<
         .currentUser?.updateProfile({
           photoURL: '',
         })
-        .then(res => {
+        .then(() => {
           message = 'Logged In Successfully';
-          return {message: message} as MessageType;
+          return { message: message } as MessageType;
         })
-        .catch(error => {
+        .catch((error) => {
           return thunkAPI.rejectWithValue({
             message: error.message,
           } as MessageType);
         });
     } catch (error: any) {
       //return rejected promise
-      console.log("error",error)
+      console.log('error', error);
       if (error?.code === 'auth/user-disabled') {
         message = 'Email address is disabled!';
       }
@@ -312,25 +318,25 @@ export const logoutAPICall = createAsyncThunk<
   //type of returned error obj from rejectWithValue
   {
     rejectValue: MessageType;
-    state: RootState
+    state: RootState;
   }
 >('user/logout', async (_, thunkAPI) => {
   let message = '';
   try {
-    if(thunkAPI.getState().user.currentUser.signinMethod === GOOGLE_CONST){
+    if (thunkAPI.getState().user.currentUser.signinMethod === GOOGLE_CONST) {
       //if signin was through google signin then first signout from google to clear active token.
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
     }
     return await auth()
       .signOut()
-      .then(resp => {
+      .then(() => {
         message = 'Logged Out Successfully';
-        return {message: message};
+        return { message: message };
       })
-      .catch(error => {
+      .catch((error) => {
         message = 'Failed to logout. Please try again after some time';
-        return thunkAPI.rejectWithValue({message: error.message || message});
+        return thunkAPI.rejectWithValue({ message: error.message || message });
       });
   } catch (err: any) {
     //return rejected promise
@@ -354,16 +360,16 @@ export const forgotPasswordAPICall = createAsyncThunk<
   {
     rejectValue: MessageType;
   }
->('user/forgotPassword', async (requestObj: {email: string}, thunkAPI) => {
+>('user/forgotPassword', async (requestObj: { email: string }, thunkAPI) => {
   let message = '';
   try {
     return await auth()
       .sendPasswordResetEmail(requestObj.email)
-      .then(resp => {
+      .then(() => {
         message = 'Email sent Successfully';
-        return {message: message};
+        return { message: message };
       })
-      .catch(error => {
+      .catch((error) => {
         message = 'Failed to send email. Please try again after some time';
         if (error?.code === 'auth/invalid-email') {
           message = 'Email address is invalid!';
@@ -371,7 +377,7 @@ export const forgotPasswordAPICall = createAsyncThunk<
         if (error?.code === 'auth/user-not-found') {
           message = `Account doesn't exist with this email. Create new account with this email.`;
         }
-        return thunkAPI.rejectWithValue({message: message});
+        return thunkAPI.rejectWithValue({ message: message });
       });
   } catch (err: any) {
     //return rejected promise
@@ -388,7 +394,7 @@ export type UpdateProfileRequest = {
   authCredential: FirebaseAuthTypes.AuthCredential;
   newEmail: string;
   newPassword: string;
-  newMobileNumberUpdate: {mobileNumber: string};
+  newMobileNumberUpdate: { mobileNumber: string };
   docIdInFireStore: string;
 };
 
@@ -416,13 +422,15 @@ export const updateProfileAPICall = createAsyncThunk<
       .collection(apiUrls.users)
       .doc(requestObj.docIdInFireStore)
       .update(requestObj.newMobileNumberUpdate)
-      .then(res => {
+      .then(() => {
         message =
           'Profile Updated successfully.Login again with new credentials';
-        return {message} as MessageType;
+        return { message } as MessageType;
       })
-      .catch(err => {
-        return thunkAPI.rejectWithValue({message: err.message} as MessageType);
+      .catch((err) => {
+        return thunkAPI.rejectWithValue({
+          message: err.message,
+        } as MessageType);
       });
   } catch (err: any) {
     if (err?.code === 'auth/no-current-user') {
@@ -473,7 +481,7 @@ export const uploadProfilePictureAPICall = createAsyncThunk<
         .ref(`/user/${auth().currentUser?.uid}/` + requestObj.imageName)
         .putFile(requestObj.uploadUri);
 
-      task.on('state_changed', taskSnapshot => {
+      task.on('state_changed', (taskSnapshot) => {
         console.log(
           `upload completed ${
             (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100
@@ -485,12 +493,12 @@ export const uploadProfilePictureAPICall = createAsyncThunk<
       });
 
       return task
-        .then(resp => {
+        .then(() => {
           message = 'Profile Picture Uploaded Successfully!';
-          return {message: message};
+          return { message: message };
         })
-        .catch(error => {
-          return thunkAPI.rejectWithValue({message: error?.message});
+        .catch((error) => {
+          return thunkAPI.rejectWithValue({ message: error?.message });
         });
     } catch (err: any) {
       //return rejected promise
@@ -534,11 +542,15 @@ export const getProfilePictureAPICall = createAsyncThunk<
       return await storage()
         .ref(`/user/${auth().currentUser?.uid}/` + requestObj.imageName)
         .getDownloadURL()
-        .then(resp => {
+        .then((resp) => {
           message = 'Profile Picture Fetched Successfully!';
-          return {message: message, uri: resp, type: 'success'} as SuccessType;
+          return {
+            message: message,
+            uri: resp,
+            type: 'success',
+          } as SuccessType;
         })
-        .catch(error => {
+        .catch((error) => {
           return thunkAPI.rejectWithValue({
             message: error?.message,
             type: 'failure',
@@ -582,8 +594,8 @@ export const getProfileDataAPICall = createAsyncThunk<
     return await firestore()
       .collection(apiUrls.users)
       .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(documentSnapshot => {
+      .then((querySnapshot) => {
+        querySnapshot.forEach((documentSnapshot) => {
           let updatedObj: EachUser = JSON.parse(
             JSON.stringify(documentSnapshot.data()),
           );
@@ -599,7 +611,7 @@ export const getProfileDataAPICall = createAsyncThunk<
           type: 'success',
         } as ProfileResponse;
       })
-      .catch(error => {
+      .catch((error) => {
         return thunkAPI.rejectWithValue({
           message: error?.message,
           type: 'failure',
@@ -636,22 +648,24 @@ export const googleSigninAPICall = createAsyncThunk<
     );
 
     //set the state of signin method as google signin
-    if(resultAfterSignin?.additionalUserInfo?.providerId)
-    thunkAPI.dispatch(setCurrentUser(resultAfterSignin.additionalUserInfo?.providerId))
+    if (resultAfterSignin?.additionalUserInfo?.providerId)
+      thunkAPI.dispatch(
+        setCurrentUser(resultAfterSignin.additionalUserInfo?.providerId),
+      );
     //here first check if same user exist in the Users database
     let isAlreadyExist = false;
     let document: FirebaseFirestoreTypes.QueryDocumentSnapshot<FirebaseFirestoreTypes.DocumentData>;
     let resultObj = await firestore()
       .collection(apiUrls.users)
       .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(documentSnapshot => {
+      .then((querySnapshot) => {
+        querySnapshot.forEach((documentSnapshot) => {
           if (documentSnapshot.data()?.authId === auth().currentUser?.uid) {
             isAlreadyExist = true;
             document = documentSnapshot;
           }
         });
-        return {document, isAlreadyExist};
+        return { document, isAlreadyExist };
       });
 
     //if already exist and data is not same just update the data
@@ -659,7 +673,7 @@ export const googleSigninAPICall = createAsyncThunk<
       if (
         resultAfterSignin?.user?.phoneNumber &&
         resultAfterSignin?.user?.phoneNumber !==
-        resultObj.document.data().mobileNumber
+          resultObj.document.data().mobileNumber
       ) {
         await firestore()
           .collection(apiUrls.users)
@@ -678,7 +692,7 @@ export const googleSigninAPICall = createAsyncThunk<
         });
     }
     message = 'Logged in successfully';
-    return {message: message};
+    return { message: message };
   } catch (error: any) {
     //return rejected promise.
     if (error?.code === 'auth/user-disabled') {

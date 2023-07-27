@@ -1,4 +1,4 @@
-import React, {ReactElement, ReactNode} from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -8,9 +8,9 @@ import {
   TouchableOpacityProps,
   TextStyle,
 } from 'react-native';
-import {colors} from '@/utils/appStyles';
+import { colors } from '@/utils/appStyles';
 import TextComponent from './text';
-import {useAppSelector} from '@/reduxConfig/store';
+import { useAppSelector } from '@/reduxConfig/store';
 
 type ButtonCommonProps = TouchableNativeFeedbackProps & TouchableOpacityProps;
 
@@ -31,7 +31,7 @@ const ButtonComponent = ({
   isDisabled = false,
   ...props
 }: ButtonComponentProps): ReactElement => {
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   return (
     <TouchableOpacity
@@ -48,7 +48,8 @@ const ButtonComponent = ({
             ? colors[theme].disabledButtonColor
             : colors[theme].buttonColor,
         },
-      ]}>
+      ]}
+    >
       <TextComponent
         style={[
           {
@@ -58,7 +59,8 @@ const ButtonComponent = ({
           },
           textStyle,
         ]}
-        weight="bold">
+        weight="bold"
+      >
         {children}
       </TextComponent>
     </TouchableOpacity>

@@ -1,13 +1,21 @@
-import React, {ReactElement, useCallback, useEffect, useState} from 'react';
-import {FlatList, Platform, RefreshControl, StyleSheet, ToastAndroid, TouchableOpacity, View} from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '@/navigation/homeStackNavigator';
-import {useNavigation} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
-import {ButtonComponent, TextComponent} from '@/reusables';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import {
+  FlatList,
+  Platform,
+  RefreshControl,
+  StyleSheet,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { colors, measureMents } from '@/utils/appStyles';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
+import { useNavigation } from '@react-navigation/native';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
+import { ButtonComponent, TextComponent } from '@/reusables';
 import ScreenWrapper from '../screenWrapper';
-import {generateArray} from '@/utils/commonFunctions';
+import { generateArray } from '@/utils/commonFunctions';
 import {
   EachPerson,
   addPeopleInBatchAPICall,
@@ -17,6 +25,7 @@ import {
 } from '@/reduxConfig/slices/peopleSlice';
 import DisplayEachCommonList from './displayEachCommonGroup';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
+import { screens } from '@/utils/constants';
 
 const DisplayCommonGroups = (): ReactElement => {
   //recycler view states
@@ -30,31 +39,28 @@ const DisplayCommonGroups = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const currentSelectedEvent = useAppSelector(
-    state => state.events.currentSelectedEvent,
+    (state) => state.events.currentSelectedEvent,
   );
-  const peopleState = useAppSelector(state => state.people);
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const peopleState = useAppSelector((state) => state.people);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   //useStates
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    dispatch(getCommonListsAPICall({expanded: true})).then((resp) => {
+    dispatch(getCommonListsAPICall({ expanded: true })).then((resp) => {
       if (resp.payload && resp.meta.requestStatus === 'rejected') {
         if (Platform.OS === 'android')
-          ToastAndroid.show(
-            resp.payload?.message,
-            ToastAndroid.SHORT,
-          );
+          ToastAndroid.show(resp.payload?.message, ToastAndroid.SHORT);
       }
-    })
+    });
   }, []);
 
   const expandCommonList = useCallback(
     (id: string) => {
-      let updatedArr = peopleState.commonLists.map(eachCommonList => {
+      let updatedArr = peopleState.commonLists.map((eachCommonList) => {
         if (eachCommonList.commonListId === id)
-          return {...eachCommonList, expanded: !eachCommonList.expanded};
+          return { ...eachCommonList, expanded: !eachCommonList.expanded };
         else return eachCommonList;
       });
       dispatch(updateCommonList(updatedArr));
@@ -64,14 +70,14 @@ const DisplayCommonGroups = (): ReactElement => {
 
   const onUserSelected = useCallback(
     (value: boolean, commonListId: string, userId: string) => {
-      let updatedArr = peopleState.commonLists.map(eachCommonList => {
+      let updatedArr = peopleState.commonLists.map((eachCommonList) => {
         if (eachCommonList.commonListId === commonListId) {
-          let updatedUserArr = eachCommonList.users.map(eachUser => {
+          let updatedUserArr = eachCommonList.users.map((eachUser) => {
             if (eachUser.userId === userId)
-              return {...eachUser, selected: value};
+              return { ...eachUser, selected: value };
             else return eachUser;
           });
-          return {...eachCommonList, users: updatedUserArr};
+          return { ...eachCommonList, users: updatedUserArr };
         } else return eachCommonList;
       });
       dispatch(updateCommonList(updatedArr));
@@ -81,12 +87,12 @@ const DisplayCommonGroups = (): ReactElement => {
 
   const onAllUsersSelected = useCallback(
     (value: boolean, commonListId: string) => {
-      let updatedArr = peopleState.commonLists.map(eachCommonList => {
+      let updatedArr = peopleState.commonLists.map((eachCommonList) => {
         if (eachCommonList.commonListId === commonListId) {
-          let updatedUserArr = eachCommonList.users.map(eachUser => {
-            return {...eachUser, selected: value};
+          let updatedUserArr = eachCommonList.users.map((eachUser) => {
+            return { ...eachUser, selected: value };
           });
-          return {...eachCommonList, users: updatedUserArr};
+          return { ...eachCommonList, users: updatedUserArr };
         } else return eachCommonList;
       });
       dispatch(updateCommonList(updatedArr));
@@ -96,8 +102,8 @@ const DisplayCommonGroups = (): ReactElement => {
 
   const isAtleastOneUserSelected = () => {
     let isAtleastOneUserSelected = false;
-    peopleState.commonLists.map(eachCommonList => {
-      if (eachCommonList.users.some(eachUser => eachUser.selected))
+    peopleState.commonLists.map((eachCommonList) => {
+      if (eachCommonList.users.some((eachUser) => eachUser.selected))
         isAtleastOneUserSelected = true;
     });
     return isAtleastOneUserSelected;
@@ -105,22 +111,25 @@ const DisplayCommonGroups = (): ReactElement => {
 
   const getSelectedCount = () => {
     let count = 0;
-    peopleState.commonLists.map(eachCommonList => {
-      let innerCount = eachCommonList.users.reduce((prevValue, currentValue) => {
-        return prevValue + (currentValue.selected ? 1 : 0);
-      }, 0);
-      count = count + innerCount
+    peopleState.commonLists.map((eachCommonList) => {
+      let innerCount = eachCommonList.users.reduce(
+        (prevValue, currentValue) => {
+          return prevValue + (currentValue.selected ? 1 : 0);
+        },
+        0,
+      );
+      count = count + innerCount;
     });
     return count;
-  }
+  };
 
   const addUsersToEvent = () => {
     if (!currentSelectedEvent) return null;
     let requestArr: Omit<EachPerson, 'userId'>[] = [];
-    peopleState.commonLists.forEach(eachCommonList => {
+    peopleState.commonLists.forEach((eachCommonList) => {
       let newArr: Omit<EachPerson, 'userId'>[] = eachCommonList.users
-        .filter(eachUser => eachUser.selected)
-        .map(({selected, userId, ...rest}) => {
+        .filter((eachUser) => eachUser.selected)
+        .map((rest) => {
           return {
             ...rest,
             eventId: currentSelectedEvent.eventId,
@@ -129,12 +138,12 @@ const DisplayCommonGroups = (): ReactElement => {
         });
       requestArr.push(...newArr);
     });
-    dispatch(addPeopleInBatchAPICall(requestArr)).then(resp => {
+    dispatch(addPeopleInBatchAPICall(requestArr)).then((resp) => {
       if (resp.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
         dispatch(getPeopleAPICall());
-        navigation.navigate('GuestListScreen');
+        navigation.navigate(screens.GuestListScreen);
       } else {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -149,13 +158,14 @@ const DisplayCommonGroups = (): ReactElement => {
           style={{
             fontSize: 15,
             color: colors[theme].textColor,
-            
+
             marginBottom: 20,
           }}
-          weight="semibold">
-          {
-            peopleState.commonLists.length === 0 ? `First create common group of users and then you can select users from it to add in ${currentSelectedEvent?.eventTitle} event.` : `Select users that you want to add in ${currentSelectedEvent?.eventTitle} as a guests.`
-          }
+          weight="semibold"
+        >
+          {peopleState.commonLists.length === 0
+            ? `First create common group of users and then you can select users from it to add in ${currentSelectedEvent?.eventTitle} event.`
+            : `Select users that you want to add in ${currentSelectedEvent?.eventTitle} as a guests.`}
         </TextComponent>
       </View>
       {peopleState.statuses.getCommonListsAPICall === 'succeedded' &&
@@ -167,7 +177,7 @@ const DisplayCommonGroups = (): ReactElement => {
             paddingVertical: measureMents.leftPadding,
             marginBottom: 20,
           }}
-          renderItem={({item}) => (
+          renderItem={({ item }) => (
             <DisplayEachCommonList
               expandCommonList={expandCommonList}
               eachCommonList={item}
@@ -180,20 +190,25 @@ const DisplayCommonGroups = (): ReactElement => {
               refreshing={refreshing}
               onRefresh={async () => {
                 setRefreshing(true);
-                dispatch(getCommonListsAPICall({expanded: true})).then((resp) => {
-                  if (resp.payload && resp.meta.requestStatus === 'rejected') {
-                    if (Platform.OS === 'android')
-                      ToastAndroid.show(
-                        resp.payload?.message,
-                        ToastAndroid.SHORT,
-                      );
-                  }
-                  setRefreshing(false);
-                })
+                dispatch(getCommonListsAPICall({ expanded: true })).then(
+                  (resp) => {
+                    if (
+                      resp.payload &&
+                      resp.meta.requestStatus === 'rejected'
+                    ) {
+                      if (Platform.OS === 'android')
+                        ToastAndroid.show(
+                          resp.payload?.message,
+                          ToastAndroid.SHORT,
+                        );
+                    }
+                    setRefreshing(false);
+                  },
+                );
               }}
             />
           }
-          keyExtractor={item => item.commonListId.toString()}
+          keyExtractor={(item) => item.commonListId.toString()}
         />
       ) : peopleState.statuses.getCommonListsAPICall === 'loading' ? (
         skelatons.map((eachItem, index) => (
@@ -201,15 +216,17 @@ const DisplayCommonGroups = (): ReactElement => {
             key={index}
             style={[
               styles.commonListSkalaton,
-              {backgroundColor: colors[theme].lavenderColor, height: 300},
-            ]}>
+              { backgroundColor: colors[theme].lavenderColor, height: 300 },
+            ]}
+          >
             {generateArray(3).map((eachSkalaton, index) => (
               <View
                 key={index}
                 style={[
                   styles.eachUser,
-                  {backgroundColor: colors[theme].lightLavenderColor},
-                ]}></View>
+                  { backgroundColor: colors[theme].lightLavenderColor },
+                ]}
+              ></View>
             ))}
           </View>
         ))
@@ -217,9 +234,17 @@ const DisplayCommonGroups = (): ReactElement => {
         <View
           style={[
             styles.commonListSkalaton,
-            {marginTop: 30, height: 100, backgroundColor: colors[theme].lavenderColor},
-          ]}>
-          <TextComponent style={{color: colors[theme].textColor}} weight="bold">
+            {
+              marginTop: 30,
+              height: 100,
+              backgroundColor: colors[theme].lavenderColor,
+            },
+          ]}
+        >
+          <TextComponent
+            style={{ color: colors[theme].textColor }}
+            weight="bold"
+          >
             Failed to fetch common groups. Please try again after some time
           </TextComponent>
         </View>
@@ -227,11 +252,17 @@ const DisplayCommonGroups = (): ReactElement => {
         <View
           style={[
             styles.commonListSkalaton,
-            {marginTop: 30, height: 100, backgroundColor: colors[theme].lavenderColor},
-          ]}>
+            {
+              marginTop: 30,
+              height: 100,
+              backgroundColor: colors[theme].lavenderColor,
+            },
+          ]}
+        >
           <TextComponent
-            style={{color: colors[theme].textColor, fontSize: 16}}
-            weight="bold">
+            style={{ color: colors[theme].textColor, fontSize: 16 }}
+            weight="bold"
+          >
             No records found!
           </TextComponent>
         </View>
@@ -240,22 +271,22 @@ const DisplayCommonGroups = (): ReactElement => {
         <View style={styles.addButton}>
           <ButtonComponent
             isDisabled={!isAtleastOneUserSelected()}
-            onPress={addUsersToEvent}>
-              {
-                isAtleastOneUserSelected() ? (
-                  `ADD ${getSelectedCount()} USERS`
-                ): `ADD`
-              }
+            onPress={addUsersToEvent}
+          >
+            {isAtleastOneUserSelected()
+              ? `ADD ${getSelectedCount()} USERS`
+              : `ADD`}
           </ButtonComponent>
         </View>
       ) : null}
       <TouchableOpacity
-        onPress={() => navigation.navigate('CreateCommonGroup')}
+        onPress={() => navigation.navigate(screens.CreateCommonGroup)}
         activeOpacity={0.7}
         style={[
           styles.addCustomListButton,
-          {backgroundColor: colors[theme].commonPrimaryColor},
-        ]}>
+          { backgroundColor: colors[theme].commonPrimaryColor },
+        ]}
+      >
         <EntypoIcons name="plus" color={colors[theme].whiteColor} size={20} />
       </TouchableOpacity>
     </ScreenWrapper>

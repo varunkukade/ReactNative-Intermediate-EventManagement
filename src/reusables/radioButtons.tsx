@@ -1,25 +1,44 @@
-import React, {ReactElement, ReactNode} from 'react';
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
-import {colors} from '@/utils/appStyles';
+import React, { ReactElement, ReactNode } from 'react';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { colors } from '@/utils/appStyles';
 import TextComponent from './text';
 import { useAppSelector } from '@/reduxConfig/store';
 
 interface RadioButtonComponentProps {
-    onPress: () => void
-    selected: boolean;
-    children: ReactNode
+  onPress: () => void;
+  selected: boolean;
+  children: ReactNode;
 }
 
-const RadioButtonComponent = ({ onPress, selected, children }: RadioButtonComponentProps): ReactElement => {
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+const RadioButtonComponent = ({
+  onPress,
+  selected,
+  children,
+}: RadioButtonComponentProps): ReactElement => {
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   return (
     <View style={styles.radioButtonContainer}>
-      <TouchableOpacity onPress={onPress} style={[styles.radioButton, { borderColor: colors[theme].blackColor}]}>
-        {selected ? <View style={[styles.radioButtonIcon, { backgroundColor: colors[theme].commonPrimaryColor}]} /> : null}
+      <TouchableOpacity
+        onPress={onPress}
+        style={[styles.radioButton, { borderColor: colors[theme].blackColor }]}
+      >
+        {selected ? (
+          <View
+            style={[
+              styles.radioButtonIcon,
+              { backgroundColor: colors[theme].commonPrimaryColor },
+            ]}
+          />
+        ) : null}
       </TouchableOpacity>
       <TouchableOpacity onPress={onPress}>
-        <TextComponent style={[styles.radioButtonText, {color: colors[theme].textColor}]} weight='semibold'>{children}</TextComponent>
+        <TextComponent
+          style={[styles.radioButtonText, { color: colors[theme].textColor }]}
+          weight="semibold"
+        >
+          {children}
+        </TextComponent>
       </TouchableOpacity>
     </View>
   );

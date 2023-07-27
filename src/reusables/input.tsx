@@ -1,8 +1,8 @@
-import React, {ReactElement, ReactNode} from 'react';
-import {StyleSheet, View, TextInputProps, TextInput} from 'react-native';
-import {colors, fontStyles} from '@/utils/appStyles';
+import React, { ReactElement, ReactNode } from 'react';
+import { StyleSheet, View, TextInputProps, TextInput } from 'react-native';
+import { colors, fontStyles } from '@/utils/appStyles';
 import TextComponent from './text';
-import {useAppSelector} from '@/reduxConfig/store';
+import { useAppSelector } from '@/reduxConfig/store';
 
 interface InputComponentProps extends Omit<TextInputProps, 'cursorColor'> {
   onChangeText: (value: string) => void;
@@ -22,15 +22,16 @@ const InputComponent = ({
   required = false,
   ...props
 }: InputComponentProps): ReactElement => {
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   return (
     <View>
-      <View style={{flexDirection: 'row'}}>
+      <View style={{ flexDirection: 'row' }}>
         {label ? (
           <TextComponent
             weight="semibold"
-            style={{fontSize: 16, color: colors[theme].textColor}}>
+            style={{ fontSize: 16, color: colors[theme].textColor }}
+          >
             {label}
           </TextComponent>
         ) : null}
@@ -41,7 +42,8 @@ const InputComponent = ({
               color: colors[theme].errorColor,
               marginLeft: 5,
               fontSize: 17,
-            }}>
+            }}
+          >
             *
           </TextComponent>
         ) : null}
@@ -72,7 +74,8 @@ const InputComponent = ({
             color: colors[theme].errorColor,
             marginBottom: 15,
             marginTop: 5,
-          }}>
+          }}
+        >
           {errorMessage}
         </TextComponent>
       ) : null}

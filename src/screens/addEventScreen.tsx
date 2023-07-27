@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from 'react';
+import React, { ReactElement, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -7,13 +7,13 @@ import {
   ToastAndroid,
   Platform,
 } from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
+import { colors, measureMents } from '@/utils/appStyles';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '@/navigation/homeStackNavigator';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
 import {
   addEventAPICall,
   EachEvent,
@@ -25,9 +25,10 @@ import {
   DateTimePickerComponent,
   InputComponent,
 } from '@/reusables';
-import {getDate, getTime} from '@/utils/commonFunctions';
-import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
+import { getDate, getTime } from '@/utils/commonFunctions';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import ScreenWrapper from './screenWrapper';
+import { screens } from '@/utils/constants';
 
 const constants = {
   eventTitle: 'eventTitle',
@@ -68,8 +69,7 @@ const AddEventScreen = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
   const selectedEventDetails = route.params?.longPressedEvent;
-  const theme = useAppSelector(state => state.user.currentUser.theme)
-
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   //we are storing Date type in state and we will convert it to string for displaying on screen or passing to database.
   let initialEventForm: AddEventFormData = {
@@ -122,7 +122,10 @@ const AddEventScreen = (): ReactElement => {
     value: string | Date | boolean,
     fieldName: string,
   ): void => {
-    setEventForm({...eventForm, [fieldName]: {value: value, errorMessage: ''}});
+    setEventForm({
+      ...eventForm,
+      [fieldName]: { value: value, errorMessage: '' },
+    });
   };
 
   const currentUser = auth().currentUser;
@@ -153,7 +156,7 @@ const AddEventScreen = (): ReactElement => {
 
   const addNewEvent = () => {
     if (!currentUser) return;
-    dispatch(addEventAPICall(getRequestObj(currentUser))).then(resp => {
+    dispatch(addEventAPICall(getRequestObj(currentUser))).then((resp) => {
       if (resp.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -163,10 +166,10 @@ const AddEventScreen = (): ReactElement => {
           index: 0,
           routes: [
             {
-              name: 'BottomTabNavigator',
+              name: screens.BottomTabNavigator,
               state: {
                 index: 0,
-                routes: [{name: 'Home'}],
+                routes: [{ name: screens.Home }],
               },
             },
           ],
@@ -180,11 +183,12 @@ const AddEventScreen = (): ReactElement => {
 
   const updateExistingEvent = () => {
     if (!currentUser || !selectedEventDetails) return;
-    let requestObj: {newUpdate: Omit<EachEvent, 'eventId'>; eventId: string} = {
-      newUpdate: getRequestObj(currentUser),
-      eventId: selectedEventDetails?.eventId,
-    };
-    dispatch(updateEventAPICall(requestObj)).then(resp => {
+    let requestObj: { newUpdate: Omit<EachEvent, 'eventId'>; eventId: string } =
+      {
+        newUpdate: getRequestObj(currentUser),
+        eventId: selectedEventDetails?.eventId,
+      };
+    dispatch(updateEventAPICall(requestObj)).then((resp) => {
       if (resp.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && resp.payload)
           ToastAndroid.show(resp.payload.message, ToastAndroid.SHORT);
@@ -201,7 +205,7 @@ const AddEventScreen = (): ReactElement => {
 
   const onFormSubmit = (): void => {
     if (!currentUser) return;
-    const {eventTitle, eventDate, eventTime, eventDesc, eventLocation} =
+    const { eventTitle, eventDate, eventTime, eventDesc, eventLocation } =
       eventForm;
     if (
       eventTitle.value &&
@@ -250,10 +254,15 @@ const AddEventScreen = (): ReactElement => {
   return (
     <ScreenWrapper>
       <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={[styles.mainContainer, { backgroundColor: colors[theme].cardColor}]}>
+        <View
+          style={[
+            styles.mainContainer,
+            { backgroundColor: colors[theme].cardColor },
+          ]}
+        >
           <InputComponent
             value={eventForm.eventTitle.value}
-            onChangeText={value => onChangeForm(value, constants.eventTitle)}
+            onChangeText={(value) => onChangeForm(value, constants.eventTitle)}
             label="Event Title"
             required
             errorMessage={eventForm.eventTitle.errorMessage}
@@ -261,7 +270,7 @@ const AddEventScreen = (): ReactElement => {
           />
           <InputComponent
             value={eventForm.eventDesc.value}
-            onChangeText={value => onChangeForm(value, constants.eventDesc)}
+            onChangeText={(value) => onChangeForm(value, constants.eventDesc)}
             label="Event Description"
             multiline
             required
@@ -271,10 +280,11 @@ const AddEventScreen = (): ReactElement => {
           />
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => setShowDatePicker(!showDatePicker)}>
+            onPress={() => setShowDatePicker(!showDatePicker)}
+          >
             <InputComponent
               value={''}
-              onChangeText={value => onChangeForm(value, constants.eventDate)}
+              onChangeText={(value) => onChangeForm(value, constants.eventDate)}
               label="Event Date"
               editable={false}
               required
@@ -282,7 +292,7 @@ const AddEventScreen = (): ReactElement => {
               placeholder={getDate(eventForm.eventDate.value)}
               rightIconComponent={
                 <AntDesignIcons
-                  style={{position: 'absolute', right: 15}}
+                  style={{ position: 'absolute', right: 15 }}
                   name="calendar"
                   color={colors[theme].iconLightPinkColor}
                   size={20}
@@ -296,23 +306,24 @@ const AddEventScreen = (): ReactElement => {
               date={eventForm.eventDate.value}
               show={showDatePicker}
               minimumDate={new Date()}
-              setDateValue={value => onChangeForm(value, constants.eventDate)}
+              setDateValue={(value) => onChangeForm(value, constants.eventDate)}
             />
           </View>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => setShowTimePicker(!showTimePicker)}>
+            onPress={() => setShowTimePicker(!showTimePicker)}
+          >
             <InputComponent
               value={''}
               required
-              onChangeText={value => onChangeForm(value, constants.eventTime)}
+              onChangeText={(value) => onChangeForm(value, constants.eventTime)}
               label="Event Time"
               editable={false}
               errorMessage={eventForm.eventTime.errorMessage}
               placeholder={getTime(eventForm.eventTime.value)}
               rightIconComponent={
                 <MaterialIcons
-                  style={{position: 'absolute', right: 15}}
+                  style={{ position: 'absolute', right: 15 }}
                   name="timer"
                   color={colors[theme].iconLightPinkColor}
                   size={20}
@@ -325,12 +336,14 @@ const AddEventScreen = (): ReactElement => {
               mode="time"
               date={eventForm.eventTime.value}
               show={showTimePicker}
-              setDateValue={value => onChangeForm(value, constants.eventTime)}
+              setDateValue={(value) => onChangeForm(value, constants.eventTime)}
             />
           </View>
           <InputComponent
             value={eventForm.eventLocation.value}
-            onChangeText={value => onChangeForm(value, constants.eventLocation)}
+            onChangeText={(value) =>
+              onChangeForm(value, constants.eventLocation)
+            }
             label="Event Location"
             multiline
             required
@@ -340,7 +353,7 @@ const AddEventScreen = (): ReactElement => {
           />
           <InputComponent
             value={eventForm.eventFees.value}
-            onChangeText={value => onChangeForm(value, constants.eventFees)}
+            onChangeText={(value) => onChangeForm(value, constants.eventFees)}
             label="Event Fees"
             keyboardType="numeric"
             placeholder="Enter fees in ruppes..."
@@ -348,18 +361,21 @@ const AddEventScreen = (): ReactElement => {
           <CheckboxComponent
             label="Meal provided by organiser ?"
             value={eventForm.mealProvided.value}
-            onValueChange={value => onChangeForm(value, constants.mealProvided)}
+            onValueChange={(value) =>
+              onChangeForm(value, constants.mealProvided)
+            }
           />
           <CheckboxComponent
             label="Accomodation provided by organiser ?"
             value={eventForm.accomodationProvided.value}
-            onValueChange={value =>
+            onValueChange={(value) =>
               onChangeForm(value, constants.accomodationProvided)
             }
           />
           <ButtonComponent
             onPress={onFormSubmit}
-            containerStyle={{marginTop: 30}}>
+            containerStyle={{ marginTop: 30 }}
+          >
             Submit
           </ButtonComponent>
         </View>
@@ -382,6 +398,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 40,
     paddingTop: 30,
     paddingBottom: 30,
-    marginTop: 20
+    marginTop: 20,
   },
 });

@@ -1,13 +1,14 @@
-import React, {ReactElement} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useAppSelector} from '@/reduxConfig/store';
-import {colors, measureMents} from '@/utils/appStyles';
-import {TextComponent} from '@/reusables';
+import React, { ReactElement } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useAppSelector } from '@/reduxConfig/store';
+import { colors, measureMents } from '@/utils/appStyles';
+import { TextComponent } from '@/reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
-import {CommonListObject} from '@/reduxConfig/slices/peopleSlice';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {HomeStackParamList} from '@/navigation/homeStackNavigator';
-import {useNavigation} from '@react-navigation/native';
+import { CommonListObject } from '@/reduxConfig/slices/peopleSlice';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
+import { useNavigation } from '@react-navigation/native';
+import { screens } from '@/utils/constants';
 
 type UpdateEachCommonListProps = {
   eachCommonList: CommonListObject;
@@ -17,14 +18,14 @@ const UpdateEachCommonList = ({
   eachCommonList,
 }: UpdateEachCommonListProps): ReactElement => {
   //dispatch and selectors
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
   //navigation and route state
   const navigation: NativeStackNavigationProp<
     HomeStackParamList,
     'UpdateCommonGroupsScreen'
   > = useNavigation();
   const onSingleUserPress = () => {
-    navigation.navigate('UpdateCommonGroupsUsersScreen', {
+    navigation.navigate(screens.UpdateCommonGroupsUsersScreen, {
       selectedCommonListId: eachCommonList.commonListId,
       selectedCommonListName: eachCommonList.commonListName,
     });
@@ -39,11 +40,13 @@ const UpdateEachCommonList = ({
         {
           backgroundColor: colors[theme].cardColor,
         },
-      ]}>
+      ]}
+    >
       <View style={styles.textComponentContainer}>
         <TextComponent
           weight="semibold"
-          style={{color: colors[theme].textColor}}>
+          style={{ color: colors[theme].textColor }}
+        >
           {eachCommonList.commonListName}
         </TextComponent>
       </View>

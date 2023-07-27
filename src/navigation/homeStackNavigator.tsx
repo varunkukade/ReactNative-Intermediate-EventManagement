@@ -1,5 +1,5 @@
 import React from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   AddEventScreen,
   AddGuestsScreen,
@@ -10,34 +10,37 @@ import {
   UpdateCommonGroupsScreen,
   UpdateCommonGroupsUsersScreen,
   GuestListScreen,
-  SelectContactScreen
+  SelectContactScreen,
 } from '@/screens/index';
-import {colors, fontStyles} from '@/utils/appStyles';
-import {BottomTabNavigator} from '.';
-import {NavigatorScreenParams} from '@react-navigation/native';
-import {BottomTabParamList} from './bottomTabNavigator';
-import {EachEvent} from '@/reduxConfig/slices/eventsSlice';
-import {EachPerson} from '@/reduxConfig/slices/peopleSlice';
+import { colors, fontStyles } from '@/utils/appStyles';
+import { BottomTabNavigator } from '.';
+import { NavigatorScreenParams } from '@react-navigation/native';
+import { BottomTabParamList } from './bottomTabNavigator';
+import { EachEvent } from '@/reduxConfig/slices/eventsSlice';
+import { EachPerson } from '@/reduxConfig/slices/peopleSlice';
 import { useAppSelector } from '@/reduxConfig/store';
+import { screens } from '@/utils/constants';
 
 export type HomeStackParamList = {
   BottomTabNavigator: undefined | NavigatorScreenParams<BottomTabParamList>;
-  AddEventScreen: undefined | {longPressedEvent: EachEvent};
+  AddEventScreen: undefined | { longPressedEvent: EachEvent };
   EventDetailsScreen: undefined;
   GuestListScreen: undefined;
-  AddGuestsScreen: undefined | {longPressedUser: EachPerson};
+  AddGuestsScreen: undefined | { longPressedUser: EachPerson };
   UpdateProfileScreen: undefined;
   CreateCommonGroup: undefined;
   DisplayCommonGroups: undefined;
   UpdateCommonGroupsScreen: undefined;
-  UpdateCommonGroupsUsersScreen: undefined | {selectedCommonListId: string, selectedCommonListName: string};
+  UpdateCommonGroupsUsersScreen:
+    | undefined
+    | { selectedCommonListId: string; selectedCommonListName: string };
   SelectContactScreen: undefined;
 };
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 
 function HomeStackNavigator() {
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   return (
     <HomeStack.Navigator
@@ -45,131 +48,132 @@ function HomeStackNavigator() {
         animation: 'slide_from_right',
         headerTintColor: colors[theme].textColor,
       }}
-      initialRouteName="BottomTabNavigator">
+      initialRouteName={screens.BottomTabNavigator}
+    >
       <HomeStack.Screen
-        options={{headerShown: false}}
-        name="BottomTabNavigator"
+        options={{ headerShown: false }}
+        name={screens.BottomTabNavigator}
         component={BottomTabNavigator}
       />
       <HomeStack.Screen
         options={{
           headerTitle: 'Add New Event',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+          headerStyle: { backgroundColor: colors[theme].lightLavenderColor },
         }}
-        name="AddEventScreen"
+        name={screens.AddEventScreen}
         component={AddEventScreen}
       />
       <HomeStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerTitle: 'Event details',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+          headerStyle: { backgroundColor: colors[theme].lightLavenderColor },
         })}
-        name="EventDetailsScreen"
+        name={screens.EventDetailsScreen}
         component={EventDetailsScreen}
       />
       <HomeStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerTitle: 'Guest List',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+          headerStyle: { backgroundColor: colors[theme].lightLavenderColor },
         })}
-        name="GuestListScreen"
+        name={screens.GuestListScreen}
         component={GuestListScreen}
       />
       <HomeStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerTitle: 'Add Guests to event',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+          headerStyle: { backgroundColor: colors[theme].lightLavenderColor },
         })}
-        name="AddGuestsScreen"
+        name={screens.AddGuestsScreen}
         component={AddGuestsScreen}
       />
       <HomeStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerTitle: 'Update Profile',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].primaryColor},
+          headerStyle: { backgroundColor: colors[theme].primaryColor },
           headerTintColor: colors[theme].whiteColor,
         })}
-        name="UpdateProfileScreen"
+        name={screens.UpdateProfileScreen}
         component={UpdateProfileScreen}
       />
       <HomeStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerTitle: 'Create Common Group',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+          headerStyle: { backgroundColor: colors[theme].lightLavenderColor },
         })}
-        name="CreateCommonGroup"
+        name={screens.CreateCommonGroup}
         component={CreateCommonGroup}
       />
       <HomeStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerTitle: 'Common Groups',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+          headerStyle: { backgroundColor: colors[theme].lightLavenderColor },
         })}
-        name="DisplayCommonGroups"
+        name={screens.DisplayCommonGroups}
         component={DisplayCommonGroups}
       />
       <HomeStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerTitle: 'Update Common Groups',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].lightLavenderColor}
+          headerStyle: { backgroundColor: colors[theme].lightLavenderColor },
         })}
-        name="UpdateCommonGroupsScreen"
+        name={screens.UpdateCommonGroupsScreen}
         component={UpdateCommonGroupsScreen}
       />
       <HomeStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerTitle: '',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].lightLavenderColor},
+          headerStyle: { backgroundColor: colors[theme].lightLavenderColor },
         })}
-        name="UpdateCommonGroupsUsersScreen"
+        name={screens.UpdateCommonGroupsUsersScreen}
         component={UpdateCommonGroupsUsersScreen}
       />
       <HomeStack.Screen
-        options={({route, navigation}) => ({
+        options={() => ({
           headerTitle: 'Contacts Selection',
           headerShadowVisible: false,
-          headerTitleStyle: {fontFamily: fontStyles.bold, fontSize: 20},
+          headerTitleStyle: { fontFamily: fontStyles.bold, fontSize: 20 },
           headerTitleAlign: 'center',
           headerBackVisible: true,
-          headerStyle: {backgroundColor: colors[theme].lightLavenderColor},
+          headerStyle: { backgroundColor: colors[theme].lightLavenderColor },
         })}
-        name="SelectContactScreen"
+        name={screens.SelectContactScreen}
         component={SelectContactScreen}
       />
     </HomeStack.Navigator>

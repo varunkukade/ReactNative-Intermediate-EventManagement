@@ -1,16 +1,17 @@
-import React, {ReactElement} from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
-import {HomeStackParamList} from '@/navigation/homeStackNavigator';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
+import React, { ReactElement } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { colors, measureMents } from '@/utils/appStyles';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import TextComponent from '@/reusables/text';
-import {useAppSelector} from '@/reduxConfig/store';
-import {getDate, getTime} from '@/utils/commonFunctions';
+import { useAppSelector } from '@/reduxConfig/store';
+import { getDate, getTime } from '@/utils/commonFunctions';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {ButtonComponent} from '@/reusables';
+import { ButtonComponent } from '@/reusables';
 import ScreenWrapper from './screenWrapper';
+import { screens } from '@/utils/constants';
 
 const EventDetailsScreen = (): ReactElement | null => {
   //navigation and route
@@ -21,9 +22,9 @@ const EventDetailsScreen = (): ReactElement | null => {
 
   //selectors
   const selectedEventDetails = useAppSelector(
-    state => state.events.currentSelectedEvent,
+    (state) => state.events.currentSelectedEvent,
   );
-  const theme = useAppSelector(state => state.user.currentUser.theme)
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   if (!selectedEventDetails) return null;
 
@@ -31,7 +32,8 @@ const EventDetailsScreen = (): ReactElement | null => {
     <ScreenWrapper>
       <ScrollView
         style={[styles.wrapperComponent]}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.topSection}>
           <TextComponent
             weight="extraBold"
@@ -39,7 +41,8 @@ const EventDetailsScreen = (): ReactElement | null => {
               fontSize: 24,
               color: colors[theme].textColor,
               marginBottom: 24,
-            }}>
+            }}
+          >
             {selectedEventDetails.eventTitle}
           </TextComponent>
           <View style={styles.eventCommon}>
@@ -47,14 +50,15 @@ const EventDetailsScreen = (): ReactElement | null => {
               name="calendar"
               color={colors[theme].iconLightPinkColor}
               size={18}
-              style={{marginRight: 20}}
+              style={{ marginRight: 20 }}
             />
             <TextComponent
               weight="semibold"
               style={{
                 color: colors[theme].textColor,
                 fontSize: 16,
-              }}>
+              }}
+            >
               {getDate(new Date(selectedEventDetails.eventDate))},{' '}
               {getTime(new Date(selectedEventDetails.eventTime))}
             </TextComponent>
@@ -64,36 +68,66 @@ const EventDetailsScreen = (): ReactElement | null => {
               name="location-outline"
               color={colors[theme].iconLightPinkColor}
               size={22}
-              style={{marginRight: 20}}
+              style={{ marginRight: 20 }}
             />
             <TextComponent
               weight="semibold"
               style={{
                 color: colors[theme].textColor,
                 fontSize: 16,
-              }}>
+              }}
+            >
               {selectedEventDetails.eventLocation}
             </TextComponent>
           </View>
         </View>
 
-        <View style={[styles.bottomSection, { backgroundColor: colors[theme].cardColor}]}>
-          <View style={[styles.eventDetailsSubContainer1, { backgroundColor: colors[theme].lightLavenderColor}]}>
-            <TextComponent style={[styles.commonText, { color: colors[theme].textColor}]} weight="bold">
+        <View
+          style={[
+            styles.bottomSection,
+            { backgroundColor: colors[theme].cardColor },
+          ]}
+        >
+          <View
+            style={[
+              styles.eventDetailsSubContainer1,
+              { backgroundColor: colors[theme].lightLavenderColor },
+            ]}
+          >
+            <TextComponent
+              style={[styles.commonText, { color: colors[theme].textColor }]}
+              weight="bold"
+            >
               {selectedEventDetails.mealProvided
                 ? 'Meals provided by organiser'
                 : 'Meals not provided by organiser'}
             </TextComponent>
           </View>
           {selectedEventDetails.eventFees === '0' ? (
-            <View style={[styles.eventDetailsSubContainer1, { backgroundColor: colors[theme].lightLavenderColor}]}>
-              <TextComponent style={[styles.commonText, { color: colors[theme].textColor}]} weight="bold">
+            <View
+              style={[
+                styles.eventDetailsSubContainer1,
+                { backgroundColor: colors[theme].lightLavenderColor },
+              ]}
+            >
+              <TextComponent
+                style={[styles.commonText, { color: colors[theme].textColor }]}
+                weight="bold"
+              >
                 Free Event
               </TextComponent>
             </View>
           ) : null}
-          <View style={[styles.eventDetailsSubContainer1, { backgroundColor: colors[theme].lightLavenderColor}]}>
-            <TextComponent style={[styles.commonText, { color: colors[theme].textColor}]} weight="bold">
+          <View
+            style={[
+              styles.eventDetailsSubContainer1,
+              { backgroundColor: colors[theme].lightLavenderColor },
+            ]}
+          >
+            <TextComponent
+              style={[styles.commonText, { color: colors[theme].textColor }]}
+              weight="bold"
+            >
               {selectedEventDetails.accomodationProvided
                 ? 'Accomodation provided by organiser'
                 : 'Accomodation not provided by organiser'}
@@ -107,14 +141,20 @@ const EventDetailsScreen = (): ReactElement | null => {
             }}
           />
           <TextComponent
-            style={{fontSize: 17, color: colors[theme].textColor}}
-            weight="extraBold">
+            style={{ fontSize: 17, color: colors[theme].textColor }}
+            weight="extraBold"
+          >
             Description
           </TextComponent>
           <TextComponent
             numberOfLines={5}
-            style={{fontSize: 16, color: colors[theme].textColor, marginTop: 10}}
-            weight="normal">
+            style={{
+              fontSize: 16,
+              color: colors[theme].textColor,
+              marginTop: 10,
+            }}
+            weight="normal"
+          >
             {selectedEventDetails.eventDesc}
           </TextComponent>
           <View
@@ -128,8 +168,9 @@ const EventDetailsScreen = (): ReactElement | null => {
           selectedEventDetails.eventFees !== '' ? (
             <>
               <TextComponent
-                style={{fontSize: 17, color: colors[theme].textColor}}
-                weight="extraBold">
+                style={{ fontSize: 17, color: colors[theme].textColor }}
+                weight="extraBold"
+              >
                 Fees
               </TextComponent>
               <TextComponent
@@ -139,7 +180,8 @@ const EventDetailsScreen = (): ReactElement | null => {
                   color: colors[theme].textColor,
                   marginTop: 10,
                 }}
-                weight="normal">
+                weight="normal"
+              >
                 Rs. {selectedEventDetails.eventFees}
               </TextComponent>
               <View
@@ -152,8 +194,9 @@ const EventDetailsScreen = (): ReactElement | null => {
             </>
           ) : null}
           <ButtonComponent
-            onPress={() => navigation.navigate('GuestListScreen')}
-            containerStyle={{marginBottom: 30}}>
+            onPress={() => navigation.navigate(screens.GuestListScreen)}
+            containerStyle={{ marginBottom: 30 }}
+          >
             {' '}
             Go to Guest list 🚀
           </ButtonComponent>

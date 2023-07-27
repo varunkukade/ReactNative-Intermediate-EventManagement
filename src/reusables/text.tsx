@@ -1,6 +1,6 @@
-import React, {ReactElement, ReactNode} from 'react';
-import {StyleSheet, Text, View, TextProps} from 'react-native';
-import {fontStyles} from '@/utils/appStyles';
+import React, { ReactElement, ReactNode } from 'react';
+import { StyleSheet, Text, View, TextProps } from 'react-native';
+import { fontStyles } from '@/utils/appStyles';
 
 interface TextComponentProps extends Omit<TextProps, 'fontFamily'> {
   children: ReactNode;
@@ -23,7 +23,7 @@ const TextComponent = ({
       : fontStyles.semibold;
   return (
     <View style={styles.wrapperComponent}>
-      <Text {...props} style={[{fontFamily}, style]}>
+      <Text {...props} style={[{ fontFamily }, style]}>
         {children}
       </Text>
     </View>

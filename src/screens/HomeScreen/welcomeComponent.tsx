@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import {
   Alert,
   Linking,
@@ -10,12 +10,12 @@ import {
 } from 'react-native';
 import ImageComponent from '@/reusables/image';
 import TextComponent from '@/reusables/text';
-import {colors} from '@/utils/appStyles';
+import { colors } from '@/utils/appStyles';
 import * as ImagePicker from 'react-native-image-picker';
 import auth from '@react-native-firebase/auth';
-import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
 import {
   getProfilePictureAPICall,
   uploadProfilePictureAPICall,
@@ -26,7 +26,7 @@ const PROFILE_PICTURE_SIZE = 60;
 const WelcomeComponent = (): ReactElement => {
   //dispatch and selectors
   const dispatch = useAppDispatch();
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   const [uri, setUri] = useState('');
 
@@ -35,7 +35,7 @@ const WelcomeComponent = (): ReactElement => {
       getProfilePictureAPICall({
         imageName: 'profile-' + auth().currentUser?.email,
       }),
-    ).then(resp => {
+    ).then((resp) => {
       if (resp.payload) {
         if (
           Platform.OS === 'android' &&
@@ -86,7 +86,7 @@ const WelcomeComponent = (): ReactElement => {
       0,
       undefined,
     )
-      .then(response => {
+      .then((response) => {
         // response.uri is the URI of the new image that can now be uploaded to firebase storage...
         //resized image uri
         let uri = response.uri;
@@ -96,9 +96,9 @@ const WelcomeComponent = (): ReactElement => {
         let uploadUri =
           Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
         //upload image to firebase storage
-        return dispatch(uploadProfilePictureAPICall({imageName, uploadUri}));
+        return dispatch(uploadProfilePictureAPICall({ imageName, uploadUri }));
       })
-      .then(res => {
+      .then((res) => {
         if (res.meta.requestStatus === 'fulfilled') {
           if (Platform.OS === 'android' && res.payload)
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
@@ -114,7 +114,7 @@ const WelcomeComponent = (): ReactElement => {
             ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         if (Platform.OS === 'android') {
           ToastAndroid.show(
             err?.message ||
@@ -130,7 +130,7 @@ const WelcomeComponent = (): ReactElement => {
       Platform.OS === 'ios'
         ? PERMISSIONS.IOS.PHOTO_LIBRARY
         : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
-    ).then(result => {
+    ).then((result) => {
       switch (result) {
         case RESULTS.UNAVAILABLE:
           if (Platform.OS === 'android') {
@@ -144,8 +144,9 @@ const WelcomeComponent = (): ReactElement => {
           displayAlert();
           break;
         case RESULTS.GRANTED:
-          ImagePicker.launchImageLibrary({mediaType: 'photo'}, response => {
+          ImagePicker.launchImageLibrary({ mediaType: 'photo' }, (response) => {
             if (response.didCancel) {
+              console.log('Cancelled');
             } else if (response.errorCode) {
               Alert.alert('ImagePicker Error: ', response.errorMessage);
             } else {
@@ -165,29 +166,32 @@ const WelcomeComponent = (): ReactElement => {
       <View style={styles.welcomeHelloText}>
         <TextComponent
           weight="normal"
-          style={{color: colors[theme].textColor, fontSize: 20}}>
+          style={{ color: colors[theme].textColor, fontSize: 20 }}
+        >
           Hello👋🏻
         </TextComponent>
         <TextComponent
           weight="bold"
-          style={{color: colors[theme].textColor, fontSize: 20}}>
+          style={{ color: colors[theme].textColor, fontSize: 20 }}
+        >
           {auth().currentUser?.displayName}
         </TextComponent>
       </View>
       <TouchableOpacity
         onPress={askPermissions}
         activeOpacity={0.6}
-        style={styles.profilePicContainer}>
+        style={styles.profilePicContainer}
+      >
         {uri === '' ? (
           <View
             style={[
               styles.profilePicSkaleton,
-              {backgroundColor: colors[theme].lavenderColor},
+              { backgroundColor: colors[theme].lavenderColor },
             ]}
           />
         ) : (
           <ImageComponent
-            source={{uri}}
+            source={{ uri }}
             style={{
               width: PROFILE_PICTURE_SIZE,
               height: PROFILE_PICTURE_SIZE,
@@ -195,7 +199,7 @@ const WelcomeComponent = (): ReactElement => {
             }}
           />
         )}
-        <TextComponent style={{color: colors[theme].textColor}} weight="bold">
+        <TextComponent style={{ color: colors[theme].textColor }} weight="bold">
           Update
         </TextComponent>
       </TouchableOpacity>

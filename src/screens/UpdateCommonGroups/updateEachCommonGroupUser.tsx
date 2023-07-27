@@ -1,8 +1,8 @@
-import React, {ReactElement} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useAppSelector} from '@/reduxConfig/store';
-import {colors, measureMents} from '@/utils/appStyles';
-import {InputComponent, TextComponent} from '@/reusables';
+import React, { ReactElement } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useAppSelector } from '@/reduxConfig/store';
+import { colors, measureMents } from '@/utils/appStyles';
+import { InputComponent, TextComponent } from '@/reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { EachUserFormData } from './UpdateCommonGroupsUsersScreen';
@@ -16,8 +16,8 @@ type EachUserComponentProps = {
     fieldName: 'userName' | 'userMobileNumber' | 'userEmail',
     id: string | number[],
   ) => void;
-  isUserValid: "" | "YES" | "NO"
-}; 
+  isUserValid: '' | 'YES' | 'NO';
+};
 
 type ConstantsType = {
   userName: 'userName';
@@ -35,12 +35,12 @@ const UpdateEachCommonListUser = ({
   deleteUser,
   expandUser,
   onChangeForm,
-  isUserValid = "",
+  isUserValid = '',
 }: EachUserComponentProps): ReactElement => {
   //dispatch and selectors
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
-  const isInvalidUser = () => isUserValid === "NO";
+  const isInvalidUser = () => isUserValid === 'NO';
   return (
     <>
       <View
@@ -59,16 +59,19 @@ const UpdateEachCommonListUser = ({
               ? colors[theme].cardColor
               : colors[theme].errorColor,
           },
-        ]}>
+        ]}
+      >
         <TextComponent
           weight="semibold"
-          style={{color: colors[theme].textColor}}>
+          style={{ color: colors[theme].textColor }}
+        >
           {eachUser.userName.value}
         </TextComponent>
         <TouchableOpacity
           onPress={() => deleteUser(eachUser.userId)}
-          style={{position: 'absolute', right: '20%'}}
-          activeOpacity={0.8}>
+          style={{ position: 'absolute', right: '20%' }}
+          activeOpacity={0.8}
+        >
           <MaterialIcons
             size={27}
             color={colors[theme].greyColor}
@@ -76,9 +79,10 @@ const UpdateEachCommonListUser = ({
           />
         </TouchableOpacity>
         <TouchableOpacity
-          style={{position: 'absolute', right: '7%'}}
+          style={{ position: 'absolute', right: '7%' }}
           activeOpacity={0.8}
-          onPress={() => expandUser(eachUser.userId)}>
+          onPress={() => expandUser(eachUser.userId)}
+        >
           <EntypoIcons
             name={
               eachUser.expanded
@@ -103,10 +107,11 @@ const UpdateEachCommonListUser = ({
               borderTopColor: colors[theme].cardColor,
               height: isInvalidUser() ? 370 : 330,
             },
-          ]}>
+          ]}
+        >
           <InputComponent
             value={eachUser.userName.value}
-            onChangeText={value =>
+            onChangeText={(value) =>
               onChangeForm(value, constants.userName, eachUser.userId)
             }
             required
@@ -116,7 +121,7 @@ const UpdateEachCommonListUser = ({
           />
           <InputComponent
             value={eachUser.userMobileNumber?.value}
-            onChangeText={value =>
+            onChangeText={(value) =>
               onChangeForm(value, constants.userMobileNumber, eachUser.userId)
             }
             errorMessage={eachUser.userMobileNumber?.errorMessage}
@@ -126,7 +131,7 @@ const UpdateEachCommonListUser = ({
           />
           <InputComponent
             value={eachUser.userEmail?.value}
-            onChangeText={value =>
+            onChangeText={(value) =>
               onChangeForm(value, constants.userEmail, eachUser.userId)
             }
             errorMessage={eachUser.userEmail?.errorMessage}

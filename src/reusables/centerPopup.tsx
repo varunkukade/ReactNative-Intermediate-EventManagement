@@ -1,10 +1,10 @@
-import React, {ReactElement, ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
-import Modal, {ModalProps} from 'react-native-modal';
-import {colors} from '@/utils/appStyles';
+import React, { ReactElement, ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Modal, { ModalProps } from 'react-native-modal';
+import { colors } from '@/utils/appStyles';
 import TextComponent from './text';
 import ButtonComponent from './buttonComponent';
-import {useAppSelector} from '@/reduxConfig/store';
+import { useAppSelector } from '@/reduxConfig/store';
 
 export type popupData = {
   header: string;
@@ -37,7 +37,7 @@ const CenterPopupComponent = ({
   popupData,
   ...props
 }: CenterPopupComponentProps): ReactElement => {
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   return (
     <Modal
@@ -46,22 +46,26 @@ const CenterPopupComponent = ({
       onBackButtonPress={() => setIsModalVisible(!isModalVisible)}
       onBackdropPress={() => setIsModalVisible(!isModalVisible)}
       {...props}
-      isVisible={isModalVisible}>
+      isVisible={isModalVisible}
+    >
       <View
         style={[
           styles.modalContainer,
-          {backgroundColor: colors[theme].cardColor},
-        ]}>
+          { backgroundColor: colors[theme].cardColor },
+        ]}
+      >
         <TextComponent
           numberOfLines={1}
-          style={[styles.header, {color: colors[theme].textColor}]}
-          weight="extraBold">
+          style={[styles.header, { color: colors[theme].textColor }]}
+          weight="extraBold"
+        >
           {popupData().header}
         </TextComponent>
         <TextComponent
           numberOfLines={4}
-          style={[styles.description, {color: colors[theme].textColor}]}
-          weight="normal">
+          style={[styles.description, { color: colors[theme].textColor }]}
+          weight="normal"
+        >
           {popupData().description}
         </TextComponent>
         {children}
@@ -79,14 +83,16 @@ const CenterPopupComponent = ({
               theme === 'light'
                 ? colors.light.lightLavenderColor
                 : colors.dark.greyColor
-            }>
+            }
+          >
             {popupData().confirmButtonText
               ? popupData().cancelButtonText
               : 'Cancel'}
           </ButtonComponent>
           <ButtonComponent
             onPress={popupData().onConfirmClick}
-            containerStyle={styles.button}>
+            containerStyle={styles.button}
+          >
             {popupData().confirmButtonText
               ? popupData().confirmButtonText
               : 'Confirm'}

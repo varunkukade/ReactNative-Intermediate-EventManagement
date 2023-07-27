@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Platform,
   ScrollView,
@@ -7,28 +7,28 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
-  Share
+  Share,
 } from 'react-native';
-import {colors, measureMents} from '@/utils/appStyles';
-import {TextComponent} from '@/reusables';
+import { colors, measureMents } from '@/utils/appStyles';
+import { TextComponent } from '@/reusables';
 import EntypoIcons from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useAppDispatch, useAppSelector} from '@/reduxConfig/store';
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '@/navigation/rootStackNavigator';
+import { useAppDispatch, useAppSelector } from '@/reduxConfig/store';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/navigation/rootStackNavigator';
 import {
   logoutAPICall,
   resetUserState,
   setTheme,
 } from '@/reduxConfig/slices/userSlice';
-import CenterPopupComponent, {popupData} from '@/reusables/centerPopup';
-import {HomeStackParamList} from '@/navigation/homeStackNavigator';
-import {getInviteCode, setAsyncStorage} from '@/utils/commonFunctions';
-import {resetEventState} from '@/reduxConfig/slices/eventsSlice';
-import {resetPeopleState} from '@/reduxConfig/slices/peopleSlice';
-import {ScreenWrapper} from '.';
-import {VERSION_CONST} from '@/utils/constants';
+import CenterPopupComponent, { popupData } from '@/reusables/centerPopup';
+import { HomeStackParamList } from '@/navigation/homeStackNavigator';
+import { getInviteCode, setAsyncStorage } from '@/utils/commonFunctions';
+import { resetEventState } from '@/reduxConfig/slices/eventsSlice';
+import { resetPeopleState } from '@/reduxConfig/slices/peopleSlice';
+import { ScreenWrapper } from '.';
+import { VERSION_CONST, screens } from '@/utils/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 
@@ -49,8 +49,8 @@ const SettingsScreen = () => {
   const [isInvitePopupVisible, setInvitePopupVisible] = useState(false);
 
   //hooks
-  const [ isCopied, setCopiedText ] = useCopyToClipboard(3000);
-  const theme = useAppSelector(state => state.user.currentUser.theme);
+  const [isCopied, setCopiedText] = useCopyToClipboard(3000);
+  const theme = useAppSelector((state) => state.user.currentUser.theme);
 
   const onCancelClick = useCallback(() => {
     setIsLogoutPopupVisible(false);
@@ -68,7 +68,7 @@ const SettingsScreen = () => {
 
   const onLogoutpress = useCallback(() => {
     setIsLogoutPopupVisible(false);
-    dispatch(logoutAPICall()).then(res => {
+    dispatch(logoutAPICall()).then((res) => {
       if (res.meta.requestStatus === 'fulfilled') {
         if (Platform.OS === 'android' && res.payload)
           ToastAndroid.show(res.payload.message, ToastAndroid.SHORT);
@@ -79,10 +79,10 @@ const SettingsScreen = () => {
           index: 0,
           routes: [
             {
-              name: 'AuthStack',
+              name: screens.AuthStack,
               state: {
                 index: 0,
-                routes: [{name: 'SigninScreen'}],
+                routes: [{ name: screens.SigninScreen }],
               },
             },
           ],
@@ -97,8 +97,7 @@ const SettingsScreen = () => {
   const onShareCodeClick = useCallback(async () => {
     try {
       const result = await Share.share({
-        message:
-          `Hi! I have been using this EventManagement app and you can join as guest. Install the app and join by entering this code : ${getInviteCode()}. See you in the app!`,
+        message: `Hi! I have been using this EventManagement app and you can join as guest. Install the app and join by entering this code : ${getInviteCode()}. See you in the app!`,
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -111,7 +110,7 @@ const SettingsScreen = () => {
       }
     } catch (error: any) {
       if (Platform.OS === 'android' && error?.message)
-          ToastAndroid.show(error.message, ToastAndroid.SHORT);
+        ToastAndroid.show(error.message, ToastAndroid.SHORT);
     }
   }, []);
 
@@ -139,11 +138,11 @@ const SettingsScreen = () => {
   );
 
   const onUpdateProfilePress = useCallback(() => {
-    homeStackNavigation.navigate('UpdateProfileScreen');
+    homeStackNavigation.navigate(screens.UpdateProfileScreen);
   }, [homeStackNavigation]);
 
   const onUpdateCommonListPress = useCallback(() => {
-    homeStackNavigation.navigate('UpdateCommonGroupsScreen');
+    homeStackNavigation.navigate(screens.UpdateCommonGroupsScreen);
   }, [homeStackNavigation]);
 
   const onInviteUsersPress = useCallback(() => {
@@ -151,9 +150,9 @@ const SettingsScreen = () => {
   }, [setInvitePopupVisible]);
 
   const onResetPasswordPress = useCallback(() => {
-    rootNavigation.navigate('AuthStack', {
-      screen: 'ForgotPasswordScreen',
-      params: {isResetPassword: true},
+    rootNavigation.navigate(screens.AuthStack, {
+      screen: screens.ForgotPasswordScreen,
+      params: { isResetPassword: true },
     });
   }, [rootNavigation]);
 
@@ -166,7 +165,7 @@ const SettingsScreen = () => {
   }, [theme, dispatch]);
 
   const onCopyInviteCodeClick = () => {
-    setCopiedText(getInviteCode() || "")
+    setCopiedText(getInviteCode() || '');
   };
 
   let actions = [
@@ -294,8 +293,9 @@ const SettingsScreen = () => {
     <ScreenWrapper>
       <View style={styles.welcomeMessage}>
         <TextComponent
-          style={{fontSize: 20, color: colors[theme].whiteColor}}
-          weight="bold">
+          style={{ fontSize: 20, color: colors[theme].whiteColor }}
+          weight="bold"
+        >
           Settings
         </TextComponent>
       </View>
@@ -303,33 +303,38 @@ const SettingsScreen = () => {
         <View
           style={[
             styles.mainContainer,
-            {backgroundColor: colors[theme].cardColor},
-          ]}>
+            { backgroundColor: colors[theme].cardColor },
+          ]}
+        >
           {actions.map((eachAction, index) => (
             <View key={index}>
               {eachAction.id === 5 ? (
                 <TouchableHighlight
                   underlayColor="transparent"
-                  onPress={eachAction.onPress}>
+                  onPress={eachAction.onPress}
+                >
                   <View
                     style={[
                       styles.eachAction,
-                      {backgroundColor: colors[theme].lightLavenderColor},
-                    ]}>
+                      { backgroundColor: colors[theme].lightLavenderColor },
+                    ]}
+                  >
                     <View style={styles.secondSection}>
                       <TextComponent
                         weight="semibold"
                         style={{
                           color: colors[theme].textColor,
                           fontSize: 16,
-                        }}>
+                        }}
+                      >
                         {eachAction.label}
                       </TextComponent>
                     </View>
                     <View style={styles.thirdSection}>
                       <TextComponent
-                        style={{color: colors[theme].textColor}}
-                        weight="bold">
+                        style={{ color: colors[theme].textColor }}
+                        weight="bold"
+                      >
                         {theme === 'light' ? 'Off' : 'On'}
                       </TextComponent>
                       {eachAction.rightIcon()}
@@ -342,15 +347,17 @@ const SettingsScreen = () => {
                   onPress={eachAction.onPress}
                   style={[
                     styles.eachAction,
-                    {backgroundColor: colors[theme].lightLavenderColor},
-                  ]}>
+                    { backgroundColor: colors[theme].lightLavenderColor },
+                  ]}
+                >
                   <View style={styles.secondSection}>
                     <TextComponent
                       weight="semibold"
                       style={{
                         color: colors[theme].textColor,
                         fontSize: 16,
-                      }}>
+                      }}
+                    >
                       {eachAction.label}
                     </TextComponent>
                   </View>
@@ -362,8 +369,9 @@ const SettingsScreen = () => {
             </View>
           ))}
           <TextComponent
-            style={{textAlign: 'center', color: colors[theme].textColor}}
-            weight="bold">
+            style={{ textAlign: 'center', color: colors[theme].textColor }}
+            weight="bold"
+          >
             {VERSION_CONST}
           </TextComponent>
         </View>
@@ -376,7 +384,8 @@ const SettingsScreen = () => {
       <CenterPopupComponent
         popupData={invitePopupData}
         isModalVisible={isInvitePopupVisible}
-        setIsModalVisible={setInvitePopupVisible}>
+        setIsModalVisible={setInvitePopupVisible}
+      >
         <View style={styles.invitePopupContainer}>
           <TextComponent
             style={{
@@ -385,15 +394,16 @@ const SettingsScreen = () => {
               fontSize: 22,
               letterSpacing: 1.5,
             }}
-            weight="semibold">
+            weight="semibold"
+          >
             {getInviteCode()}
           </TextComponent>
           <TouchableOpacity onPress={onCopyInviteCodeClick}>
             <Ionicons
-              name={isCopied ? "checkmark" : "copy-outline"}
+              name={isCopied ? 'checkmark' : 'copy-outline'}
               color={colors[theme].iconLightPinkColor}
-              size={isCopied  ? 30 : 22}
-              style={{marginLeft: 15}}
+              size={isCopied ? 30 : 22}
+              style={{ marginLeft: 15 }}
             />
           </TouchableOpacity>
         </View>

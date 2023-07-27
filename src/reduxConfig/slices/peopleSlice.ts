@@ -1,9 +1,9 @@
-import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import apiUrls from '../apiUrls';
 import firestore from '@react-native-firebase/firestore';
-import {MessageType} from './eventsSlice';
-import {RootState, store} from '../store';
-import {PAGINATION_CONSTANT} from '@/utils/constants';
+import { MessageType } from './eventsSlice';
+import { RootState, store } from '../store';
+import { PAGINATION_CONSTANT } from '@/utils/constants';
 import auth from '@react-native-firebase/auth';
 import Contacts from 'react-native-contacts';
 
@@ -26,7 +26,7 @@ export type EachContact = {
   contactEmailAddress: string;
   contactAvatar: string;
   contactId: string;
-  selected: boolean
+  selected: boolean;
 };
 
 type PeopleState = {
@@ -101,9 +101,9 @@ export const peopleSlice = createSlice({
     },
     updateSelected: (
       state,
-      action: PayloadAction<{value: boolean; id: string}>,
+      action: PayloadAction<{ value: boolean; id: string }>,
     ) => {
-      state.contacts = state.contacts.map(eachContact => {
+      state.contacts = state.contacts.map((eachContact) => {
         if (eachContact.contactId === action.payload.id) {
           return {
             ...eachContact,
@@ -111,7 +111,7 @@ export const peopleSlice = createSlice({
           };
         } else return eachContact;
       });
-      state.originalContacts = state.originalContacts.map(eachContact => {
+      state.originalContacts = state.originalContacts.map((eachContact) => {
         if (eachContact.contactId === action.payload.id) {
           return {
             ...eachContact,
@@ -123,27 +123,27 @@ export const peopleSlice = createSlice({
   },
   extraReducers(builder) {
     builder
-      .addCase(addPeopleAPICall.pending, (state, action) => {
+      .addCase(addPeopleAPICall.pending, (state) => {
         state.loadingMessage = 'Adding guest To Event...';
         state.statuses.addPeopleAPICall = 'loading';
       })
-      .addCase(addPeopleAPICall.fulfilled, (state, action) => {
+      .addCase(addPeopleAPICall.fulfilled, (state) => {
         state.statuses.addPeopleAPICall = 'succeedded';
       })
-      .addCase(addPeopleAPICall.rejected, (state, action) => {
+      .addCase(addPeopleAPICall.rejected, (state) => {
         state.statuses.addPeopleAPICall = 'failed';
       })
-      .addCase(addPeopleInBatchAPICall.pending, (state, action) => {
+      .addCase(addPeopleInBatchAPICall.pending, (state) => {
         state.loadingMessage = 'Adding guests To Event...';
         state.statuses.addPeopleInBatchAPICall = 'loading';
       })
-      .addCase(addPeopleInBatchAPICall.fulfilled, (state, action) => {
+      .addCase(addPeopleInBatchAPICall.fulfilled, (state) => {
         state.statuses.addPeopleInBatchAPICall = 'succeedded';
       })
-      .addCase(addPeopleInBatchAPICall.rejected, (state, action) => {
+      .addCase(addPeopleInBatchAPICall.rejected, (state) => {
         state.statuses.addPeopleInBatchAPICall = 'failed';
       })
-      .addCase(getPeopleAPICall.pending, (state, action) => {
+      .addCase(getPeopleAPICall.pending, (state) => {
         state.statuses.getPeopleAPICall = 'loading';
       })
       .addCase(getPeopleAPICall.fulfilled, (state, action) => {
@@ -159,10 +159,10 @@ export const peopleSlice = createSlice({
         }
         state.statuses.getPeopleAPICall = 'succeedded';
       })
-      .addCase(getPeopleAPICall.rejected, (state, action) => {
+      .addCase(getPeopleAPICall.rejected, (state) => {
         state.statuses.getPeopleAPICall = 'failed';
       })
-      .addCase(getNextEventJoinersAPICall.pending, (state, action) => {
+      .addCase(getNextEventJoinersAPICall.pending, (state) => {
         state.statuses.getNextEventJoinersAPICall = 'loading';
       })
       .addCase(getNextEventJoinersAPICall.fulfilled, (state, action) => {
@@ -174,26 +174,26 @@ export const peopleSlice = createSlice({
         }
         state.statuses.getNextEventJoinersAPICall = 'succeedded';
       })
-      .addCase(getNextEventJoinersAPICall.rejected, (state, action) => {
+      .addCase(getNextEventJoinersAPICall.rejected, (state) => {
         state.statuses.getNextEventJoinersAPICall = 'failed';
       })
-      .addCase(removePeopleAPICall.pending, (state, action) => {
+      .addCase(removePeopleAPICall.pending, (state) => {
         state.loadingMessage = 'Deleting the guest...';
         state.statuses.removePeopleAPICall = 'loading';
       })
       .addCase(removePeopleAPICall.fulfilled, (state, action) => {
         state.people = state.people.filter(
-          eachPerson => eachPerson.userId !== action.meta.arg.userId,
+          (eachPerson) => eachPerson.userId !== action.meta.arg.userId,
         );
         state.originalPeople = state.originalPeople.filter(
-          eachPerson => eachPerson.userId !== action.meta.arg.userId,
+          (eachPerson) => eachPerson.userId !== action.meta.arg.userId,
         );
         state.statuses.removePeopleAPICall = 'succeedded';
       })
-      .addCase(removePeopleAPICall.rejected, (state, action) => {
+      .addCase(removePeopleAPICall.rejected, (state) => {
         state.statuses.removePeopleAPICall = 'failed';
       })
-      .addCase(updatePeopleAPICall.pending, (state, action) => {
+      .addCase(updatePeopleAPICall.pending, (state) => {
         state.loadingMessage = 'Updating guest Status...';
         state.statuses.updatePeopleAPICall = 'loading';
       })
@@ -205,10 +205,7 @@ export const peopleSlice = createSlice({
           userMobileNumber,
           paymentMode,
         } = action.meta.arg.newUpdate;
-        let user = state.originalPeople.find(
-          eachUser => eachUser.userId === action.meta.arg.userId,
-        );
-        state.people = state.people.map(eachPerson => {
+        state.people = state.people.map((eachPerson) => {
           if (eachPerson.userId === action.meta.arg.userId) {
             if (typeof isPaymentPending === 'boolean')
               eachPerson.isPaymentPending = isPaymentPending;
@@ -220,7 +217,7 @@ export const peopleSlice = createSlice({
             return eachPerson;
           } else return eachPerson;
         });
-        state.originalPeople = state.originalPeople.map(eachPerson => {
+        state.originalPeople = state.originalPeople.map((eachPerson) => {
           if (eachPerson.userId === action.meta.arg.userId) {
             if (isPaymentPending !== undefined)
               eachPerson.isPaymentPending = isPaymentPending;
@@ -234,20 +231,20 @@ export const peopleSlice = createSlice({
         });
         state.statuses.updatePeopleAPICall = 'succeedded';
       })
-      .addCase(updatePeopleAPICall.rejected, (state, action) => {
+      .addCase(updatePeopleAPICall.rejected, (state) => {
         state.statuses.updatePeopleAPICall = 'failed';
       })
-      .addCase(addCommonListAPICall.pending, (state, action) => {
+      .addCase(addCommonListAPICall.pending, (state) => {
         state.loadingMessage = 'Creating Common Group...';
         state.statuses.addCommonListAPICall = 'loading';
       })
-      .addCase(addCommonListAPICall.fulfilled, (state, action) => {
+      .addCase(addCommonListAPICall.fulfilled, (state) => {
         state.statuses.addCommonListAPICall = 'succeedded';
       })
-      .addCase(addCommonListAPICall.rejected, (state, action) => {
+      .addCase(addCommonListAPICall.rejected, (state) => {
         state.statuses.addCommonListAPICall = 'failed';
       })
-      .addCase(getCommonListsAPICall.pending, (state, action) => {
+      .addCase(getCommonListsAPICall.pending, (state) => {
         state.loadingMessage = 'Fetching Common Groups...';
         state.statuses.getCommonListsAPICall = 'loading';
       })
@@ -258,39 +255,39 @@ export const peopleSlice = createSlice({
             JSON.stringify(action.payload.responseData),
           );
           state.commonLists = state.commonLists.filter(
-            eachCommonList =>
+            (eachCommonList) =>
               eachCommonList.createdBy === auth().currentUser?.uid,
           );
         }
         state.statuses.getCommonListsAPICall = 'succeedded';
       })
-      .addCase(getCommonListsAPICall.rejected, (state, action) => {
+      .addCase(getCommonListsAPICall.rejected, (state) => {
         state.statuses.getCommonListsAPICall = 'failed';
       })
-      .addCase(removeCustomListAPICall.pending, (state, action) => {
+      .addCase(removeCustomListAPICall.pending, (state) => {
         state.loadingMessage = 'Deleting the Common Group...';
         state.statuses.removeCustomListAPICall = 'loading';
       })
       .addCase(removeCustomListAPICall.fulfilled, (state, action) => {
         state.commonLists = state.commonLists.filter(
-          eachList => eachList.commonListId !== action.meta.arg.customListId,
+          (eachList) => eachList.commonListId !== action.meta.arg.customListId,
         );
         state.statuses.removeCustomListAPICall = 'succeedded';
       })
-      .addCase(removeCustomListAPICall.rejected, (state, action) => {
+      .addCase(removeCustomListAPICall.rejected, (state) => {
         state.statuses.removeCustomListAPICall = 'failed';
       })
-      .addCase(updateCommonListAPICall.pending, (state, action) => {
+      .addCase(updateCommonListAPICall.pending, (state) => {
         state.loadingMessage = 'Updating the Common Group...';
         state.statuses.updateCommonListAPICall = 'loading';
       })
-      .addCase(updateCommonListAPICall.fulfilled, (state, action) => {
+      .addCase(updateCommonListAPICall.fulfilled, (state) => {
         state.statuses.updateCommonListAPICall = 'succeedded';
       })
-      .addCase(updateCommonListAPICall.rejected, (state, action) => {
+      .addCase(updateCommonListAPICall.rejected, (state) => {
         state.statuses.updateCommonListAPICall = 'failed';
       })
-      .addCase(getSearchedPeopleAPICall.pending, (state, action) => {
+      .addCase(getSearchedPeopleAPICall.pending, (state) => {
         state.statuses.getSearchedPeopleAPICall = 'loading';
       })
       .addCase(getSearchedPeopleAPICall.fulfilled, (state, action) => {
@@ -302,10 +299,10 @@ export const peopleSlice = createSlice({
         }
         state.statuses.getSearchedPeopleAPICall = 'succeedded';
       })
-      .addCase(getSearchedPeopleAPICall.rejected, (state, action) => {
+      .addCase(getSearchedPeopleAPICall.rejected, (state) => {
         state.statuses.getSearchedPeopleAPICall = 'failed';
       })
-      .addCase(getNextSearchedEventJoinersAPICall.pending, (state, action) => {
+      .addCase(getNextSearchedEventJoinersAPICall.pending, (state) => {
         state.statuses.getNextSearchedEventJoinersAPICall = 'loading';
       })
       .addCase(
@@ -317,10 +314,10 @@ export const peopleSlice = createSlice({
           state.statuses.getNextSearchedEventJoinersAPICall = 'succeedded';
         },
       )
-      .addCase(getNextSearchedEventJoinersAPICall.rejected, (state, action) => {
+      .addCase(getNextSearchedEventJoinersAPICall.rejected, (state) => {
         state.statuses.getNextSearchedEventJoinersAPICall = 'failed';
       })
-      .addCase(getDeviceContactsAPICall.pending, (state, action) => {
+      .addCase(getDeviceContactsAPICall.pending, (state) => {
         state.statuses.getDeviceContactsAPICall = 'loading';
         state.loadingMessage = 'Fetching contacts....';
       })
@@ -340,7 +337,7 @@ export const peopleSlice = createSlice({
         }
         state.statuses.getDeviceContactsAPICall = 'succeedded';
       })
-      .addCase(getDeviceContactsAPICall.rejected, (state, action) => {
+      .addCase(getDeviceContactsAPICall.rejected, (state) => {
         state.statuses.getDeviceContactsAPICall = 'failed';
       });
   },
@@ -353,7 +350,7 @@ export const {
   updatePeople,
   updateContacts,
   updateOriginalContacts,
-  updateSelected
+  updateSelected,
 } = peopleSlice.actions;
 export default peopleSlice.reducer;
 
@@ -373,8 +370,8 @@ export const addPeopleAPICall = createAsyncThunk<
       return await firestore()
         .collection(apiUrls.people)
         .add(requestObject)
-        .then(res => {
-          return {message: 'Guest added successfully'};
+        .then(() => {
+          return { message: 'Guest added successfully' };
         });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
@@ -400,12 +397,12 @@ export const addPeopleInBatchAPICall = createAsyncThunk<
   async (users: Omit<EachPerson, 'userId'>[], thunkAPI) => {
     try {
       const batch = firestore().batch();
-      users.forEach(user => {
+      users.forEach((user) => {
         const userRef = firestore().collection(apiUrls.people).doc(); // Create a new document reference
         batch.set(userRef, user); // Add the user object to the batch
       });
-      return batch.commit().then(res => {
-        return {message: 'Guests added successfully'};
+      return batch.commit().then(() => {
+        return { message: 'Guests added successfully' };
       });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
@@ -430,14 +427,14 @@ export const removePeopleAPICall = createAsyncThunk<
   {
     rejectValue: MessageType;
   }
->('people/removePeople', async (requestObj: {userId: string}, thunkAPI) => {
+>('people/removePeople', async (requestObj: { userId: string }, thunkAPI) => {
   try {
     return await firestore()
       .collection(apiUrls.people)
       .doc(requestObj.userId)
       .delete()
-      .then(res => {
-        return {message: 'Guest removed successfully'};
+      .then(() => {
+        return { message: 'Guest removed successfully' };
       });
   } catch (err: any) {
     return thunkAPI.rejectWithValue({
@@ -468,8 +465,8 @@ export const getPeopleAPICall = createAsyncThunk<
       .orderBy('createdAt', 'desc')
       .limit(PAGINATION_CONSTANT)
       .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(documentSnapshot => {
+      .then((querySnapshot) => {
+        querySnapshot.forEach((documentSnapshot) => {
           let updatedObj = JSON.parse(JSON.stringify(documentSnapshot.data()));
           updatedObj.userId = documentSnapshot.id;
           responseArr.push(updatedObj);
@@ -518,7 +515,7 @@ export const updatePeopleAPICall = createAsyncThunk<
         .collection(apiUrls.people)
         .doc(requestObj.userId)
         .update(requestObj.newUpdate)
-        .then(res => {
+        .then(() => {
           return {
             message: 'Guest updated successfully!',
           };
@@ -551,7 +548,7 @@ export const getNextEventJoinersAPICall = createAsyncThunk<
   }
 >(
   'events/getNextEventJoiners',
-  async (_, {dispatch, getState, rejectWithValue}) => {
+  async (_, { dispatch, getState, rejectWithValue }) => {
     //this callback is called as payload creator callback.
     let responseArr: EachPerson[] = [];
     try {
@@ -565,8 +562,8 @@ export const getNextEventJoinersAPICall = createAsyncThunk<
         .startAfter(lastDocFetched)
         .limit(PAGINATION_CONSTANT)
         .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(documentSnapshot => {
+        .then((querySnapshot) => {
+          querySnapshot.forEach((documentSnapshot) => {
             let updatedObj = JSON.parse(
               JSON.stringify(documentSnapshot.data()),
             );
@@ -639,13 +636,13 @@ export const addCommonListAPICall = createAsyncThunk<
       const batch = firestore().batch();
 
       // Iterate through the array of documents and add them to the batch
-      requestObj.users.forEach(doc => {
+      requestObj.users.forEach((doc) => {
         const docRef = commonListDoc.collection(apiUrls.commonListUsers).doc();
         batch.set(docRef, doc);
       });
 
-      return await batch.commit().then(res => {
-        return {message: 'Common Group Created Successfully!'};
+      return await batch.commit().then(() => {
+        return { message: 'Common Group Created Successfully!' };
       });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
@@ -682,7 +679,7 @@ export const updateCommonListAPICall = createAsyncThunk<
       await firestore()
         .collection(apiUrls.commonList)
         .doc(requestObj.commonListId)
-        .update({commonListName: requestObj.commonListName});
+        .update({ commonListName: requestObj.commonListName });
 
       const commonListDoc = firestore()
         .collection(apiUrls.commonList)
@@ -693,14 +690,14 @@ export const updateCommonListAPICall = createAsyncThunk<
 
       // add a multiple documents using batch to the CommonListUsers subcollection within CommonList Collection
       // Iterate through the array of users and add them to the batch
-      requestObj.newlyAddedUsers.forEach(doc => {
+      requestObj.newlyAddedUsers.forEach((doc) => {
         const docRef = commonListDoc.collection(apiUrls.commonListUsers).doc();
         batch.set(docRef, doc);
       });
 
       //update already existing users
       //Iterate through the array of users and update them in the batch
-      requestObj.alreadyExistingUsers.forEach(doc => {
+      requestObj.alreadyExistingUsers.forEach((doc) => {
         const docRef = commonListDoc
           .collection(apiUrls.commonListUsers)
           .doc(doc.userId);
@@ -713,7 +710,7 @@ export const updateCommonListAPICall = createAsyncThunk<
 
       //delete the users
 
-      requestObj.removedUserIds.forEach(userId => {
+      requestObj.removedUserIds.forEach((userId) => {
         const docRef = commonListDoc
           .collection(apiUrls.commonListUsers)
           .doc(userId);
@@ -721,8 +718,8 @@ export const updateCommonListAPICall = createAsyncThunk<
       });
 
       //commit all users to the subcollection.
-      return await batch.commit().then(res => {
-        return {message: 'Common Group Updated Successfully!'};
+      return await batch.commit().then(() => {
+        return { message: 'Common Group Updated Successfully!' };
       });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
@@ -770,8 +767,8 @@ export const getCommonListsAPICall = createAsyncThunk<
       //.where('createdBy', '==', auth().currentUser?.uid)
       .orderBy('createdAt', 'desc')
       .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(documentSnapshot => {
+      .then((querySnapshot) => {
+        querySnapshot.forEach((documentSnapshot) => {
           let updatedObj: CommonListObject = JSON.parse(
             JSON.stringify(documentSnapshot.data()),
           );
@@ -783,14 +780,14 @@ export const getCommonListsAPICall = createAsyncThunk<
       });
 
     //here get the users for each common list squentially in the array using map.
-    let arrayOfPromises = commonListArr.map(async eachCommonList => {
+    let arrayOfPromises = commonListArr.map(async (eachCommonList) => {
       return await commonListRef
         .doc(eachCommonList.commonListId)
         .collection(apiUrls.commonListUsers)
         .get()
-        .then(querySnapshot => {
+        .then((querySnapshot) => {
           const updatedUsers: EachUserInCommonList[] = querySnapshot.docs.map(
-            documentSnapshot => {
+            (documentSnapshot) => {
               const updatedUser: EachUserInCommonList = JSON.parse(
                 JSON.stringify(documentSnapshot.data()),
               );
@@ -809,7 +806,7 @@ export const getCommonListsAPICall = createAsyncThunk<
     });
 
     //here As API are already called inside MAP method, Promise.all is used to wait for all promises to successfull.
-    return await Promise.all(arrayOfPromises).then(res => {
+    return await Promise.all(arrayOfPromises).then((res) => {
       //return the resolved promise with data.
       return {
         responseData: res,
@@ -840,7 +837,7 @@ export const removeCustomListAPICall = createAsyncThunk<
   }
 >(
   'people/removeCustomList',
-  async (requestObj: {customListId: string}, thunkAPI) => {
+  async (requestObj: { customListId: string }, thunkAPI) => {
     try {
       //here first delete all users in common list
       await firestore()
@@ -848,8 +845,8 @@ export const removeCustomListAPICall = createAsyncThunk<
         .doc(requestObj.customListId)
         .collection(apiUrls.commonListUsers)
         .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(documentSnapshot => {
+        .then((querySnapshot) => {
+          querySnapshot.forEach((documentSnapshot) => {
             documentSnapshot.ref.delete();
           });
         });
@@ -858,8 +855,8 @@ export const removeCustomListAPICall = createAsyncThunk<
         .collection(apiUrls.commonList)
         .doc(requestObj.customListId)
         .delete()
-        .then(res => {
-          return {message: 'Common Group deleted successfully'};
+        .then(() => {
+          return { message: 'Common Group deleted successfully' };
         });
     } catch (err: any) {
       return thunkAPI.rejectWithValue({
@@ -887,7 +884,7 @@ export const getSearchedPeopleAPICall = createAsyncThunk<
   }
 >(
   'events/getSearchedPeople',
-  async (requestObj: {searchedValue: string}, thunkAPI) => {
+  async (requestObj: { searchedValue: string }, thunkAPI) => {
     let responseArr: EachPerson[] = [];
     try {
       return await firestore()
@@ -897,8 +894,8 @@ export const getSearchedPeopleAPICall = createAsyncThunk<
         .endAt(requestObj.searchedValue + '\uf8ff')
         .limit(PAGINATION_CONSTANT)
         .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(documentSnapshot => {
+        .then((querySnapshot) => {
+          querySnapshot.forEach((documentSnapshot) => {
             let updatedObj = JSON.parse(
               JSON.stringify(documentSnapshot.data()),
             );
@@ -942,8 +939,8 @@ export const getNextSearchedEventJoinersAPICall = createAsyncThunk<
 >(
   'events/getNextSearchedEventJoiners',
   async (
-    requestObj: {searchedValue: string},
-    {dispatch, getState, rejectWithValue},
+    requestObj: { searchedValue: string },
+    { dispatch, getState, rejectWithValue },
   ) => {
     //this callback is called as payload creator callback.
     let responseArr: EachPerson[] = [];
@@ -959,8 +956,8 @@ export const getNextSearchedEventJoinersAPICall = createAsyncThunk<
         .endAt(requestObj.searchedValue + '\uf8ff')
         .limit(PAGINATION_CONSTANT)
         .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(documentSnapshot => {
+        .then((querySnapshot) => {
+          querySnapshot.forEach((documentSnapshot) => {
             let updatedObj = JSON.parse(
               JSON.stringify(documentSnapshot.data()),
             );
@@ -1013,17 +1010,23 @@ export const getDeviceContactsAPICall = createAsyncThunk<
 >('events/getDeviceContacts', async (_, thunkAPI) => {
   let responseArr: EachContact[] = [];
   try {
-    return await Contacts.getAll().then(contacts => {
+    return await Contacts.getAll().then((contacts) => {
       //return the resolved promise with data.
-      contacts.forEach(eachContact => {
+      contacts.forEach((eachContact) => {
         if (eachContact.displayName)
           responseArr.push({
             contactName: eachContact.displayName,
             contactId: eachContact.recordID,
             contactAvatar: eachContact.thumbnailPath || '',
-            contactPhoneNumber: (eachContact.phoneNumbers.length > 0 && eachContact.phoneNumbers[0].number) || '',
-            contactEmailAddress: (eachContact.emailAddresses.length > 0 && eachContact.emailAddresses[0].email) || '',
-            selected: false
+            contactPhoneNumber:
+              (eachContact.phoneNumbers.length > 0 &&
+                eachContact.phoneNumbers[0].number) ||
+              '',
+            contactEmailAddress:
+              (eachContact.emailAddresses.length > 0 &&
+                eachContact.emailAddresses[0].email) ||
+              '',
+            selected: false,
           });
       });
       return {

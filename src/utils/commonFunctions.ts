@@ -38,8 +38,7 @@ export const getTime = (time: Date) => {
   return moment(time).format('LT');
 };
 
-
-export const setAsyncStorage = async (key: string, value: string ) => {
+export const setAsyncStorage = async (key: string, value: string) => {
   try {
     await AsyncStorage.setItem(key, value);
   } catch (e) {
@@ -47,22 +46,22 @@ export const setAsyncStorage = async (key: string, value: string ) => {
   }
 };
 
-export const getAsyncStorage = async (key : string): Promise<string> => {
+export const getAsyncStorage = async (key: string): Promise<string> => {
   try {
     const value = await AsyncStorage.getItem(key);
     if (value !== null) {
       // value previously stored
       return value;
-    } else return "";
+    } else return '';
   } catch (e) {
     // error reading value
-    return "";
+    return '';
   }
 };
 
 export const getInviteCode = () => {
   return auth().currentUser?.uid.slice(0, 10);
-}
+};
 
 type ValidationObject = {
   isValid: boolean;
