@@ -28,27 +28,27 @@ const InputComponent = ({
     <View>
       <View style={styles.textInputWrapper}>
         {
-         label && (isFocused || value!== "") ? (
-          <View style={styles.topView}>
-          <TextComponent 
-            style={{ fontSize: 14, color: colors[theme].textColor }}
-            weight='semibold'>
-              {label}
-          </TextComponent>
-          {required ? (
-          <TextComponent
-            weight="semibold"
-            style={{
-              color: colors[theme].errorColor,
-              marginLeft: 5,
-              fontSize: 17,
-            }}
-          >
-            *
-          </TextComponent>
-        ) : null}
-          </View>
-         ) : null
+          label && (isFocused || value !== "") ? (
+            <View style={styles.topView}>
+              <TextComponent
+                style={{ fontSize: 14, color: colors[theme].textColor }}
+                weight='semibold'>
+                {label}
+              </TextComponent>
+              {required ? (
+                <TextComponent
+                  weight="semibold"
+                  style={{
+                    color: colors[theme].errorColor,
+                    marginLeft: 5,
+                    fontSize: 17,
+                  }}
+                >
+                  *
+                </TextComponent>
+              ) : null}
+            </View>
+          ) : null
         }
         <TextInput
           style={[
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    overflow: 'hidden',    
+    overflow: 'hidden',
     position: "relative"
   },
   input: {
@@ -112,11 +112,11 @@ const styles = StyleSheet.create({
     zIndex: 1,
 
   },
-  topView: { 
-    flexDirection: 'row', 
-    position: "absolute", 
-    top: 0, 
-    left: 15, 
-    zIndex: 2 
+  topView: {
+    flexDirection: 'row',
+    position: "absolute",
+    top: 0,
+    left: 15,
+    zIndex: 2
   }
 });
